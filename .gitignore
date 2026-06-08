@@ -1,0 +1,11 @@
+# Secrets — never commit your real endpoint token
+.env
+
+# Your own work — you write code here as you follow the lessons
+work/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
