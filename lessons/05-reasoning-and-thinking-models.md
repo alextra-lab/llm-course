@@ -24,6 +24,15 @@ Recall the **harmony** format from Section 1: that's exactly what its *channels*
 `response.choices[0].message.reasoning_content` *(str)* alongside the normal
 `response.choices[0].message.content` *(str)*.
 
+> **This section needs a reasoning model on a reasoning-aware endpoint.** It's written for
+> `gpt-oss-120b` served by vLLM. If you point the course at a plain (non-reasoning) chat
+> model, or at an endpoint that doesn't surface the reasoning channel, the scripts still
+> run — but `reasoning_content` comes back empty and `reasoning_tokens` reads `0`/`n/a`,
+> and `reasoning_effort` may be ignored or rejected. **That's expected, not a bug:** the
+> code handles all of these (note the `getattr(...)` and `try/except` below). To *see* the
+> behavior this lesson describes, you need an actual reasoning model. Everything else in
+> the course works the same on any OpenAI-compatible endpoint.
+
 ### See the thinking
 
 Create **`work/reasoning.py`** with a classic trick question (the intuitive answer is
