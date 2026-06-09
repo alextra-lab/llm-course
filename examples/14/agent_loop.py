@@ -75,6 +75,7 @@ def run_agent(question: str, max_steps: int = 5) -> str:
         })
         for tc in msg.tool_calls:
             fn = TOOLS.get(tc.function.name)
+            args = tc.function.arguments             # raw JSON string until parsed below
             try:
                 args = json.loads(tc.function.arguments)
                 result = fn(**args) if fn else f"error: unknown tool {tc.function.name}"

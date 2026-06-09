@@ -31,6 +31,13 @@ base_url = require_env("OPENAI_BASE_URL").rstrip("/")
 api_key = require_env("OPENAI_API_KEY")
 model = require_env("MODEL")
 
+# TLS verification. On a machine where HTTPS verification fails (corporate proxy,
+# self-signed endpoint, stale CA store) point OPENAI_CA_BUNDLE at a trusted CA, or
+# set OPENAI_INSECURE=1 to skip checks (insecure). See the README troubleshooting.
+verify = False if os.environ.get("OPENAI_INSECURE", "").lower() in ("1", "true", "yes") \
+    else (os.environ.get("OPENAI_CA_BUNDLE") or os.environ.get("REQUESTS_CA_BUNDLE")
+          or os.environ.get("SSL_CERT_FILE") or True)
+
 # The chat endpoint lives at <base_url>/chat/completions.
 url = f"{base_url}/chat/completions"
 
@@ -48,7 +55,7 @@ headers = {
     "Content-Type": "application/json",
 }
 
-response = requests.post(url, headers=headers, json=payload, timeout=30)
+response = requests.post(url, headers=headers, json=payload, timeout=30, verify=verify)
 response.raise_for_status()  # turn an HTTP 4xx/5xx into a Python exception
 data = response.json()
 

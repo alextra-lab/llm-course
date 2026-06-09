@@ -85,6 +85,7 @@ def run_agent(task: str, max_steps: int = 6) -> str:
                          "tool_calls": [tc.model_dump() for tc in msg.tool_calls]})
         for tc in msg.tool_calls:
             fn = TOOLS.get(tc.function.name)        # registry => only known tools run
+            args = tc.function.arguments            # raw JSON string until parsed below
             try:
                 args = json.loads(tc.function.arguments)
                 result = fn(**args) if fn else f"error: unknown tool {tc.function.name}"

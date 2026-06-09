@@ -21,6 +21,12 @@ base_url = os.environ["OPENAI_BASE_URL"].rstrip("/")
 api_key = os.environ["OPENAI_API_KEY"]
 model = os.environ.get("MODEL", "openai/gpt-oss-120b")
 
+# TLS verification (see README "Troubleshooting: SSL / certificates"). Point
+# OPENAI_CA_BUNDLE at a trusted CA, or set OPENAI_INSECURE=1 to skip (insecure).
+verify = False if os.environ.get("OPENAI_INSECURE", "").lower() in ("1", "true", "yes") \
+    else (os.environ.get("OPENAI_CA_BUNDLE") or os.environ.get("REQUESTS_CA_BUNDLE")
+          or os.environ.get("SSL_CERT_FILE") or True)
+
 resp = requests.post(
     f"{base_url}/chat/completions",
     headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
@@ -31,6 +37,7 @@ resp = requests.post(
     },
     stream=True,  # tell requests not to buffer the whole body
     timeout=60,
+    verify=verify,
 )
 resp.raise_for_status()
 

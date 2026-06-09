@@ -13,7 +13,7 @@ Two upgrades over plain JSON mode:
 import sys
 from pathlib import Path
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))  # the examples/ dir
 from common import get_client, MODEL
@@ -23,6 +23,10 @@ client = get_client()
 
 # 1. Describe the shape we want, once, as a Pydantic model.
 class Person(BaseModel):
+    # extra="forbid" makes the schema include "additionalProperties": false, which
+    # strict schema mode requires (some servers, e.g. OpenAI, reject it otherwise).
+    model_config = ConfigDict(extra="forbid")
+
     name: str
     age: int
     hobbies: list[str]

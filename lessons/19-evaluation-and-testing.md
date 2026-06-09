@@ -72,12 +72,13 @@ the answer, and a rubric, and ask for a structured score — validated with Pyda
 (Section 6) so a score is always a number in range. Create **`work/judge.py`**:
 
 ```python
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from common import get_client, MODEL
 
 client = get_client()
 
 class Verdict(BaseModel):
+    model_config = ConfigDict(extra="forbid")  # -> "additionalProperties": false (strict mode)
     score: int = Field(ge=1, le=5)
     reason: str
 

@@ -76,6 +76,38 @@ python examples/01/raw_http.py      # your first completion, the raw HTTP way
 
 If `list_models.py` prints a model id and `raw_http.py` prints a greeting, you're ready.
 
+### Troubleshooting: SSL / certificates
+
+If that first call fails with an SSL error — `CERTIFICATE_VERIFY_FAILED`, or the SDK's
+vaguer `APIConnectionError: Connection error.` — Python can't verify the endpoint's TLS
+certificate. This is common on a machine behind a corporate proxy that inspects HTTPS, in
+front of a self-signed endpoint, or with an out-of-date CA store. Fix it **without editing
+any code** — set one of these in your `.env` (then re-run `set -a; source .env; set +a`):
+
+- **Preferred (stays secure): trust the right CA.** Point at the CA bundle / certificate
+  your network uses. The standard `SSL_CERT_FILE` works for *every* script in the course
+  (both the SDK and the raw-`requests` examples):
+
+  ```bash
+  SSL_CERT_FILE=/path/to/corporate-ca.pem
+  ```
+
+  Ask your IT team for the proxy's root certificate, or export it from your system keychain.
+  (`OPENAI_CA_BUNDLE` and `REQUESTS_CA_BUNDLE` are also honored by the shared client in
+  `examples/common.py` and the raw-`requests` scripts; `SSL_CERT_FILE` is the one that
+  additionally covers Section 1's by-hand SDK demo, so reach for it first.)
+
+- **Last resort (insecure): skip verification.**
+
+  ```bash
+  OPENAI_INSECURE=1
+  ```
+
+  This turns off certificate checking for the shared client (`examples/common.py`, used from
+  Section 2 on) and the raw-`requests` scripts. It removes protection against
+  man-in-the-middle attacks, so only use it on a network you trust — prefer the CA-bundle
+  option above whenever you can.
+
 ## How this course works
 
 **You write the code.** Each section guides you through building small scripts yourself,
