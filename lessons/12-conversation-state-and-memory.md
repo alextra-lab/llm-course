@@ -78,6 +78,11 @@ both in **`work/trim.py`**:
 **1. Sliding window** — keep the system message plus the last N turns, drop the rest:
 
 ```python
+from common import get_client, MODEL
+
+client = get_client()
+
+
 def sliding_window(history, keep_turns=4):
     system = [m for m in history if m["role"] == "system"]
     rest = [m for m in history if m["role"] != "system"]

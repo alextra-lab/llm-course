@@ -69,13 +69,17 @@ your `requirements.txt`).
 Create **`work/schema.py`**:
 
 ```python
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from common import get_client, MODEL
 
 client = get_client()
 
 # 1. Describe the shape ONCE, as types.
 class Person(BaseModel):
+    # extra="forbid" -> schema gets "additionalProperties": false, which strict
+    # mode requires (some servers, e.g. OpenAI, reject the schema without it).
+    model_config = ConfigDict(extra="forbid")
+
     name: str
     age: int
     hobbies: list[str]

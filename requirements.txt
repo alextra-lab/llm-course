@@ -1,4 +1,5 @@
 requests
 openai
+httpx
 pydantic
 numpy

@@ -12,7 +12,7 @@ Pydantic (Section 6) so a score is always a number in range.
 import sys
 from pathlib import Path
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))  # the examples/ dir
 from common import get_client, MODEL
@@ -21,6 +21,8 @@ client = get_client()
 
 
 class Verdict(BaseModel):
+    model_config = ConfigDict(extra="forbid")  # -> "additionalProperties": false (strict mode)
+
     score: int = Field(ge=1, le=5)      # 1 = poor, 5 = excellent
     reason: str
 

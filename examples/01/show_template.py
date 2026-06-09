@@ -22,6 +22,12 @@ api_key = os.environ["OPENAI_API_KEY"]
 model = os.environ["MODEL"]
 headers = {"Authorization": f"Bearer {api_key}"}
 
+# TLS verification (see README "Troubleshooting: SSL / certificates"). Point
+# OPENAI_CA_BUNDLE at a trusted CA, or set OPENAI_INSECURE=1 to skip (insecure).
+verify = False if os.environ.get("OPENAI_INSECURE", "").lower() in ("1", "true", "yes") \
+    else (os.environ.get("OPENAI_CA_BUNDLE") or os.environ.get("REQUESTS_CA_BUNDLE")
+          or os.environ.get("SSL_CERT_FILE") or True)
+
 messages = [
     {"role": "system", "content": "You are a concise, friendly assistant."},
     {"role": "user", "content": "Say hello in one short sentence."},
@@ -42,6 +48,7 @@ try:
             "return_token_strs": True,      # also give us the text of each token
         },
         timeout=30,
+        verify=verify,
     )
     resp.raise_for_status()
     body = resp.json()
@@ -69,6 +76,7 @@ else:
         headers=headers,
         json={"model": model, "messages": messages, "max_tokens": 1},
         timeout=30,
+        verify=verify,
     )
     resp.raise_for_status()
     print("=== prompt token count (from usage) ===")

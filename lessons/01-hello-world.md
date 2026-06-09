@@ -127,6 +127,12 @@ python work/hello.py
 You should get a one-sentence greeting back. **You just called a language model by
 hand.** Let's make sure you know what every piece did:
 
+> **Hit an SSL error instead?** If this fails with `CERTIFICATE_VERIFY_FAILED` (or the
+> SDK's vaguer `Connection error.`), your machine can't verify the endpoint's certificate —
+> common behind a corporate proxy. See the README's
+> [Troubleshooting: SSL / certificates](../README.md#troubleshooting-ssl--certificates):
+> usually setting `SSL_CERT_FILE` to your CA bundle in your `.env` fixes it.
+
 - **`payload`** is the entire request body. The important part is `messages` — a list of
   turns, each with a `role` and `content` (more on roles below).
 - **`headers`** carry your token (`Authorization: Bearer ...`) and say the body is JSON.
