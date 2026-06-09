@@ -1,0 +1,42 @@
+name: CI
+
+# Static checks only — no network calls and no API key required, so this runs
+# on every push/PR without secrets. It verifies the course code is well-formed,
+# its dependencies are declared, and the lesson snippets are self-contained.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt ruff
+
+      - name: Lint (Pyflakes rules — undefined names, unused imports)
+        run: ruff check --select F examples scripts
+
+      - name: Compile all example and script sources
+        run: python -m py_compile examples/common.py examples/*/*.py scripts/*.py
+
+      - name: Imports resolve (declared deps cover direct imports)
+        run: python -c "import sys; sys.path.insert(0, 'examples'); import common; print('common imports OK')"
+
+      - name: Lesson snippets are self-contained
+        run: python scripts/check_lessons.py
