@@ -97,6 +97,16 @@ any code** — set one of these in your `.env` (then re-run `set -a; source .env
   `examples/common.py` and the raw-`requests` scripts; `SSL_CERT_FILE` is the one that
   additionally covers Section 1's by-hand SDK demo, so reach for it first.)
 
+  > **Why several variables?** Outside this course's `verify=` handling they target
+  > *different* HTTP stacks and don't interact: `REQUESTS_CA_BUNDLE` is read **only** by the
+  > `requests` library (Sections 1 and 7), while `SSL_CERT_FILE` is an OpenSSL-level variable
+  > read by `httpx` — the stack the OpenAI SDK uses (`requests` ignores `SSL_CERT_FILE`, and
+  > `httpx` ignores `REQUESTS_CA_BUNDLE`). The course scripts read all three and pass
+  > whichever is set as an explicit `verify=`, so you normally only need **one** — and
+  > `SSL_CERT_FILE` is the safest single choice because it also reaches the plain SDK client
+  > in Section 1. They don't merge: it's first-set-wins on a single bundle file, not a union
+  > of CAs, so put every CA you need into one file.
+
 - **Last resort (insecure): skip verification.**
 
   ```bash
