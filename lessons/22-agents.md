@@ -1,4 +1,8 @@
-# Section 22 — Agents
+---
+title: 'Agents'
+linkTitle: '22. Agents'
+weight: 22
+---
 
 **Goal:** assemble the pieces you've built into an **agent** — the tool loop (Section 14)
 given a goal, a system prompt that makes it plan, and several tools (including search) it

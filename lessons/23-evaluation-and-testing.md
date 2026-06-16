@@ -1,4 +1,8 @@
-# Section 23 — Evaluation & Testing
+---
+title: 'Evaluation & Testing'
+linkTitle: '23. Evaluation & Testing'
+weight: 23
+---
 
 **Goal:** answer the question "is it actually any good — and did my change help or hurt?"
 You'll build two complementary evaluators: **golden tests** for tasks with a checkable

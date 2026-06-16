@@ -1,4 +1,8 @@
-# Section 6 — Handling & Validating Responses (Structured Output)
+---
+title: 'Handling & Validating Responses (Structured Output)'
+linkTitle: '6. Handling & Validating Responses (Structured Output)'
+weight: 6
+---
 
 **Goal:** stop treating model output as text you eyeball and start treating it as **data
 your code can rely on**. You'll write scripts that go from "the model returned

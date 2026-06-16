@@ -1,4 +1,8 @@
-# Section 7 — Blocking vs Streaming
+---
+title: 'Blocking vs Streaming'
+linkTitle: '7. Blocking vs Streaming'
+weight: 7
+---
 
 **Goal:** learn the two ways to receive a response — **blocking** (wait for the whole
 thing) and **streaming** (receive it token by token) — by building streaming yourself,

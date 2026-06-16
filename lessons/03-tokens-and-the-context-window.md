@@ -1,4 +1,8 @@
-# Section 3 — Tokens & the Context Window
+---
+title: 'Tokens & the Context Window'
+linkTitle: '3. Tokens & the Context Window'
+weight: 3
+---
 
 **Goal:** make the word "token" concrete by *measuring* it yourself — through the server,
 no local tokenizer — then turn it into the most important practical constraint you work

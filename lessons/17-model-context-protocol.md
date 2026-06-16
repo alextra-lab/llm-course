@@ -1,4 +1,8 @@
-# Section 17 — Model Context Protocol (MCP)
+---
+title: 'Model Context Protocol (MCP)'
+linkTitle: '17. Model Context Protocol (MCP)'
+weight: 17
+---
 
 **Goal:** understand MCP as the *standard* way to expose and consume tools — so a set of
 tools (and data sources) can live behind a server and be reused across many apps and

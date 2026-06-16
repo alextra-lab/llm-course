@@ -1,4 +1,8 @@
-# Section 2 — Anatomy of a Response
+---
+title: 'Anatomy of a Response'
+linkTitle: '2. Anatomy of a Response'
+weight: 2
+---
 
 **Goal:** before turning any knobs, get comfortable with what the server *returns*.
 You'll write a small script that prints a whole response and pulls it apart field by

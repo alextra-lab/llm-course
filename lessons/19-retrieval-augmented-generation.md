@@ -1,4 +1,8 @@
-# Section 19 — Retrieval-Augmented Generation (RAG)
+---
+title: 'Retrieval-Augmented Generation (RAG)'
+linkTitle: '19. Retrieval-Augmented Generation (RAG)'
+weight: 19
+---
 
 **Goal:** make the model answer from *your* documents instead of its training data (or
 its imagination). You'll build a small RAG pipeline end to end — embed a corpus, retrieve

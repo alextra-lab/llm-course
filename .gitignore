@@ -9,3 +9,14 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+
+# Hugo site build artifacts
+/public/
+/resources/_gen/
+.hugo_build.lock
+
+# Node (Docsy PostCSS build deps)
+node_modules/
+
+# Playwright MCP scratch (local preview screenshots/snapshots)
+.playwright-mcp/

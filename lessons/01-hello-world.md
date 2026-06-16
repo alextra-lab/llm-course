@@ -1,4 +1,8 @@
-# Section 1 — Hello World
+---
+title: 'Hello World'
+linkTitle: '1. Hello World'
+weight: 1
+---
 
 **Goal:** *write*, by hand, your first two programs that talk to a language model — one
 using raw HTTP, one using the official SDK — and build the right mental model of what's

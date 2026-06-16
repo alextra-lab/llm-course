@@ -1,4 +1,8 @@
-# Section 4 — Sampling Parameters (Seeing the Effect)
+---
+title: 'Sampling Parameters (Seeing the Effect)'
+linkTitle: '4. Sampling Parameters (Seeing the Effect)'
+weight: 4
+---
 
 **Goal:** understand the knobs that control *how the model chooses each word* — and
 **watch them work** by writing the experiments yourself. By the end you'll know what

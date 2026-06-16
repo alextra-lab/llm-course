@@ -1,4 +1,8 @@
-# Section 12 — Conversation State & Memory
+---
+title: 'Conversation State & Memory'
+linkTitle: '12. Conversation State & Memory'
+weight: 12
+---
 
 **Goal:** understand that the API is **stateless** — it remembers nothing between calls —
 and build a multi-turn conversation yourself by keeping the history. Then learn to keep

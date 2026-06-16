@@ -1,4 +1,8 @@
-# Section 14 — The Tool-Use Loop
+---
+title: 'The Tool-Use Loop'
+linkTitle: '14. The Tool-Use Loop'
+weight: 14
+---
 
 **Goal:** turn the single tool round trip from Section 13 into a **loop** — call the
 model, run whatever tools it asks for, feed the results back, and repeat until it's done.

@@ -1,4 +1,8 @@
-# Section 16 — Sandboxing II: Containers, Postgres & Production Isolation
+---
+title: 'Sandboxing II: Containers, Postgres & Production Isolation'
+linkTitle: '16. Sandboxing II: Containers, Postgres & Production Isolation'
+weight: 16
+---
 
 **Goal:** climb the isolation ladder from Section 15. Process limits cap CPU and memory but
 leave the filesystem and network open. A **container** closes that gap; a locked-down

@@ -1,4 +1,8 @@
-# Section 21 — Skills / Skill Injection
+---
+title: 'Skills / Skill Injection'
+linkTitle: '21. Skills / Skill Injection'
+weight: 21
+---
 
 **Goal:** understand *skills* — packaged units of instructions (and often code and
 resources) that are disclosed into the model's context on demand — and why injecting a

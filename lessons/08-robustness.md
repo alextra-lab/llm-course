@@ -1,4 +1,8 @@
-# Section 8 — Robustness: Errors, Retries, Rate Limits, Timeouts
+---
+title: 'Robustness: Errors, Retries, Rate Limits, Timeouts'
+linkTitle: '8. Robustness: Errors, Retries, Rate Limits, Timeouts'
+weight: 8
+---
 
 **Goal:** turn a script that works on a good day into one that survives a bad one. You'll
 write the error-handling ladder and a retry-with-backoff helper, and learn which failures

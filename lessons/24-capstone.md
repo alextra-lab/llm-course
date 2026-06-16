@@ -1,4 +1,8 @@
-# Section 24 — Capstone
+---
+title: 'Capstone'
+linkTitle: '24. Capstone'
+weight: 24
+---
 
 **Goal:** build one small, real application that ties the whole course together — a
 company support assistant that **retrieves** facts, **uses tools**, runs an **agent
