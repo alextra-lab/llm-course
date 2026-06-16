@@ -37,9 +37,12 @@ here so it runs without an embedding model; in production this would be RAG from
 Section 19):
 
 ```python
-import ast, json, operator
+import ast, json, logging, operator, sys, uuid
 from common import get_client, MODEL
 
+# JSONL telemetry to stdout (redirect it to a file); the final answer to stderr.
+logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
+log = logging.getLogger("agent")
 client = get_client()
 
 DOCS = [
@@ -85,15 +88,22 @@ SYSTEM = ("You are a research agent. Break the task into steps. Use search_docs 
           "invent facts. When you have enough information, give a short final answer.")
 ```
 
-Now the loop — the same engine from Section 14, with the system prompt and registry:
+Now the loop — the same engine from Section 14, with the system prompt, the registry, and
+**joinable logging** (Section 9). Every model call and every tool result is stamped with a
+shared `trace_id` and a `step`, so the whole run reconstructs from the logs:
 
 ```python
-def run_agent(task, max_steps=6):
+def run_agent(task, session_id, max_steps=6):
+    trace_id = uuid.uuid4().hex[:8]              # one trace per agent run
     messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": task}]
     for step in range(max_steps):
         response = client.chat.completions.create(
             model=MODEL, messages=messages, tools=SCHEMAS, tool_choice="auto")
         msg = response.choices[0].message
+        log.info(json.dumps({"event": "model_call", "session_id": session_id,
+            "trace_id": trace_id, "step": step,
+            "tool_calls": [tc.function.name for tc in (msg.tool_calls or [])],
+            "completion_tokens": response.usage.completion_tokens if response.usage else None}))
         if not msg.tool_calls:
             return msg.content
         messages.append({"role": "assistant", "content": msg.content,
@@ -106,22 +116,68 @@ def run_agent(task, max_steps=6):
                 result = fn(**args) if fn else f"error: unknown tool {tc.function.name}"
             except Exception as err:
                 result = f"error: {err}"
-            print(f"  [step {step}] {tc.function.name}({args}) -> {result}")
+            log.info(json.dumps({"event": "tool_call", "session_id": session_id,
+                "trace_id": trace_id, "step": step, "tool": tc.function.name,
+                "args": args, "result": str(result)[:120]}))
             messages.append({"role": "tool", "tool_call_id": tc.id, "content": str(result)})
+    # Hit the cap -- log the degradation loudly; don't return a "fine" answer silently.
+    log.info(json.dumps({"event": "run_degraded", "session_id": session_id,
+        "trace_id": trace_id, "reason": "max_steps", "max_steps": max_steps}))
     return "(stopped: reached max_steps)"
 
-print(run_agent("How much do 3 Acme widgets weigh in total, in kilograms?"))
+session_id = uuid.uuid4().hex[:8]
+answer = run_agent("How much do 3 Acme widgets weigh in total, in kilograms?", session_id)
+print(answer, file=sys.stderr)
 ```
 
 ```bash
 python work/agent.py
 ```
 
-Watch the steps: the agent `search_docs`-es for the widget weight, reads `1.2 kg`,
-`calculate`s `3 * 1.2`, and answers `3.6 kg`. It planned a two-step path you didn't
-hard-code. *(Reference: [`examples/22/agent.py`](../examples/22/agent.py).)*
+Watch the JSONL stream by: a `model_call` line, then the `tool_call` lines it triggered,
+then the next `model_call` — every line sharing one `trace_id`, ordered by `step`. The
+agent `search_docs`-es for the widget weight, reads `1.2 kg`, `calculate`s `3 * 1.2`, and
+answers `3.6 kg` — a two-step path you didn't hard-code, now fully reconstructable from the
+logs. *(Reference: [`examples/22/agent.py`](../examples/22/agent.py).)*
 
 ---
+
+## Trace the whole run
+
+That logging is one of the highest-value things you can add to an agent. A single run makes
+many model calls and tool executions; without a shared key they scatter across your logs as
+unsortable noise — rich instrumentation that still can't answer "what did this run *do*?"
+It's not a missing-log problem, it's a **missing-foreign-key problem** (Section 9). So we
+stamp every record — `model_call` and `tool_call` alike, the *same shape* — with:
+
+- a **`trace_id`** minted once per `run_agent` call (the whole run), and
+- a **`step`** index (the loop iteration), so events read back in order,
+
+while the caller passes a **`session_id`** that can span *several* runs in one conversation.
+These are exactly Section 9's joining ids; here they earn their keep. To replay a run, filter
+on one value:
+
+```bash
+grep '"trace_id": "..."' agent.jsonl     # every model call + tool result, in order
+```
+
+Two habits make this trustworthy:
+
+- **Stamp identity where you write the line, every line.** If the tool half of the loop
+  didn't carry the `trace_id`, half your run would be invisible — and you'd only notice
+  while debugging the run you can't see. An optional join key is one that's missing exactly
+  when you need it.
+- **Make degradation loud.** When the agent stops *short* of finishing — here, hitting
+  `max_steps` — log it as its own event (the `run_degraded` line above) instead of returning
+  a stopped-string the caller might mistake for a real answer. A silent stop that *looks*
+  like success is the worst failure mode. (Tool errors aren't silent either: each is
+  captured in its `tool_call` record's `result` and fed back to the model.) Now "the agent
+  gave a wrong answer" is something you can *investigate* — read the trace, find the step
+  where a tool returned the wrong thing or the model mis-planned.
+
+Production tracing (OpenTelemetry, or hosted tools like LangSmith) formalizes this with
+nested **spans** — each step gets a `span_id` and a `parent_span_id` so sub-steps form a
+tree — but it's the same shared-id idea you just wired in by hand.
 
 ## What makes agents reliable (and what doesn't)
 
@@ -136,8 +192,10 @@ mistake compounds. The habits that keep them sane are ones you've already met:
   doesn't.
 - **Memory management** (Section 12). Long agent runs build long histories — window or
   summarize.
-- **Observability** (Section 9). Log each step; agents are much easier to debug when you
-  can see the tool calls.
+- **Observability** (Section 9). Log each model call *and* tool result with a shared
+  `trace_id` so the whole run joins up, and emit a **loud event when the agent stops short**
+  (hits the cap). One `grep` should replay a run; a silent stop that looks like success is
+  the failure mode you can't debug.
 
 > **Do you even need an agent?** Agents shine when the steps *aren't* known in advance. If
 > you already know the sequence ("retrieve, then summarize"), a plain pipeline is cheaper,
@@ -160,6 +218,11 @@ mistake compounds. The habits that keep them sane are ones you've already met:
    only on tool results" instruction, it says it doesn't know rather than inventing.
 3. **Budget it.** Add a running token counter (sum `usage`, Section 10) and stop the
    agent when it exceeds a cap. *Success:* the agent halts on budget, not just step count.
+4. **Replay a run.** Capture the JSONL with `python work/agent.py > agent.jsonl` (telemetry
+   is on stdout; the answer prints to stderr), then `grep '"trace_id": "..."' agent.jsonl`.
+   *Success:* you get every `model_call` and `tool_call` for that run, in `step` order — the
+   whole trace reconstructed from one key. Force `max_steps=1` and confirm a `run_degraded`
+   line appears rather than a silent stop.
 
 ---
 
@@ -171,6 +234,9 @@ mistake compounds. The habits that keep them sane are ones you've already met:
   observability (9), cost control (10).
 - Reliability comes from **caps, validated/least-privilege tools, errors-as-feedback, and
   logging** — not from trusting the model.
+- Stamp every model call and tool result with a shared **`trace_id`** (and a `session_id`
+  across runs), and log degradation **loudly** — a whole run should replay from one `grep`.
+  This is the difference between an agent you can debug and one you can only stare at.
 - Prefer a plain pipeline when the steps are known; use an agent when the path is
   data-dependent.
 

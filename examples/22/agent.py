@@ -7,17 +7,30 @@ to call, in what order, across several steps, then answers. We keep the safety
 habits from Section 20: a tool registry (only known tools run), validated/typed
 arguments, tool errors returned to the model, and a hard step cap.
 
+It also carries Section 9's joinable telemetry into the agent: every model call
+and tool result is logged with a shared trace_id (one per run) and a step index,
+and the caller passes a session_id that can span several runs. One grep on a
+trace_id replays the whole run, in order. Hitting the step cap is logged as a
+loud "run_degraded" event -- a silent fallback that looks like success is the
+failure mode you can't debug.
+
     python examples/22/agent.py
 """
 
 import ast
 import json
+import logging
 import operator
 import sys
+import uuid
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))  # the examples/ dir
 from common import get_client, MODEL
+
+# JSONL telemetry to stdout (redirect it to a file); the final answer to stderr.
+logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stdout)
+log = logging.getLogger("agent")
 
 client = get_client()
 
@@ -70,7 +83,8 @@ SYSTEM = (
 )
 
 
-def run_agent(task: str, max_steps: int = 6) -> str:
+def run_agent(task: str, session_id: str, max_steps: int = 6) -> str:
+    trace_id = uuid.uuid4().hex[:8]                 # one trace per agent run
     messages = [{"role": "system", "content": SYSTEM},
                 {"role": "user", "content": task}]
     for step in range(max_steps):
@@ -78,6 +92,12 @@ def run_agent(task: str, max_steps: int = 6) -> str:
             model=MODEL, messages=messages, tools=SCHEMAS, tool_choice="auto"
         )
         msg = response.choices[0].message
+        log.info(json.dumps({
+            "event": "model_call", "session_id": session_id, "trace_id": trace_id,
+            "step": step,
+            "tool_calls": [tc.function.name for tc in (msg.tool_calls or [])],
+            "completion_tokens": response.usage.completion_tokens if response.usage else None,
+        }))
         if not msg.tool_calls:
             return msg.content
 
@@ -91,10 +111,21 @@ def run_agent(task: str, max_steps: int = 6) -> str:
                 result = fn(**args) if fn else f"error: unknown tool {tc.function.name}"
             except Exception as err:
                 result = f"error: {err}"
-            print(f"  [step {step}] {tc.function.name}({args}) -> {result}")
+            log.info(json.dumps({
+                "event": "tool_call", "session_id": session_id, "trace_id": trace_id,
+                "step": step, "tool": tc.function.name, "args": args,
+                "result": str(result)[:120],
+            }))
             messages.append({"role": "tool", "tool_call_id": tc.id, "content": str(result)})
+    # Hit the cap -- log the degradation loudly; don't return a "fine" answer silently.
+    log.info(json.dumps({
+        "event": "run_degraded", "session_id": session_id, "trace_id": trace_id,
+        "reason": "max_steps", "max_steps": max_steps,
+    }))
     return "(stopped: reached max_steps)"
 
 
 # Needs TWO tools in sequence: search for the widget weight, then multiply by 3.
-print(run_agent("How much do 3 Acme widgets weigh in total, in kilograms?"))
+session_id = uuid.uuid4().hex[:8]
+answer = run_agent("How much do 3 Acme widgets weigh in total, in kilograms?", session_id)
+print(answer, file=sys.stderr)
