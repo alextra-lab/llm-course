@@ -129,12 +129,37 @@ learning happens. Write your own files in the `work/` folder. A complete **refer
 solution** for everything you build lives under `examples/NN/`; peek if you get stuck,
 but type it yourself first.
 
+## Read it as a website
+
+The lessons are plain markdown — read them straight from `lessons/` in your editor or on
+GitHub. There's also a rendered version built with [Hugo](https://gohugo.io) + the
+[Docsy](https://www.docsy.dev) theme, with sidebar navigation, search, and prev/next:
+
+- **Published:** <https://learn.frenchforet.com> (deployed automatically from `main`).
+- **Run it locally** (optional — only to preview the site; the course itself needs only
+  Python). Requires **Hugo extended**, **Go**, and **Node**:
+
+  ```bash
+  npm install      # one-time: Docsy's CSS build deps
+  hugo server      # serve at http://localhost:1313
+  ```
+
+The site is additive: `lessons/` and `examples/` are untouched, mounted into Hugo at build
+time. Links from a lesson to `../examples/…` resolve to local files when reading the repo,
+and are rewritten to GitHub source links on the published site.
+
 ## How the repo is organized
 
 ```
 lessons/      # the markdown lessons, read in order
 examples/NN/  # reference solutions for Section NN (run them, or compare against yours)
 work/         # YOUR code as you follow along (git-ignored; create it with: mkdir work)
+
+# Hugo site (only needed to build/preview the website; ignore for the course itself)
+hugo.toml     # site config; mounts lessons/ as the docs section
+content/      # homepage + docs landing
+layouts/      # link render hook (rewrites ../examples links to GitHub on the site)
+assets/scss/  # FrenchForet brand (forest-green theme)
 ```
 
 ## Course outline

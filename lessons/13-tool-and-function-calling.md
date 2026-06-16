@@ -1,4 +1,8 @@
-# Section 13 — Tool / Function Calling
+---
+title: 'Tool / Function Calling'
+linkTitle: '13. Tool / Function Calling'
+weight: 13
+---
 
 **Goal:** let the model call *your* code. You'll define a tool, watch the model ask to
 use it (`tool_calls`), run the matching Python function, feed the result back as a `tool`

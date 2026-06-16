@@ -1,4 +1,8 @@
-# Section 10 — Cost, Pricing & Prompt Caching
+---
+title: 'Cost, Pricing & Prompt Caching'
+linkTitle: '10. Cost, Pricing & Prompt Caching'
+weight: 10
+---
 
 **Goal:** turn the token counts you've been logging into **money**, then write a
 demonstration of **prompt caching** — the single biggest lever for making repeated work

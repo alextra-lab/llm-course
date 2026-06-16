@@ -1,0 +1,17 @@
+/*
+  FrenchForet brand overrides.
+  Docsy imports this before its own variables, so anything set here wins.
+  Palette: forest green ("French forest").
+*/
+
+$primary:   #2d6a4f; // forest green
+$secondary: #40916c; // lighter green
+$success:   #52b788;
+$info:      #52796f;
+$dark:      #1b4332; // deep forest
+
+// Tie Docsy's accents to the green palette.
+$link-color: $primary;
+
+// Footer + cover read nicely on deep forest.
+$td-cover-blocks-overlay-color: rgba(27, 67, 50, 0.6);

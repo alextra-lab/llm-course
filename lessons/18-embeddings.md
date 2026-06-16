@@ -1,4 +1,8 @@
-# Section 18 — Embeddings
+---
+title: 'Embeddings'
+linkTitle: '18. Embeddings'
+weight: 18
+---
 
 **Goal:** turn text into **vectors** that capture meaning, and compare them by hand with
 cosine similarity. You'll build a tiny semantic search — matching by *meaning*, not

@@ -1,4 +1,8 @@
-# Section 20 — Security & Guardrails
+---
+title: 'Security & Guardrails'
+linkTitle: '20. Security & Guardrails'
+weight: 20
+---
 
 **Goal:** understand the security problem that appears the moment your prompts contain
 text you didn't write — **prompt injection** — and build practical defenses: separating

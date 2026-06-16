@@ -1,4 +1,8 @@
-# Section 9 — Observability & Logging
+---
+title: 'Observability & Logging'
+linkTitle: '9. Observability & Logging'
+weight: 9
+---
 
 **Goal:** make your LLM calls *visible*. You'll write a small wrapper that emits one
 structured log record per call, capturing the telemetry the API already hands back — then

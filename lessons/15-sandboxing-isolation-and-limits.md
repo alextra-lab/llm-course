@@ -1,4 +1,8 @@
-# Section 15 — Sandboxing I: Why Isolate, and Portable Limits
+---
+title: 'Sandboxing I: Why Isolate, and Portable Limits'
+linkTitle: '15. Sandboxing I: Why Isolate, and Portable Limits'
+weight: 15
+---
 
 **Goal:** make *executing untrusted actions* safe. In Sections 13–14 the model chose
 which tools to run; for a calculator we stayed safe by **parsing** the input instead of

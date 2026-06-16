@@ -1,4 +1,8 @@
-# Section 5 — Reasoning / "Thinking" Models
+---
+title: 'Reasoning / "Thinking" Models'
+linkTitle: '5. Reasoning / "Thinking" Models'
+weight: 5
+---
 
 **Goal:** open up the thing `gpt-oss-120b` has been doing since Section 1 — *thinking
 before it answers*. You'll write scripts that reveal the model's private reasoning, count

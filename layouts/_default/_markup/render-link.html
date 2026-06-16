@@ -1,0 +1,17 @@
+{{- /*
+  Link render hook.
+
+  Lessons live in lessons/ and link to repo files with paths relative to the
+  repo root, e.g. [common.py](../examples/common.py) or [README](../README.md).
+  Those resolve correctly when reading the markdown in a clone or on GitHub, but
+  would 404 on the built site. Here we rewrite any "../" link to the file's
+  source on GitHub, leaving the source markdown untouched.
+*/ -}}
+{{- $dest := .Destination -}}
+{{- $ghbase := printf "%s/blob/%s/" .Page.Site.Params.github_repo .Page.Site.Params.github_branch -}}
+{{- $external := or (hasPrefix $dest "http://") (hasPrefix $dest "https://") -}}
+{{- if hasPrefix $dest "../" -}}
+  {{- $dest = printf "%s%s" $ghbase (strings.TrimPrefix "../" $dest) -}}
+  {{- $external = true -}}
+{{- end -}}
+<a href="{{ $dest | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}{{ if $external }} target="_blank" rel="noopener"{{ end }}>{{ .Text | safeHTML }}</a>

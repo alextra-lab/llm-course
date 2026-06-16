@@ -1,4 +1,8 @@
-# Section 11 — Prompt Engineering Fundamentals
+---
+title: 'Prompt Engineering Fundamentals'
+linkTitle: '11. Prompt Engineering Fundamentals'
+weight: 11
+---
 
 **Goal:** learn the handful of prompt techniques that reliably move output quality —
 zero/one/few-shot examples, clear instructions, delimiters, and output shaping — and
