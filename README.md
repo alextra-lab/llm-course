@@ -141,8 +141,7 @@ work/         # YOUR code as you follow along (git-ignored; create it with: mkdi
 
 **Security is a through-line, not a chapter:** every section ends with a topic-specific
 *Security* note, and isolation gets two dedicated sections (15–16, Sandboxing) right where
-tool use makes it matter. Sections marked *(draft)* are reserved in the sequence and being
-written.
+tool use makes it matter.
 
 ### Foundations (Sections 1–10)
 
@@ -165,11 +164,11 @@ written.
 14. **The Tool-Use Loop** — a mini-agent built from primitives.
 15. **Sandboxing I — Why Isolate & Portable Limits** — subprocess limits, an allow-listed shell tool.
 16. **Sandboxing II — Containers, Postgres & Production** — hardened Docker, locked-down SQL, audit logs; gVisor/Firecracker pointers.
-17. **Model Context Protocol (MCP)** *(draft)* — the standard for exposing and consuming tools.
+17. **Model Context Protocol (MCP)** — the standard for exposing and consuming tools.
 18. **Embeddings** — vectors and semantic similarity from scratch.
 19. **Retrieval-Augmented Generation (RAG)** — grounding answers in your documents.
 20. **Security & Guardrails** — prompt injection, untrusted content, permissions.
-21. **Skills / Skill Injection** *(draft)* — packaged, on-demand capabilities for agents.
+21. **Skills / Skill Injection** — packaged, on-demand capabilities for agents.
 22. **Agents** — planning and multi-step tool use, composing everything above.
 23. **Evaluation & Testing** — LLM-as-judge, golden sets, regression tests.
 24. **Capstone** — an end-to-end retrieval-augmented, tool-using agent.
