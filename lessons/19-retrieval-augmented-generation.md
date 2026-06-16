@@ -1,4 +1,4 @@
-# Section 16 — Retrieval-Augmented Generation (RAG)
+# Section 19 — Retrieval-Augmented Generation (RAG)
 
 **Goal:** make the model answer from *your* documents instead of its training data (or
 its imagination). You'll build a small RAG pipeline end to end — embed a corpus, retrieve
@@ -6,10 +6,10 @@ the most relevant pieces for a question, inject them into the prompt, and genera
 grounded answer — and watch it refuse to make things up when the answer isn't there.
 
 **Where this fits:** this combines the chat model (Sections 1–6) with embeddings
-(Section 15) and prompt construction (Section 11). It's the most common way to put an LLM
+(Section 18) and prompt construction (Section 11). It's the most common way to put an LLM
 to work on private, fresh, or domain-specific data.
 
-> Needs `EMBED_MODEL` set, same as Section 15.
+> Needs `EMBED_MODEL` set, same as Section 18.
 
 ---
 
@@ -22,7 +22,7 @@ confident, plausible, wrong answer** (a hallucination, Section 4).
 **RAG** (Retrieval-Augmented Generation) fixes this with a simple pipeline:
 
 1. **Retrieve** — find the few pieces of *your* text most relevant to the question
-   (semantic search from Section 15).
+   (semantic search from Section 18).
 2. **Augment** — put those pieces into the prompt as context.
 3. **Generate** — tell the model to answer **only** from that context.
 
@@ -35,7 +35,7 @@ and checkable.
 
 We'll use a tiny knowledge base about a made-up company (so the model can't already know
 it — which makes grounding obvious). Create **`work/rag.py`**. Start with the corpus and
-the Section 15 helpers:
+the Section 18 helpers:
 
 ```python
 import numpy as np
@@ -95,7 +95,7 @@ python work/rag.py
 The warranty question gets a correct, grounded answer. The CEO question — which *no*
 document answers — should produce **"I don't know"** rather than a confident fabrication.
 That refusal is the payoff: grounding turns "plausible guess" into "answer or honestly
-decline." *(Reference: [`examples/16/rag.py`](../examples/16/rag.py).)*
+decline." *(Reference: [`examples/19/rag.py`](../examples/19/rag.py).)*
 
 ---
 
@@ -114,13 +114,15 @@ decline." *(Reference: [`examples/16/rag.py`](../examples/16/rag.py).)*
 
 > **This is where untrusted text enters your prompt.** Retrieved documents become part of
 > the instructions the model reads — which is exactly the attack surface for **prompt
-> injection**. Section 17 is next for a reason.
+> injection**. Section 20 is next for a reason.
 
 > **Scaling up.** Re-embedding and looping over every document per query is fine for a
 > handful; for real corpora you store vectors in a **vector database** that does fast
 > nearest-neighbor search. The retrieve→augment→generate shape is identical.
 
 ---
+
+> **Security:** Retrieved documents are **untrusted input** — the classic indirect prompt-injection vector. Delimit them, and never let text you fetched act as instructions (Section 20).
 
 ## Challenges
 
@@ -137,15 +139,15 @@ decline." *(Reference: [`examples/16/rag.py`](../examples/16/rag.py).)*
 
 ## Recap
 
-- **RAG** = retrieve relevant text (embeddings, Section 15) → inject as context → generate
+- **RAG** = retrieve relevant text (embeddings, Section 18) → inject as context → generate
   an answer constrained to that context.
 - It grounds answers in *your* data and, with the right instruction, makes the model say
   **"I don't know"** instead of hallucinating.
 - Tune **chunking**, **`k`**, the **grounding instruction**, and add **citations**.
-- Retrieved text is untrusted input — straight into Section 17 (security).
+- Retrieved text is untrusted input — straight into Section 20 (security).
 
 ## Next
 
-**Section 17 — Security & Guardrails:** now that tools (Section 13) and retrieved content
-(Section 16) put outside text into your prompts, we look at **prompt injection** and how
+**Section 20 — Security & Guardrails:** now that tools (Section 13) and retrieved content
+(Section 19) put outside text into your prompts, we look at **prompt injection** and how
 to defend against it.

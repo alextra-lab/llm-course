@@ -1,11 +1,11 @@
 """
-Section 15 - Embeddings: cosine similarity and semantic search, by hand.
+Section 18 - Embeddings: cosine similarity and semantic search, by hand.
 
 We embed a few documents and a query, then rank the documents by COSINE
 SIMILARITY to the query -- the standard way to compare embedding vectors. No
 vector database, just numpy, so you see the actual math.
 
-    python examples/15/similarity.py
+    python examples/18/similarity.py
 """
 
 import sys
@@ -17,7 +17,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))  # the examples/ dir
 from common import get_client, EMBED_MODEL
 
 if not EMBED_MODEL:
-    raise SystemExit("Set EMBED_MODEL in your .env (see examples/15/embed.py).")
+    raise SystemExit("Set EMBED_MODEL in your .env (see examples/18/embed.py).")
 
 client = get_client()
 

@@ -1,8 +1,8 @@
-# Section 15 — Embeddings
+# Section 18 — Embeddings
 
 **Goal:** turn text into **vectors** that capture meaning, and compare them by hand with
 cosine similarity. You'll build a tiny semantic search — matching by *meaning*, not
-keywords — which is the foundation for retrieval (Section 16) and a core building block
+keywords — which is the foundation for retrieval (Section 19) and a core building block
 for search, clustering, and deduplication.
 
 **Where this fits:** a change of gears from chat. Same server, different endpoint
@@ -49,7 +49,7 @@ python work/embed.py
 
 You'll see two vectors, each with hundreds or thousands of dimensions (the number depends
 on the model). Each is just a point in a high-dimensional space. *(Reference:
-[`examples/15/embed.py`](../examples/15/embed.py).)*
+[`examples/18/embed.py`](../examples/18/embed.py).)*
 
 ---
 
@@ -108,7 +108,7 @@ python work/similarity.py
 
 The cat/feline sentences rank highest even though the query says neither "cat" nor "sat"
 — the match is by **meaning**. A keyword search would miss "feline" entirely. *(Reference:
-[`examples/15/similarity.py`](../examples/15/similarity.py).)*
+[`examples/18/similarity.py`](../examples/18/similarity.py).)*
 
 ---
 
@@ -116,7 +116,7 @@ The cat/feline sentences rank highest even though the query says neither "cat" n
 
 Embeddings are the engine behind a lot of practical AI:
 
-- **Semantic search / retrieval** — find the most relevant chunks of text (Section 16).
+- **Semantic search / retrieval** — find the most relevant chunks of text (Section 19).
 - **Clustering** — group similar items.
 - **Deduplication** — near-identical texts have near-identical vectors.
 - **Classification** — nearest-labeled-example wins.
@@ -128,10 +128,12 @@ vectors so you embed each document only once.
 > **Scaling up.** Comparing a query against four documents with a `for` loop is fine.
 > Against four *million*, you'd use a **vector database** (FAISS, pgvector, Pinecone, …)
 > that indexes vectors for fast nearest-neighbor search. Same cosine idea, optimized.
-> We'll stay with the brute-force numpy version in Section 16 so the mechanics stay
+> We'll stay with the brute-force numpy version in Section 19 so the mechanics stay
 > visible.
 
 ---
+
+> **Security:** Embeddings aren't anonymized: a vector can leak information about its source text, and your vector store is sensitive data. Don't embed secrets you wouldn't expose, and protect the store like any database.
 
 ## Challenges
 
@@ -153,6 +155,6 @@ vectors so you embed each document only once.
 
 ## Next
 
-**Section 16 — Retrieval-Augmented Generation (RAG):** combine embeddings with the chat
+**Section 19 — Retrieval-Augmented Generation (RAG):** combine embeddings with the chat
 model — retrieve the most relevant text for a question and feed it in, so the model
 answers from *your* documents instead of guessing.

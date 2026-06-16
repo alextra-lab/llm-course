@@ -83,7 +83,7 @@ prompt_tokens  +  completion_tokens   ≤   context window
 "infinite," and two things push against it:
 
 - **Long inputs** — big documents, long chat histories (Section 12), retrieved context
-  (Section 16). The more you put in, the less room for the answer.
+  (Section 19). The more you put in, the less room for the answer.
 - **`max_tokens`** — your cap on the *output*. If the model needs more room than you
   allow, it gets **cut off** and `response.choices[0].finish_reason` *(str)* becomes
   `"length"` (Section 2).
@@ -144,6 +144,8 @@ to learn a model's limit. *(Reference:
   (Section 12).
 
 ---
+
+> **Security:** Untrusted text costs tokens *and* carries intent: a long pasted document can crowd out your instructions or smuggle its own. Budget the window, and never assume pasted-in text is just data.
 
 ## Challenges
 

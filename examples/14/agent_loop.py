@@ -24,7 +24,7 @@ _OPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
 
 
 def calculate(expression: str) -> str:
-    """Safe arithmetic (numbers + operators only); no eval (Section 17)."""
+    """Safe arithmetic (numbers + operators only); no eval (Section 20)."""
     def ev(n):
         if isinstance(n, ast.Constant) and isinstance(n.value, (int, float)):
             return n.value

@@ -1,12 +1,12 @@
 """
-Section 16 - Retrieval-Augmented Generation: answer from YOUR documents.
+Section 19 - Retrieval-Augmented Generation: answer from YOUR documents.
 
 The model doesn't know your private or fresh data, and if you ask anyway it may
 make something up. RAG fixes this: embed your documents, retrieve the few most
-relevant to the question (Section 15), put them in the prompt, and tell the model
+relevant to the question (Section 18), put them in the prompt, and tell the model
 to answer ONLY from that context.
 
-    python examples/16/rag.py
+    python examples/19/rag.py
 """
 
 import sys
@@ -18,7 +18,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))  # the examples/ dir
 from common import get_client, MODEL, EMBED_MODEL
 
 if not EMBED_MODEL:
-    raise SystemExit("Set EMBED_MODEL in your .env (see examples/15/embed.py).")
+    raise SystemExit("Set EMBED_MODEL in your .env (see examples/18/embed.py).")
 
 client = get_client()
 

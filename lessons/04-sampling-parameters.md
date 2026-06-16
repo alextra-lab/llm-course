@@ -130,6 +130,8 @@ Same `seed` *(int)* + same inputs → same output. Change the seed → different
 
 ---
 
+> **Security:** A fixed `seed` and low temperature make behavior reproducible — which is what lets a safety test reliably catch a regression. Non-determinism hides bugs.
+
 ## Challenges
 
 1. **Find the breaking point.** In `work/temperature.py`, add `1.8` and `2.0` to the

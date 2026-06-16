@@ -1,12 +1,12 @@
 """
-Section 19 - Evaluation: LLM-as-judge for open-ended answers.
+Section 23 - Evaluation: LLM-as-judge for open-ended answers.
 
 Some outputs have no single right answer (explanations, summaries). Grade them
 with a second model call: give the judge the question, the answer, and a rubric,
 and have it return a structured score. We validate the judge's output with
 Pydantic (Section 6) so a score is always a number in range.
 
-    python examples/19/eval_judge.py
+    python examples/23/eval_judge.py
 """
 
 import sys

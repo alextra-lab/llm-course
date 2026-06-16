@@ -3,7 +3,7 @@ Section 11 - Prompt engineering: delimiters and output shaping.
 
 Two high-leverage habits:
   1. Wrap the user-supplied text in clear DELIMITERS so the model can tell your
-     instructions apart from the data (this also matters for safety -- Section 17).
+     instructions apart from the data (this also matters for safety -- Section 20).
   2. Specify the OUTPUT FORMAT precisely instead of hoping.
 
     python examples/11/structure.py

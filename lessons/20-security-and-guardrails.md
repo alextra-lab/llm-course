@@ -1,10 +1,10 @@
-# Section 17 — Security & Guardrails
+# Section 20 — Security & Guardrails
 
 **Goal:** understand the security problem that appears the moment your prompts contain
 text you didn't write — **prompt injection** — and build practical defenses: separating
 data from instructions, least-privilege tools, and output validation.
 
-**Where this fits:** Sections 13–16 introduced *outside* text into your prompts — tool
+**Where this fits:** Sections 13–19 introduced *outside* text into your prompts — tool
 outputs, retrieved documents, user input. That text can carry instructions. This lesson
 is where we take that seriously.
 
@@ -20,7 +20,7 @@ just... do X. That's **prompt injection.**
 It matters because untrusted text is *everywhere* in real apps:
 
 - **User input** (the obvious one).
-- **Retrieved documents** (Section 16) — a poisoned web page or PDF in your corpus.
+- **Retrieved documents** (Section 19) — a poisoned web page or PDF in your corpus.
 - **Tool outputs** (Sections 13–14) — an API response or file the model reads.
 
 ### See it happen
@@ -68,7 +68,7 @@ python work/injection.py
 A well-trained model like `gpt-oss-120b` may resist the naive attack on its own — but
 **you cannot rely on the model to defend itself.** Attacks get cleverer; your defenses
 have to be structural. *(Reference:
-[`examples/17/injection_demo.py`](../examples/17/injection_demo.py).)*
+[`examples/20/injection_demo.py`](../examples/20/injection_demo.py).)*
 
 ---
 
@@ -86,7 +86,9 @@ dangerous — an injected instruction that triggers a *tool* can take real actio
 - **Validate every tool argument** (Pydantic, Section 6) before executing — the model
   (or an attacker through it) chose those arguments.
 - **Never execute model output as code.** This is exactly why Sections 13–14 used a
-  *safe* arithmetic parser instead of `eval`. Treat tool inputs as hostile.
+  *safe* arithmetic parser instead of `eval`. When you genuinely must run untrusted code,
+  a shell, or SQL, **isolate it** — that's the whole point of Sections 15–16 (Sandboxing):
+  a parser where you can, a sandbox where you can't. Treat tool inputs as hostile.
 - Require explicit **confirmation for destructive or irreversible actions** (delete,
   send money, email). Don't let a summary silently wire funds.
 
@@ -137,6 +139,7 @@ therefore leak — them.
 
 ## Next
 
-**Section 18 — Agents:** we compose everything — the tool loop (Section 14), retrieval
-(Section 16), memory (Section 12), and these guardrails — into an agent that plans and
-takes multiple steps toward a goal.
+**Section 21 — Skills / Skill Injection:** before we hand the keys to an agent, we look at
+*skills* — packaged instructions and code, disclosed into context on demand. Skills make
+capabilities composable, but skill-provided instructions and code are untrusted input too,
+so the sandboxing (Sections 15–16) and guardrails from this section apply directly.

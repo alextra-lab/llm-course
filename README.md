@@ -34,10 +34,13 @@ isn't available, they tell you instead of crashing — so you can always read al
 | Tokenize endpoint (`POST /tokenize`) | §1 | Optional — falls back to `usage` token counts |
 | Reasoning fields (`reasoning_content`, `reasoning_tokens`, `reasoning_effort`) | §5 | Optional — the model still answers |
 | Cached-token reporting (`prompt_tokens_details.cached_tokens`) | §10 | Optional — caching may still happen unseen |
-| **Tool calling** (vLLM auto tool choice) | §13, §14, §18, §20 | **Required for those sections** |
-| **Embeddings** (`POST /v1/embeddings` + an `EMBED_MODEL`) | §15, §16, §20 | **Required for those sections** (capstone falls back to keyword search) |
+| **Tool calling** (vLLM auto tool choice) | §13, §14, §22, §24 | **Required for those sections** |
+| **Embeddings** (`POST /v1/embeddings` + an `EMBED_MODEL`) | §18, §19, §24 | **Required for those sections** (capstone falls back to keyword search) |
+| Docker (a working `docker` CLI) | §16 | Optional — the container demo prints a skip notice without it |
+| Postgres (a throwaway **dev** `DATABASE_URL`) | §16 | Optional — the SQL-sandbox demo is opt-in and skips cleanly without it |
 
-If a feature isn't enabled on your endpoint, the relevant lesson says so up front.
+If a feature isn't enabled on your endpoint, the relevant lesson says so up front. None of
+these are needed to *read* the course — every script degrades gracefully.
 
 ## Setup
 
@@ -62,7 +65,7 @@ set -a; source .env; set +a
 mkdir work
 ```
 
-From **Section 15** onward you'll also need an embedding model. Set `EMBED_MODEL` in your
+From **Section 18** onward you'll also need an embedding model. Set `EMBED_MODEL` in your
 `.env` to one your endpoint serves (it's usually a different model than the chat model).
 If your endpoint serves only the chat model, those sections will tell you and you can read
 along; the capstone falls back to keyword search automatically.
@@ -136,6 +139,11 @@ work/         # YOUR code as you follow along (git-ignored; create it with: mkdi
 
 ## Course outline
 
+**Security is a through-line, not a chapter:** every section ends with a topic-specific
+*Security* note, and isolation gets two dedicated sections (15–16, Sandboxing) right where
+tool use makes it matter. Sections marked *(draft)* are reserved in the sequence and being
+written.
+
 ### Foundations (Sections 1–10)
 
 1. **Hello World** — talk to the server; messages, roles, and the chat template.
@@ -149,17 +157,21 @@ work/         # YOUR code as you follow along (git-ignored; create it with: mkdi
 9. **Observability & Logging** — the telemetry you get back and how to use it.
 10. **Cost, Pricing & Prompt Caching** — account for spend; exploit prefix caching.
 
-### Advanced (Sections 11–20)
+### Advanced (Sections 11–24)
 
 11. **Prompt Engineering Fundamentals** — zero/one/few-shot, instruction design.
 12. **Conversation State & Memory** — the API is stateless; managing history.
 13. **Tool / Function Calling** — let the model call your code.
 14. **The Tool-Use Loop** — a mini-agent built from primitives.
-15. **Embeddings** — vectors and semantic similarity from scratch.
-16. **Retrieval-Augmented Generation (RAG)** — grounding answers in your documents.
-17. **Security & Guardrails** — prompt injection, untrusted content, permissions.
-18. **Agents** — planning and multi-step tool use, composing everything above.
-19. **Evaluation & Testing** — LLM-as-judge, golden sets, regression tests.
-20. **Capstone** — an end-to-end retrieval-augmented, tool-using agent.
+15. **Sandboxing I — Why Isolate & Portable Limits** — subprocess limits, an allow-listed shell tool.
+16. **Sandboxing II — Containers, Postgres & Production** — hardened Docker, locked-down SQL, audit logs; gVisor/Firecracker pointers.
+17. **Model Context Protocol (MCP)** *(draft)* — the standard for exposing and consuming tools.
+18. **Embeddings** — vectors and semantic similarity from scratch.
+19. **Retrieval-Augmented Generation (RAG)** — grounding answers in your documents.
+20. **Security & Guardrails** — prompt injection, untrusted content, permissions.
+21. **Skills / Skill Injection** *(draft)* — packaged, on-demand capabilities for agents.
+22. **Agents** — planning and multi-step tool use, composing everything above.
+23. **Evaluation & Testing** — LLM-as-judge, golden sets, regression tests.
+24. **Capstone** — an end-to-end retrieval-augmented, tool-using agent.
 
 Start with [`lessons/01-hello-world.md`](lessons/01-hello-world.md).

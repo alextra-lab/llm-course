@@ -1,13 +1,13 @@
 """
-Section 17 - Prompt injection: when untrusted text tries to hijack the model.
+Section 20 - Prompt injection: when untrusted text tries to hijack the model.
 
-Any text from outside -- a user, a web page, a retrieved document (Section 16), a
+Any text from outside -- a user, a web page, a retrieved document (Section 19), a
 tool's output -- can contain INSTRUCTIONS aimed at your model. If you paste it
 straight into the prompt, the model may follow the attacker instead of you. We
 show a naive summarizer falling for it, and a defended one that (a) separates
 data from instructions and (b) validates its own output.
 
-    python examples/17/injection_demo.py
+    python examples/20/injection_demo.py
 """
 
 import sys

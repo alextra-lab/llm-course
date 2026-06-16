@@ -36,7 +36,7 @@ _OPS = {
 def calculate(expression: str) -> str:
     # A SAFE arithmetic evaluator: we parse to an AST and only allow numbers and
     # math operators -- no names, calls, or attributes. We deliberately avoid
-    # eval() on model-provided text; Section 17 explains why that matters.
+    # eval() on model-provided text; Section 20 explains why that matters.
     def ev(node):
         if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
             return node.value

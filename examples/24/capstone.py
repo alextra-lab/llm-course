@@ -1,15 +1,15 @@
 """
-Section 20 - Capstone: a small support assistant that ties the course together.
+Section 24 - Capstone: a small support assistant that ties the course together.
 
 It composes:
-  - retrieval (Section 15/16): a search_kb tool, using embeddings if EMBED_MODEL
+  - retrieval (Section 18/19): a search_kb tool, using embeddings if EMBED_MODEL
     is set, otherwise a keyword fallback so it always runs;
-  - tools + agent loop (Sections 13/14/18): search_kb + a safe calculator;
-  - guardrails (Section 17): a tool registry, a safe (no-eval) calculator, a step cap;
+  - tools + agent loop (Sections 13/14/22): search_kb + a safe calculator;
+  - guardrails (Section 20): a tool registry, a safe (no-eval) calculator, a step cap;
   - observability + cost (Sections 9/10): per-call logging and a running cost total;
-  - evaluation (Section 19): a tiny golden check at the end.
+  - evaluation (Section 23): a tiny golden check at the end.
 
-    python examples/20/capstone.py
+    python examples/24/capstone.py
 """
 
 import ast
@@ -41,7 +41,7 @@ def chat(**kwargs):
     return r
 
 
-# --- knowledge base + retrieval tool (Sections 15, 16) -------------------------
+# --- knowledge base + retrieval tool (Sections 18, 19) -------------------------
 DOCS = [
     "Acme Corp's return policy allows returns within 30 days with a receipt.",
     "Acme Corp was founded in 1987 in Portland, Oregon.",
@@ -70,7 +70,7 @@ else:
         return "\n".join(hits[:2]) if hits else "no results"
 
 
-# --- safe calculator tool (Section 17: no eval) --------------------------------
+# --- safe calculator tool (Section 20: no eval) --------------------------------
 _OPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
         ast.Div: operator.truediv, ast.Pow: operator.pow, ast.USub: operator.neg}
 
@@ -103,7 +103,7 @@ SYSTEM = ("You are Acme's support assistant. Use search_kb for company facts and
           "say you don't know. Keep answers to 1-2 sentences.")
 
 
-# --- the agent loop (Sections 14, 18) ------------------------------------------
+# --- the agent loop (Sections 14, 22) ------------------------------------------
 def agent(question: str, max_steps: int = 6) -> str:
     messages = [{"role": "system", "content": SYSTEM},
                 {"role": "user", "content": question}]
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         print(f"\nQ: {q}")
         print("A:", agent(q))
 
-    # --- tiny evaluation (Section 19) ------------------------------------------
+    # --- tiny evaluation (Section 23) ------------------------------------------
     print("\n--- eval ---")
     cases = [("How long is the warranty?", "2 year"),
              ("Which countries does Acme ship to?", "Canada")]

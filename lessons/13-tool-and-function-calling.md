@@ -33,7 +33,7 @@ executes.
 ## Build one round trip
 
 We'll give the model a calculator. First, the real function — note we use a **safe**
-arithmetic evaluator, not `eval` (Section 17 explains why that distinction matters once
+arithmetic evaluator, not `eval` (Section 20 explains why that distinction matters once
 the model is choosing the input). Create **`work/tool_call.py`**:
 
 ```python
@@ -145,6 +145,8 @@ Two rules people trip on:
 > `parameters`. One definition gives you the schema *and* a validator for the arguments.
 
 ---
+
+> **Security:** Tool arguments are chosen by the model, so treat them as untrusted: validate every one, and **never `eval`/`exec`** them. Running model-picked input is exactly what the sandboxing in Sections 15–16 makes safe.
 
 ## Challenges
 

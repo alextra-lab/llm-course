@@ -133,6 +133,8 @@ because retrying them is pointless.
 
 ---
 
+> **Security:** Fail closed and stay quiet about internals: on error, return a safe message, not a stack trace or raw exception — those leak file paths, versions, and sometimes secrets to whoever triggered them.
+
 ## Challenges
 
 1. **Provoke real errors.** Run a script with `OPENAI_API_KEY=wrong` (a 401) and with
