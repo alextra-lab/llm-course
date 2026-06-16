@@ -116,6 +116,8 @@ Once every call emits a record like that, you can:
 
 ---
 
+> **Security:** Logs are forever and widely read. Log what you need to audit, but never log API keys, credentials, or user PII — redact at the source.
+
 ## Challenges
 
 1. **Make a log file.** Run `python work/logged.py >> calls.jsonl` a few times, then read

@@ -148,6 +148,8 @@ Keep the `assistant` turn's `content`; drop its `reasoning_content`.
 
 ---
 
+> **Security:** Reasoning tokens can contain intermediate guesses, scratch work, even quoted secrets. Don't render raw reasoning to end users — show the final answer.
+
 ## Challenges
 
 1. **Catch a self-correction.** Run `work/reasoning.py` on a different trick question and

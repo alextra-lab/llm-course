@@ -140,6 +140,8 @@ Caching keys on the **prefix matching exactly**, from the start. Structure promp
 
 ---
 
+> **Security:** A prompt cache is shared state. Don't let one user's cached context be served to another — key caches per trust boundary, or you'll leak data across users.
+
 ## Challenges
 
 1. **Price your real workload.** Plug your endpoint's actual prices into `work/cost.py`.
@@ -169,5 +171,5 @@ Caching keys on the **prefix matching exactly**, from the start. Structure promp
 That completes Sections 1–10. You can now talk to the server, understand and control its
 output, structure and stream responses, survive failures, observe what's happening, and
 account for cost — and you *wrote every bit of it yourself*. The **Advanced arc
-(Sections 11–20)** builds on all of it: prompt engineering, conversation state, tool
+(Sections 11–24)** builds on all of it: prompt engineering, conversation state, tool
 calling, retrieval (embeddings + RAG), security, agents, evaluation, and a capstone.

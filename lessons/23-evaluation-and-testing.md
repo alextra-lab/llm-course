@@ -1,11 +1,11 @@
-# Section 19 — Evaluation & Testing
+# Section 23 — Evaluation & Testing
 
 **Goal:** answer the question "is it actually any good — and did my change help or hurt?"
 You'll build two complementary evaluators: **golden tests** for tasks with a checkable
 answer, and an **LLM-as-judge** for open-ended ones. Together they let you change prompts
 and models with evidence instead of vibes.
 
-**Where this fits:** Sections 11–18 made the model *do* things. This section makes those
+**Where this fits:** Sections 11–22 made the model *do* things. This section makes those
 things *measurable* — the difference between "seems fine when I tried it" and "passes 47/50
 cases." It's also how you'd catch a regression after swapping models or editing a prompt.
 
@@ -61,7 +61,7 @@ python work/golden.py
 
 Now this is a regression suite: change the prompt or the model, rerun, and the pass rate
 tells you instantly whether you broke something. *(Reference:
-[`examples/19/golden_test.py`](../examples/19/golden_test.py).)*
+[`examples/23/golden_test.py`](../examples/23/golden_test.py).)*
 
 ---
 
@@ -112,7 +112,7 @@ python work/judge.py
 
 You generated an answer at `temperature=0.7` and graded it at `temperature=0`. Run a
 whole dataset through this and you have an automated quality score for open-ended work.
-*(Reference: [`examples/19/eval_judge.py`](../examples/19/eval_judge.py).)*
+*(Reference: [`examples/23/eval_judge.py`](../examples/23/eval_judge.py).)*
 
 > **Judge with care.** LLM judges are useful but biased: they favor longer answers and
 > their own style, and they're not perfect graders. Mitigations: judge at `temperature=0`,
@@ -132,13 +132,15 @@ whole dataset through this and you have an automated quality score for open-ende
 
 ---
 
+> **Security:** Test the adversarial cases, not just the friendly ones — add prompt-injection and malformed inputs to your golden set. A model that only passes happy-path evals isn't safe, just lucky.
+
 ## Challenges
 
 1. **Catch a regression.** Add a case your current prompt fails, then improve the prompt
    until the suite is green. *Success:* a red→green cycle driven by the test.
 2. **Compare two prompts.** Run the judge over 5 questions with prompt A vs prompt B.
    *Success:* you can say which prompt scores higher, with numbers.
-3. **Eval an earlier section.** Point a golden test at your Section 16 RAG: questions your
+3. **Eval an earlier section.** Point a golden test at your Section 19 RAG: questions your
    corpus answers (expect the fact) and questions it doesn't (expect "I don't know").
    *Success:* it scores grounding, not just correctness.
 
@@ -156,6 +158,6 @@ whole dataset through this and you have an automated quality score for open-ende
 
 ## Next
 
-**Section 20 — Capstone:** you'll combine everything — retrieval, tools, an agent loop,
+**Section 24 — Capstone:** you'll combine everything — retrieval, tools, an agent loop,
 structured output, observability, cost tracking, and an eval — into one small end-to-end
 application.

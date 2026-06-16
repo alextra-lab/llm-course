@@ -12,7 +12,13 @@ the model actually sees.
 > everything you build lives under `examples/NN/` — peek if you get stuck, but type it
 > yourself first. That's the hands-on part, and it's where the learning happens.
 
-**Where this fits:** this is lesson 1 of 20 — everything else builds on it. We start at
+> **Security is a through-line.** Safety isn't one chapter at the end — every section
+> closes with a short **Security** note tied to that topic, because the mistakes that
+> matter (leaked keys, prompt injection, running untrusted output) show up the moment you
+> use each feature. Isolation is big enough to earn its own two sections (15–16,
+> Sandboxing), and the defenses come together in Section 20.
+
+**Where this fits:** this is lesson 1 of 24 — everything else builds on it. We start at
 the bottom on purpose. Once you've sent the literal request yourself, every later
 abstraction will feel like a convenience, not magic.
 
@@ -305,6 +311,8 @@ applied, straight from the server. Section 3 builds a whole lesson on this.
 > rendered harmony string and token ids. Run it to peek at the real delimiters.
 
 ---
+
+> **Security:** API keys are credentials. Read them from the environment, never hard-code them in a script or commit them to git — a leaked key is a billable account someone else controls.
 
 ## Challenges
 

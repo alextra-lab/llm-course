@@ -1,11 +1,11 @@
 """
-Section 19 - Evaluation: golden tests for things with a known answer.
+Section 23 - Evaluation: golden tests for things with a known answer.
 
 When a task has a checkable answer, treat it like a unit test: a fixed set of
 inputs with expected substrings, run at temperature 0, with a pass rate at the
 end. Run this whenever you change a prompt or model to catch regressions.
 
-    python examples/19/golden_test.py
+    python examples/23/golden_test.py
 """
 
 import sys

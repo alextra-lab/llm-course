@@ -145,6 +145,8 @@ the full text, then parse/validate the assembled result.
 
 ---
 
+> **Security:** Run your guardrails on the *assembled* message, not on partial chunks. A filter that sees half a sentence can be fooled by the other half.
+
 ## Challenges
 
 1. **Inspect a chunk.** In `work/stream_raw.py`, `print(chunk)` for each event. *Success:*

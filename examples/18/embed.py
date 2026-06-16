@@ -1,12 +1,12 @@
 """
-Section 15 - Embeddings: turn text into a vector.
+Section 18 - Embeddings: turn text into a vector.
 
 An embedding is a list of numbers (a vector) that captures the MEANING of a piece
 of text. Similar meanings -> nearby vectors. We get them from the /v1/embeddings
 endpoint -- usually served by a DIFFERENT model than the chat model, so this uses
 EMBED_MODEL from your .env.
 
-    python examples/15/embed.py
+    python examples/18/embed.py
 """
 
 import sys

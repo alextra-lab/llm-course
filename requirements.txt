@@ -3,3 +3,7 @@ openai
 httpx
 pydantic
 numpy
+
+# Optional, only for the opt-in Section 16 Postgres demo (examples/16/pg_sandbox.py).
+# Uncomment if you set DATABASE_URL to a throwaway dev database:
+# psycopg[binary]

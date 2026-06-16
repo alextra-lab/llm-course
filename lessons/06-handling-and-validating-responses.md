@@ -7,7 +7,7 @@ into a typed object." The tools: JSON mode, schema-constrained output, and **Pyd
 
 **Where this fits:** so far you've printed `content` and read it yourself. The moment a
 *program* consumes the output, free-form text is a liability. This is also a prerequisite
-for tool calling (Section 13) and agents (Section 18).
+for tool calling (Section 13) and agents (Section 22).
 
 ---
 
@@ -140,6 +140,8 @@ invalid**, and your parse will raise. When you depend on structured output, leav
 > benefit of thinking *and* a clean JSON answer.
 
 ---
+
+> **Security:** Validate *before* you act. The model chose those fields, so parse into a schema (Pydantic) and reject anything malformed — never feed unchecked model output straight into code, a query, or a database.
 
 ## Challenges
 

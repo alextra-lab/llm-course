@@ -24,7 +24,7 @@ from openai import OpenAI
 # The model id, read once. Every script uses the same one for this course.
 MODEL = os.environ.get("MODEL", "openai/gpt-oss-120b")
 
-# An embedding model id, used from Section 15 onward (usually a different model).
+# An embedding model id, used from Section 18 onward (usually a different model).
 EMBED_MODEL = os.environ.get("EMBED_MODEL", "")
 
 

@@ -6,7 +6,7 @@ that history inside the token budget with windowing and summarization.
 
 **Where this fits:** every call so far was one-shot. Real assistants hold a conversation,
 and *you* are responsible for the memory. This underpins tools (Section 13), RAG
-(Section 16), and agents (Section 18) — they all manage a growing message list.
+(Section 19), and agents (Section 22) — they all manage a growing message list.
 
 ---
 
@@ -119,9 +119,11 @@ python work/trim.py
 > **"Memory" beyond one conversation.** Persisting facts across *sessions* (a user's
 > preferences, past orders) is a database problem, not a model one: store the facts, then
 > retrieve and inject the relevant ones — which is exactly the retrieval pattern of
-> Section 16.
+> Section 19.
 
 ---
+
+> **Security:** Conversation history is attacker-reachable: a user can put anything into it, and you replay it every turn. Sanitize what you persist, and don't trust an earlier turn just because it's "in the history."
 
 ## Challenges
 
@@ -145,7 +147,7 @@ python work/trim.py
 - Keep it bounded with a **sliding window** (drop old turns) and/or **summarization**
   (compress old turns into facts).
 - Don't resend `reasoning_content`; cross-*session* memory is a retrieval problem
-  (Section 16).
+  (Section 19).
 
 ## Next
 

@@ -1,4 +1,4 @@
-# Section 18 — Agents
+# Section 22 — Agents
 
 **Goal:** assemble the pieces you've built into an **agent** — the tool loop (Section 14)
 given a goal, a system prompt that makes it plan, and several tools (including search) it
@@ -6,7 +6,7 @@ can use across multiple steps. You'll see that "agent" isn't a new technology; i
 composition.
 
 **Where this fits:** this is where the advanced arc converges. Tools (13–14), retrieval
-(16), memory (12), and guardrails (17) come together. After this you can read any "agent
+(19), memory (12), and guardrails (20) come together. After this you can read any "agent
 framework" and recognize the engine underneath.
 
 > **Reminder — needs tool calling.** The agent is built on the tool loop, so your endpoint
@@ -34,7 +34,7 @@ more capable tools.
 We'll give it two tools — a document **search** and the **calculator** — and a task that
 needs both, in sequence. Create **`work/agent.py`**. Tools first (search is keyword-based
 here so it runs without an embedding model; in production this would be RAG from
-Section 16):
+Section 19):
 
 ```python
 import ast, json, operator
@@ -119,7 +119,7 @@ python work/agent.py
 
 Watch the steps: the agent `search_docs`-es for the widget weight, reads `1.2 kg`,
 `calculate`s `3 * 1.2`, and answers `3.6 kg`. It planned a two-step path you didn't
-hard-code. *(Reference: [`examples/18/agent.py`](../examples/18/agent.py).)*
+hard-code. *(Reference: [`examples/22/agent.py`](../examples/22/agent.py).)*
 
 ---
 
@@ -130,7 +130,7 @@ mistake compounds. The habits that keep them sane are ones you've already met:
 
 - **Stop conditions.** A `max_steps` cap (and ideally a token/cost budget, Section 10) so
   a confused agent can't loop forever.
-- **Validated tools + least privilege** (Section 17). The agent chooses tool arguments —
+- **Validated tools + least privilege** (Section 20). The agent chooses tool arguments —
   validate them, allowlist tools (the registry does this), and gate destructive actions.
 - **Errors as feedback.** Returning tool errors to the model lets it recover; crashing
   doesn't.
@@ -150,6 +150,8 @@ mistake compounds. The habits that keep them sane are ones you've already met:
 
 ---
 
+> **Security:** An agent compounds every earlier risk. Give it least-privilege tools, keep a human in the loop for irreversible actions, and run all tool execution inside the sandbox (Sections 15–16).
+
 ## Challenges
 
 1. **Add a tool, watch it plan.** Add a `convert_kg_to_lb` tool and ask "How much do 3
@@ -165,7 +167,7 @@ mistake compounds. The habits that keep them sane are ones you've already met:
 
 - An **agent** = the tool loop + a goal + tools + a "plan then act" system prompt + stop
   conditions (the **ReAct** cycle).
-- It composes everything: tools (13–14), retrieval (16), memory (12), guardrails (17),
+- It composes everything: tools (13–14), retrieval (19), memory (12), guardrails (20),
   observability (9), cost control (10).
 - Reliability comes from **caps, validated/least-privilege tools, errors-as-feedback, and
   logging** — not from trusting the model.
@@ -174,6 +176,6 @@ mistake compounds. The habits that keep them sane are ones you've already met:
 
 ## Next
 
-**Section 19 — Evaluation & Testing:** an agent that *sometimes* works isn't done. We'll
+**Section 23 — Evaluation & Testing:** an agent that *sometimes* works isn't done. We'll
 measure quality with golden tests and an LLM-as-judge so you can tell whether changes
 help or hurt.

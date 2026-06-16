@@ -6,7 +6,7 @@ You'll build a small driver that can use several tools across multiple steps. Th
 *is* a mini-agent.
 
 **Where this fits:** Section 13 gave you the handshake; here you automate it. This is the
-core machinery that Section 18 (Agents) dresses up with planning and more tools.
+core machinery that Section 22 (Agents) dresses up with planning and more tools.
 
 > **Reminder — needs tool calling.** Like Section 13, this needs your endpoint to have
 > **tool calling enabled** (vLLM auto tool choice). If `tool_calls` comes back empty,
@@ -132,10 +132,12 @@ Watch the `[step N]` lines: the model calls `calculate`, sees the result, calls
   You append one `tool` message per call.
 
 > **This is already an agent.** "Agent" mostly means *this loop* plus good tools, a
-> guiding system prompt, and stop conditions. Section 18 adds planning and composes it
+> guiding system prompt, and stop conditions. Section 22 adds planning and composes it
 > with retrieval and memory — but the engine is what you just wrote.
 
 ---
+
+> **Security:** A loop multiplies the blast radius — one bad turn can call a tool many times. Cap the steps, require confirmation for destructive actions, and run tool execution behind the isolation from Sections 15–16.
 
 ## Challenges
 
@@ -156,10 +158,11 @@ Watch the `[step N]` lines: the model calls `calculate`, sees the result, calls
 - A **registry** maps tool names to Python functions; one assistant turn can request
   several tools (a list).
 - **Cap the steps**, and **return tool errors to the model** instead of crashing.
-- This loop, with good tools and a system prompt, is the engine of an agent (Section 18).
+- This loop, with good tools and a system prompt, is the engine of an agent (Section 22).
 
 ## Next
 
-**Section 15 — Embeddings:** we switch gears to *meaning as numbers* — turning text into
-vectors with the embeddings endpoint and measuring similarity by hand. It's the
-foundation for retrieval (Section 16).
+**Section 15 — Sandboxing I:** the loop just ran model-chosen tools. The moment a tool
+does something real — runs code, a shell, SQL — validating arguments isn't enough; you
+need *isolation*. We build a portable sandbox (timeouts, resource limits, an allow-listed
+shell tool) so executing untrusted actions stops being dangerous.

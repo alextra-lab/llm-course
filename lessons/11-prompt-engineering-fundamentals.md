@@ -78,7 +78,7 @@ Three habits that punch above their weight:
    contract.
 2. **Delimit the data.** Wrap user-supplied text in clear markers (`<doc>…</doc>`,
    triple quotes, XML-ish tags) so the model can tell your *instructions* from the
-   *data*. This also matters for safety — Section 17.
+   *data*. This also matters for safety — Section 20.
 3. **Show the shape you want.** Ask for JSON (Section 6), a table, or bullets — and say
    so explicitly.
 
@@ -135,9 +135,11 @@ prompt budget on clear instructions and good examples instead.
 When a task is big, don't ask for everything in one shot. Break it into steps — extract,
 then transform, then format — either as separate calls or as explicit numbered steps in
 one prompt. Smaller, well-defined steps are easier for the model to get right and easier
-for *you* to validate (Section 19).
+for *you* to validate (Section 23).
 
 ---
+
+> **Security:** The highest-value habit in the whole course: keep **instructions and data apart** — instructions in the system message, untrusted text **delimited**. It's exactly what defends against prompt injection in Section 20.
 
 ## Challenges
 

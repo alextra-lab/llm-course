@@ -1,13 +1,13 @@
 """
-Section 18 - An agent: the tool loop + a goal + planning + multiple tools.
+Section 22 - An agent: the tool loop + a goal + planning + multiple tools.
 
 This is Section 14's loop, given a system prompt that tells the model to plan and
 use tools, plus a second tool (a document search). The model decides which tools
 to call, in what order, across several steps, then answers. We keep the safety
-habits from Section 17: a tool registry (only known tools run), validated/typed
+habits from Section 20: a tool registry (only known tools run), validated/typed
 arguments, tool errors returned to the model, and a hard step cap.
 
-    python examples/18/agent.py
+    python examples/22/agent.py
 """
 
 import ast
@@ -21,7 +21,7 @@ from common import get_client, MODEL
 
 client = get_client()
 
-# A small knowledge base. (A real agent would search this with RAG -- Section 16.
+# A small knowledge base. (A real agent would search this with RAG -- Section 19.
 # We use a simple keyword search so this runs without an embedding model.)
 DOCS = [
     "The Acme widget weighs 1.2 kilograms.",

@@ -243,6 +243,8 @@ avoid the context limit (Section 3), log activity (Section 9), and compute **cos
 
 ---
 
+> **Security:** Don't trust a response blindly. Check `finish_reason` first — a `length` cut-off means the answer (or JSON) is truncated, not complete — before you parse or act on `content`.
+
 ## Challenges
 
 Write these in `work/` (extend or copy `work/inspect.py`).
