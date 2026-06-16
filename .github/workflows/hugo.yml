@@ -46,7 +46,9 @@ jobs:
       - name: Setup Node (Docsy PostCSS)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Hugo 0.163's PostCSS step sandboxes the Node call with --permission,
+          # which only exists in Node >= 23. Node 20 fails with "bad option: --permission".
+          node-version: 24
 
       - name: Install Node dependencies
         run: npm ci
