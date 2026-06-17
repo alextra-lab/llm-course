@@ -32,6 +32,11 @@ defaultContentLanguage = "en"
   [[module.mounts]]
     source = "lessons"
     target = "content/docs"
+  # Second course: Agent Memory. Mounted as its own docs section (the lessons render
+  # in place; their ../examples links are rewritten to GitHub by the render-link hook).
+  [[module.mounts]]
+    source = "agent-memory/lessons"
+    target = "content/agent-memory"
   [[module.mounts]]
     source = "assets"
     target = "assets"
@@ -55,9 +60,13 @@ defaultContentLanguage = "en"
 
 [menu]
   [[menu.main]]
-    name = "Lessons"
+    name = "Foundations"
     weight = 10
     url = "/docs/"
+  [[menu.main]]
+    name = "Agent Memory"
+    weight = 20
+    url = "/agent-memory/"
   [[menu.main]]
     name = "GitHub"
     weight = 50

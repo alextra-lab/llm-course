@@ -1,0 +1,147 @@
+/*
+  FrenchForet custom styles. Docsy auto-imports this after its own styles, so the
+  brand SCSS variables from _variables_project.scss are in scope here.
+*/
+
+// Numbered course cards on the landing page.
+.course-cards-section {
+  padding: 2.5rem 1rem 3rem;
+  background: $light;
+}
+
+.course-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+.course-card {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  padding: 1.5rem 1.75rem;
+  background: #fff;
+  border: 1px solid rgba($dark, 0.12);
+  border-left: 4px solid $primary;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    text-decoration: none;
+    color: inherit;
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.5rem rgba($dark, 0.15);
+  }
+}
+
+.course-card__num {
+  flex: 0 0 auto;
+  min-width: 2.5rem;
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+  color: $primary;
+  opacity: 0.35;
+  font-variant-numeric: tabular-nums;
+}
+
+.course-card__body {
+  display: block;
+}
+
+.course-card__title {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: $dark;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.course-card__desc {
+  display: block;
+  margin-bottom: 0.85rem;
+  color: #444;
+
+  p {
+    margin: 0;
+  }
+}
+
+.course-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.course-card__badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $dark;
+  background: rgba($success, 0.18);
+  padding: 0.15rem 0.65rem;
+  border-radius: 1rem;
+}
+
+.course-card__cta {
+  display: inline-block;
+  font-weight: 600;
+  color: $primary;
+}
+
+// Per-course section index: lessons as a grid of numbered cards (drill-down view).
+.unit-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.unit-card {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem 1.15rem;
+  background: #fff;
+  border: 1px solid rgba($dark, 0.12);
+  border-left: 4px solid $primary;
+  border-radius: 0.4rem;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    text-decoration: none;
+    color: inherit;
+    transform: translateY(-2px);
+    box-shadow: 0 0.4rem 1.1rem rgba($dark, 0.13);
+  }
+}
+
+.unit-card__num {
+  flex: 0 0 auto;
+  min-width: 1.9rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: $primary;
+  opacity: 0.35;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit-card__title {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: $dark;
+  font-weight: 700;
+}
+
+.unit-card__desc {
+  display: block;
+  font-size: 0.9rem;
+  color: #555;
+}
