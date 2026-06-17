@@ -2,9 +2,6 @@
 title: "Agent Memory"
 linkTitle: "Agent Memory"
 weight: 30
-menu:
-  main:
-    weight: 30
 no_list: true
 ---
 
