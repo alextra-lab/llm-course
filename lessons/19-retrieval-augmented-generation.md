@@ -25,6 +25,19 @@ confident, plausible, wrong answer** (a hallucination, Section 4).
 
 **RAG** (Retrieval-Augmented Generation) fixes this with a simple pipeline:
 
+```mermaid
+flowchart LR
+    subgraph Prep["Offline, once"]
+        D[Documents] --> DV[Embed into doc vectors]
+    end
+    Q[Question] --> R["Retrieve<br/>semantic search, top-k"]
+    DV --> R
+    R --> AU["Augment<br/>inject chunks as context"]
+    AU --> GE["Generate<br/>answer only from context,<br/>else I don't know"]
+    GE --> ANS[Answer]
+```
+
+
 1. **Retrieve** — find the few pieces of *your* text most relevant to the question
    (semantic search from Section 18).
 2. **Augment** — put those pieces into the prompt as context.

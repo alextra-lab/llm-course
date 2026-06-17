@@ -28,6 +28,17 @@ so you **loop until the model stops asking for tools.**
 
 The control flow:
 
+```mermaid
+flowchart TD
+    S[messages + tools] --> M["model(messages, tools)"]
+    M --> Q{tool_calls?}
+    Q -->|no| A[Return the answer<br/>the model is done]
+    Q -->|yes| AP[Append assistant tool_calls,<br/>run each tool, append a tool result for each]
+    AP --> G{step &lt; max_steps?}
+    G -->|yes| M
+    G -->|no| A
+```
+
 ```
 loop:
     response = model(messages, tools)

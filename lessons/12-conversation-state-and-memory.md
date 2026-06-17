@@ -22,6 +22,14 @@ This surprises people: there is no "conversation" on the server. Each
 
 The loop is always the same:
 
+```mermaid
+flowchart TD
+    U[Append new user message] --> S[Send the WHOLE history to the model]
+    S --> AR[Append the assistant reply to history]
+    AR --> U
+    S -.->|history grows each turn| PT[prompt_tokens climbs]
+```
+
 1. Append the new `user` message to your history.
 2. Send the **whole** history.
 3. Append the `assistant` reply to your history.
