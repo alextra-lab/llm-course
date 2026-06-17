@@ -58,6 +58,13 @@ defaultContentLanguage = "en"
     sidebar_search_disable = false
     navbar_logo = false
 
+  # Pin Mermaid to the version Docsy v0.15.0 is built against (its own docs use this).
+  # Docsy otherwise loads mermaid@latest in the browser at view time, and a newer Mermaid
+  # release broke its init code (`mermaid.mermaidAPI.defaultConfig`), which threw client-side
+  # and left every diagram showing as raw code on the deployed site.
+  [params.mermaid]
+    version = "11.6.0"
+
 [menu]
   [[menu.main]]
     name = "Foundations"
