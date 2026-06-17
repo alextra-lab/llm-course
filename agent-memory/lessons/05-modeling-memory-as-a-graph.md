@@ -38,6 +38,14 @@ ways to store "Alex works at Acme, which is in Portland":
 
 Memory *is* a network of connected entities collected over time, so we store it as one.
 
+```mermaid
+flowchart LR
+    S(["(:Session)"]) -->|MENTIONS| A(["(:Entity) Alex"])
+    S -->|MENTIONS| B(["(:Entity) Acme Corp"])
+    A -->|WORKS_AT| B
+    B -->|LOCATED_IN| C(["(:Entity) Portland"])
+```
+
 ## Start Neo4j (local, temporary)
 
 One command starts a temporary Neo4j with both of its protocols exposed — `7687` (the **Bolt**

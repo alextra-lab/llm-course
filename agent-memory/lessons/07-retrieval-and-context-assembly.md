@@ -111,6 +111,19 @@ allergy first; "where is my employer?" ranks the employer first. The query now s
 
 ## Hybrid recall, then assembly
 
+The two entry mechanisms feed one ranked pipeline, which ends in the assembled prompt:
+
+```mermaid
+flowchart LR
+    Q[Query] --> EM[Entity-match traversal]
+    Q --> VR[Vector similarity]
+    EM --> C[Candidate entities]
+    VR --> C
+    C --> RR["Rerank<br/>recency × importance × relevance"]
+    RR --> TK[Top-k]
+    TK --> AS[Assemble into prompt]
+```
+
 Now combine the pieces. `search_memory` ranks the candidate entities, takes the top *k*, traverses
 each one, and gathers the connected facts into a single block of text — deduplicated, ready to put
 into a prompt:
