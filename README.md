@@ -15,9 +15,10 @@ it.
 > authoritative — the field moves quickly, and some choices here will date or differ from
 > yours. Verify anything before relying on it in production.
 
-## Two courses in this repo
+## Three courses in this repo
 
-This repo hosts **two** related courses, meant to be read in order:
+This repo hosts **three** related courses. The foundations course comes first; the other
+two are standalone follow-ons that assume it and can be read in either order:
 
 1. **AI Development — Foundations** *(this page)* — build from a raw HTTP request up through
    sampling, tools, sandboxing, embeddings, RAG, and agents. Start at
@@ -26,6 +27,12 @@ This repo hosts **two** related courses, meant to be read in order:
    *assumes* the foundations and goes deep on cross-session memory: a taxonomy of memory,
    conversational ingestion, a Neo4j knowledge graph, hybrid retrieval, lifecycle/decay, and
    a measured, opinionated default. See [`agent-memory/README.md`](agent-memory/README.md).
+3. **Context Compression: Keeping a Long Agent Inside the Window** — the sibling of the
+   memory course: instead of memory *across* sessions, it goes deep on keeping *one*
+   long-running session inside the token budget — measuring the window, dropping and
+   windowing, structured summarization, head/middle/tail preservation, offloading and
+   paging, cache-aware compaction, and a measured default earned by instrumentation. See
+   [`context-compression/README.md`](context-compression/README.md).
 
 The rest of this page is the foundations course.
 
