@@ -213,6 +213,12 @@ call any other function, and the description tells it *when* to reach for memory
 > *obey*. The query you embed for recall is also user-controlled — keep passing node values as
 > bound parameters (Units 5–6); never format a recall query into Cypher.
 
+> **Observe:** Recall now ranks, traverses, and assembles, so the joinable `recall` line
+> (foundations §9) should carry the query, what `ranked_by` decided the order (relevance or the
+> importance fallback), and which entities reached the prompt. That answers the read-path question
+> directly: *for this question, which memories did the agent put in front of the model, and why
+> those?* The same line is what Unit 9 later scores for recall@k.
+
 ## Challenges
 
 1. **Make recall query-sensitive.** With `EMBED_MODEL` set, run `search_memory` for "what am I

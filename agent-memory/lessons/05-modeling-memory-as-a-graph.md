@@ -200,6 +200,12 @@ ingestion in later units; right now you have the basic structure they all share.
 > (`driver.execute_query(q, name=user_text)`); never put them in with an f-string. Unit 10
 > returns to this with access scopes and PII.
 
+> **Observe:** Each write is now a `MERGE`, so emit a joinable line (foundations §9) with
+> `operation="write"` naming the node and edge it created or matched. Because `MERGE` either
+> creates or reuses, that record answers a question a flat store could not: *did this turn add a
+> new entity, or attach to one already there?* New-versus-matched counts over a session are how
+> you see the graph connecting rather than just accumulating rows.
+
 ## Challenges
 
 1. **A shared-node multi-hop.** Add a second person who also `WORKS_AT` Acme, in a separate

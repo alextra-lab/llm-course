@@ -93,6 +93,12 @@ yourself.
 > added on purpose). If you tag memory by kind, you can apply the right policy to each; Unit
 > 10 shows how.
 
+> **Observe:** This unit builds no code, so nothing is emitted yet — but the *kind* you assign
+> here is the signal to watch later. When you do write a memory, the joinable
+> `session_id`/`trace_id`/`step` line (foundations §9) should carry that kind, so you can later
+> ask which kinds your agent actually writes and recalls. If profile memory is most of what you
+> store, that telemetry is pointing you to where your privacy duties live.
+
 ## Challenges
 
 1. **List your agent's memory.** For an assistant you want to build, list every "thing it

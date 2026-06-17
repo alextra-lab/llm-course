@@ -178,6 +178,12 @@ coherent over months.
 > written, and treating an old memory's *content* as untrusted (Unit 7) limits the damage a
 > surviving bad fact can do. Never let extracted text set its own importance without a gate.
 
+> **Observe:** Curation is an automated editor, so log what it changed: a joinable line
+> (foundations §9) per gate decision (`kept`/`dropped` with importance) and per forget or
+> consolidate pass (which nodes decayed, faded, or merged). That answers the question that makes
+> an automated editor safe to run: *what did the gate let in, and what did the lifecycle quietly
+> remove?* — so a forgotten safety fact is visible, not noticed missing later.
+
 ## Challenges
 
 1. **Tune the decay to your data.** Change the per-access strength bump and the base curve, then

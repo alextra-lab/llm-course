@@ -21,13 +21,22 @@ without it the RELEVANCE term is unavailable, so we rank on recency x importance
     python agent-memory/examples/07/retrieve.py
 """
 
+import json
 import sys
+import uuid
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))               # agent-memory/examples
 sys.path.append(str(Path(__file__).resolve().parents[3] / "examples"))  # foundations examples
 from common import get_embed_client, EMBED_MODEL
 from common_graph import get_graph
+
+
+def log_event(session_id, trace_id, step, operation, **fields):
+    """One joinable telemetry line per memory op (foundations Section 9 shape). The
+    session_id/trace_id/step tuple ties this run together; Unit 10 adds redaction + scope."""
+    print(json.dumps({"session_id": session_id, "trace_id": trace_id, "step": step,
+                      "operation": operation, **fields}, sort_keys=True), file=sys.stderr)
 
 # A small memory graph to read from. Each entity carries two ranking signals besides its
 # embedding: `importance` (1-10, how much this fact matters -- the allergy is a 9) and
@@ -103,15 +112,21 @@ def rank(cands, query_vec):
     return sorted(scored, key=lambda t: t[1], reverse=True)
 
 
-def search_memory(driver, query, embed=None, k=3):
+def search_memory(driver, query, embed=None, k=3, session_id=None, trace_id=None, step=0):
     """HYBRID recall + assembly: rank entities, then traverse the top-k and gather their facts
     into one context block ready to drop into a prompt. This is the body of the agent tool."""
     query_vec = embed(query) if embed is not None else None
-    top = rank(candidates(driver, with_embedding=query_vec is not None), query_vec)[:k]
+    has_relevance = query_vec is not None
+    top = rank(candidates(driver, with_embedding=has_relevance), query_vec)[:k]
     facts = []
     for name, _ in top:
         facts.extend(traverse(driver, name))
-    return "\n".join(f"- {f}" for f in dict.fromkeys(facts))   # dedup, keep order
+    facts = list(dict.fromkeys(facts))   # dedup, keep order
+    if session_id is not None:   # the recall operation logs itself (foundations Section 9)
+        log_event(session_id, trace_id, step, "recall", query=query,
+                  ranked_by="relevance" if has_relevance else "recency+importance",
+                  entities=[name for name, _ in top], recalled=len(facts))
+    return "\n".join(f"- {f}" for f in facts)
 
 
 # The tool an agent calls (foundations Section 22). The schema is what the model sees; the
@@ -162,13 +177,15 @@ def main():
         # 2 + 3. Broad recall + rerank + assembly: no anchor, just a question. Note how the
         # OLD-but-IMPORTANT allergy still surfaces -- recency alone would bury it; importance
         # rescues it. That is the whole point of the multi-signal score.
-        for q in ["what am I allergic to?", "where is my employer?"]:
+        session_id, trace_id = uuid.uuid4().hex[:8], uuid.uuid4().hex[:8]   # one run; see Section 9
+        for i, q in enumerate(["what am I allergic to?", "where is my employer?"]):
             print(f"\nsearch_memory({q!r}) ->")
-            print(search_memory(driver, q, embed))
+            print(search_memory(driver, q, embed, session_id=session_id, trace_id=trace_id, step=i))
 
         # 4. Assemble into a prompt the way the agent would (we build the messages; calling the
         # model is the Section 22 loop).
-        context = search_memory(driver, "what am I allergic to?", embed)
+        context = search_memory(driver, "what am I allergic to?", embed,
+                                session_id=session_id, trace_id=trace_id, step=2)
         messages = [
             {"role": "system", "content": "You are a helpful assistant. Use the memory below.\n"
                                           f"<memory>\n{context}\n</memory>"},

@@ -14,8 +14,10 @@ the embedding step is skipped and the rest still runs.
     python agent-memory/examples/06/extract.py
 """
 
+import json
 import re
 import sys
+import uuid
 from pathlib import Path
 
 from pydantic import BaseModel
@@ -24,6 +26,13 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))               # agent-
 sys.path.append(str(Path(__file__).resolve().parents[3] / "examples"))  # foundations examples
 from common import get_client, get_embed_client, MODEL, EMBED_MODEL
 from common_graph import get_graph
+
+
+def log_event(session_id, trace_id, step, operation, **fields):
+    """One joinable telemetry line per memory op (foundations Section 9 shape). The
+    session_id/trace_id/step tuple ties this run together; Unit 10 adds redaction + scope."""
+    print(json.dumps({"session_id": session_id, "trace_id": trace_id, "step": step,
+                      "operation": operation, **fields}, sort_keys=True), file=sys.stderr)
 
 TURN = ("Hey, I'm Alex -- I just started as a data engineer at Acme Corp, "
         "and we're based out of Portland.")
@@ -107,6 +116,7 @@ def main():
         return   # skip notice already printed -- this unit writes to the graph
 
     client = get_client()
+    session_id, trace_id = uuid.uuid4().hex[:8], uuid.uuid4().hex[:8]   # one run; see Section 9
     extraction = extract(client, TURN)
     print("entities: ", [(e.name, e.type) for e in extraction.entities])
     print("relations:", [(r.subject, r.predicate, r.object) for r in extraction.relations])
@@ -122,6 +132,10 @@ def main():
 
     with driver:
         write_triples(driver, extraction, embed)
+        # Telemetry: what did this turn write to memory? (foundations Section 9 joinable line)
+        log_event(session_id, trace_id, 0, "ingest",
+                  entities=[e.name for e in extraction.entities],
+                  predicates=[r.predicate for r in extraction.relations])
 
         # The dedup problem, made concrete: a later turn calls the same company "ACME Inc.".
         # Exact-name MERGE can't tell it's the same Acme -> a DUPLICATE node for one company.
@@ -129,6 +143,8 @@ def main():
             "MERGE (e:Entity {name: 'ACME Inc.'}) ON CREATE SET e.type = 'company'")
         records, _, _ = driver.execute_query(
             "MATCH (e:Entity) WHERE e.type = 'company' RETURN e.name AS n ORDER BY n")
+        # The duplicate is now VISIBLE in telemetry, not just sitting in the graph.
+        log_event(session_id, trace_id, 1, "dedup_check", company_nodes=[r["n"] for r in records])
         print("company nodes now:", [r["n"] for r in records],
               "<- one real company, two nodes. That's the dedup problem (see the lesson).")
 

@@ -100,6 +100,12 @@ course can give is: *do not build the rest of it.*
 > reason to control writes (Unit 8) and limit traversals (Unit 10), not a reason to avoid graphs
 > — but understand that the join works in both directions.
 
+> **Observe:** This is a decide unit — you build no graph here — so the note points forward.
+> When you do traverse, the signal to watch is the *hops* and *token cost* of each recall on the
+> joinable line (foundations §9). That turns Unit 4's argument into measurement: did the join
+> surface a fact vector recall missed, and what did the traversal cost? Without that record, "a
+> graph helps here" stays an opinion.
+
 ## Challenges
 
 1. **Classify ten questions.** Write ten things a user might ask your agent and label each

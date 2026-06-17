@@ -107,6 +107,12 @@ of the retrieval.
 > embed, you make findable. Control what enters memory (Unit 8) and limit what a given query
 > may retrieve (Unit 10); semantic reach makes both more important, not less.
 
+> **Observe:** Recall now ranks by similarity, so log the same joinable line (foundations §9)
+> with `operation="recall"`, the query, and the cosine score of each hit. Beside Unit 2's keyword
+> log, that record answers the one question this unit exists to settle: *on the same questions,
+> did semantic recall beat the keyword baseline, and by how much?* The scores are also how you
+> later spot a believable-but-wrong fact ranked first.
+
 ## Challenges
 
 1. **Beat the baseline, with numbers.** Run your five questions from Unit 2's challenge

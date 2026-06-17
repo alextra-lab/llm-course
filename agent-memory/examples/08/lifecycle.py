@@ -21,9 +21,11 @@ rest still runs.
     python agent-memory/examples/08/lifecycle.py
 """
 
+import json
 import math
 import os
 import sys
+import uuid
 from pathlib import Path
 
 from pydantic import BaseModel
@@ -32,6 +34,13 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))               # agent-
 sys.path.append(str(Path(__file__).resolve().parents[3] / "examples"))  # foundations examples
 from common import get_client, MODEL
 from common_graph import get_graph
+
+
+def log_event(session_id, trace_id, step, operation, **fields):
+    """One joinable telemetry line per memory op (foundations Section 9 shape). The
+    session_id/trace_id/step tuple ties this run together; Unit 10 adds redaction + scope."""
+    print(json.dumps({"session_id": session_id, "trace_id": trace_id, "step": step,
+                      "operation": operation, **fields}, sort_keys=True), file=sys.stderr)
 
 # A graph with two ranking signals per memory: `importance` (1-10, set once when the memory
 # is created) and `strength` (S in the decay curve -- grows each time the memory is accessed).
@@ -118,6 +127,7 @@ def main():
     driver = get_graph()
     if driver is None:
         return   # skip notice already printed -- this unit writes/reads the graph
+    session_id, trace_id = uuid.uuid4().hex[:8], uuid.uuid4().hex[:8]   # one run; see Section 9
 
     with driver:
         driver.execute_query(SEED)
@@ -138,8 +148,11 @@ def main():
         # oldest and most faded fact, but importance=9 protects it (don't over-forget). The
         # running club survives because we just accessed it. Only trivial 'weather' is dropped.
         forgotten = forget_pass(driver)
+        survivors = [m["name"] for m in memories(driver)]
+        # Telemetry: an automated editor must log what it removed (foundations Section 9).
+        log_event(session_id, trace_id, 0, "forget", dropped=forgotten, kept=survivors)
         print(f"\nforget_pass dropped: {forgotten}")
-        print("surviving memories:", [m["name"] for m in memories(driver)])
+        print("surviving memories:", survivors)
         print("  (shellfish kept by IMPORTANCE despite being the most faded; "
               "running club kept by ACCESS; weather dropped -- faded AND trivial.)")
 
@@ -149,9 +162,11 @@ def main():
             return
         client = get_client()
         print("\npromotion gate (narrate-and-confirm before writing):")
-        for fact in ["I'm also allergic to peanuts.", "The weather is nice today."]:
+        for i, fact in enumerate(["I'm also allergic to peanuts.", "The weather is nice today."]):
             v = promotion_gate(client, fact)
             action = "WRITE" if v.keep else "drop "
+            # Telemetry: every gate decision is logged, so what got in is auditable later.
+            log_event(session_id, trace_id, 1 + i, "gate", keep=v.keep, importance=v.importance)
             print(f"  [{action}] {fact!r}  importance={v.importance} -- {v.reason}")
 
 
