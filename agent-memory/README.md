@@ -80,7 +80,7 @@ land.)*
 6. **[Ingestion: Extracting Structure](lessons/06-ingestion-extracting-structure.md)** — LLM entity/relation extraction from a turn; embed entities; the dedup problem. ✅
 7. **Retrieval & Context Assembly** — entity-match traversal + hybrid graph/vector + rerank; a `search_memory` tool.
 8. **Curation & Lifecycle** — promotion/demotion, decay (time vs. access), the promotion gate, consolidation.
-9. **Measure Before You Optimize** — recall@k / precision@k / MRR / nDCG over your memory.
+9. **[Measure Before You Optimize](lessons/09-measure-before-you-optimize.md)** — recall@k / precision@k / MRR / nDCG over your memory. ✅
 10. **Observability & Privacy** — joinable telemetry, visibility scopes, PII, Cypher injection, access control.
 11. **The Opinionated Default** — wire a memory-backed agent; deliver the decision tree + when *not* to build this.
 
