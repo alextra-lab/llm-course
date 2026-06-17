@@ -123,6 +123,14 @@ something the `messages` list gives you for free.**
 > later unit has a security note, and Unit 10 is dedicated to this topic. From the very first
 > node you write, remember: what we persist, we will trust again later.
 
+> **Observe:** A memory you cannot see is a memory you cannot debug. Every later unit also
+> carries an `Observe` note: it instruments what the unit builds — a joinable
+> `session_id`/`trace_id`/`step` log line, reused from foundations §9 — and names the
+> question that telemetry answers ("what did the agent remember, and for whom?", "did recall
+> improve over the baseline?"). Units 9 and 10 are dedicated to measurement and joinable
+> telemetry, but you instrument from the first node you write, not at the end. This is the
+> repo's [Observability Standard](../../OBSERVABILITY.md), the same through-line as security.
+
 ## Challenges
 
 These are thinking-and-experiment tasks; the building starts in Unit 2.

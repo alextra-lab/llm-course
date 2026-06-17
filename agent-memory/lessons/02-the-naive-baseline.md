@@ -122,6 +122,12 @@ context.
 > is SQL injection (foundations §16) — and a memory store is *full* of user input. Build the
 > habit now; it is the same habit that keeps Cypher safe in Unit 5.
 
+> **Observe:** This is the first thing you build, so it is the first thing you instrument. Emit
+> one joinable `session_id`/`trace_id`/`step` line (foundations §9) per write and per recall —
+> `operation="write"` or `"recall"`, with the search term and how many rows came back. That log
+> answers the baseline question the next two units must beat: *for this query, did keyword recall
+> surface the right fact, or nothing?* See the repo's [Observability Standard](../../OBSERVABILITY.md).
+
 ## Challenges
 
 1. **Make it survive.** Change `:memory:` to a file path, run the script twice, and confirm

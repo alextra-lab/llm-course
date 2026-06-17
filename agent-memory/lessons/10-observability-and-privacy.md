@@ -131,6 +131,12 @@ python work/observe.py
 > operational ones too — retention limits, a delete path for a user's memory (the right to be
 > forgotten is also a feature), and access to the log store itself.
 
+> **Observe:** This unit is where the through-line you have emitted since Unit 2 gets its name
+> and its rules. The joinable `session_id`/`trace_id`/`step` line becomes `log_event` with an
+> `actor`, an `operation`, and PII redaction at the boundary — the same record, now safe to keep.
+> The loop it closes is the privacy one: *can you reconstruct exactly what one request read and
+> wrote, without the log itself leaking what it was protecting?*
+
 ## Challenges
 
 1. **Reconstruct a session.** Capture the JSON lines from a run and, using only `trace_id`, list

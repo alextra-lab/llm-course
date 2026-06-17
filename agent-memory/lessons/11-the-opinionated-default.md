@@ -42,7 +42,7 @@ flowchart TD
         LLM --> ANS[Answer]
     end
     M -. "decay · forget · consolidate (Unit 8)" .-> M
-    Write -. "every op logged + scoped (Unit 10)" .-> Read
+    Write -. "every op logged · joinable (Units 9–10)" .-> Read
 ```
 
 The write path is one function — extract, gate, write:
@@ -89,6 +89,23 @@ python work/agent.py
 ```
 
 *(Reference: [`examples/11/agent.py`](../examples/11/agent.py).)*
+
+Every operation above also emits one **joinable telemetry line** on stderr — the foundations
+§9 shape (`session_id` / `trace_id` / `step`), with PII redacted at the boundary (Unit 10).
+Run it with `2> run.jsonl` and a single `grep` on the `trace_id` replays the whole turn:
+
+```json
+{"operation": "remember", "session_id": "9f3a2b1c", "trace_id": "7c1d4e8a", "step": 0, "kept": "['Acme Corp', 'Alex', 'Portland', 'data engineer', 'shellfish']", "dropped": "['weather']", "gate": "4"}
+{"operation": "recall", "session_id": "9f3a2b1c", "trace_id": "7c1d4e8a", "step": 1, "query": "I'm booking a seafood restaurant ...", "ranked_by": "relevance", "recalled": "2"}
+```
+
+> **Observe:** The capstone is where the through-line pays off. Every `remember`, `recall`,
+> and `respond` emits a joinable record, so you can answer *what did the agent remember, under
+> what gate, and which memories did recall surface for this question?* — the whole system made
+> visible from one shared key. The `recall` line is also the feedback signal: its `recalled`
+> count and `ranked_by` tell you, *before the answer does*, when recall surfaced nothing or
+> fell back to importance ranking because embeddings were missing. This is the repo's
+> [Observability Standard](../../OBSERVABILITY.md) — telemetry built with the agent, not after.
 
 ## The decision tree
 

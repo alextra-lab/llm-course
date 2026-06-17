@@ -184,6 +184,12 @@ keeping memory healthy over time.
 > remember that Unit 8's promotion gate exists exactly so that not every extracted claim is trusted
 > equally.
 
+> **Observe:** Ingestion turns one turn into several triples, so log a joinable line
+> (foundations §9) with `operation="ingest"`: the entities and predicates extracted, and any that
+> resolution merged. That record answers *what did this turn write to memory, and what got
+> collapsed into an existing node?* — the difference between a clean graph and a quietly
+> duplicated one, and where you would flag a predicate the `safe_rel` allow-list rejected.
+
 ## Challenges
 
 1. **Extract a multi-fact turn.** Give the model a turn with three or four facts; confirm the

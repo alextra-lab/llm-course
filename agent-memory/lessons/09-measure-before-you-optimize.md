@@ -146,6 +146,12 @@ including this course's.
 > ask next month — so refresh the set, and watch precision *and* recall together (it is easy to
 > win one by sacrificing the other). The goal is a memory the user trusts, not a leaderboard.
 
+> **Observe:** The metrics here are not a separate machinery — recall@k, MRR, and nDCG are
+> computed *from* the recalls you have been logging since Unit 2 (foundations §9), scored against
+> your labeled ids. The joinable line is the raw data; the metric is the summary. That closes the
+> loop the whole course turns on: *did this change to recall actually raise the number, or did it
+> only feel better?*
+
 ## Challenges
 
 1. **Find the precision/recall trade-off.** Raise *k* and watch recall rise while precision falls.
