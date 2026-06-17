@@ -31,6 +31,17 @@ next tool, and eventually decides it's done and answers. This reason→act→obs
 often called **ReAct**. You already wrote the loop; an agent just gives it direction and
 more capable tools.
 
+```mermaid
+flowchart LR
+    G[Goal + plan-then-act<br/>system prompt] --> RE[Reason]
+    RE -->|done| F[Final answer]
+    RE -->|needs a tool| AC["Act — pick a tool<br/>search_docs / calculate"]
+    AC --> OB[Observe result]
+    OB --> RE
+    OB -.->|max_steps hit → run_degraded| F
+```
+
+
 ---
 
 ## Build an agent
