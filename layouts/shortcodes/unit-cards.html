@@ -1,0 +1,17 @@
+{{- /*
+  unit-cards: render the current section's lessons as numbered cards,
+  ordered by weight. Drop it in a section _index.md (with no_list: true) so it
+  replaces Docsy's default page list. Each lesson's weight is the card number and
+  its first paragraph (the "Goal:" line) is the blurb.
+*/ -}}
+<div class="unit-cards">
+{{- range (sort .Page.Pages "Weight") }}
+  <a class="unit-card" href="{{ .RelPermalink }}">
+    <span class="unit-card__num">{{ printf "%02d" .Weight }}</span>
+    <span class="unit-card__body">
+      <span class="unit-card__title">{{ .Title }}</span>
+      <span class="unit-card__desc">{{ .Summary | plainify | htmlUnescape | strings.TrimSpace | truncate 150 }}</span>
+    </span>
+  </a>
+{{- end }}
+</div>

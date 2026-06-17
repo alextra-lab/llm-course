@@ -1,0 +1,27 @@
+{{- /*
+  course-card: a numbered course card for the landing page.
+
+  Usage:
+    {{< course-card number="01" title="..." url="/docs/" cta="Start →"
+                     badges="24 sections|in order|Start here" >}}
+    Markdown description (one short paragraph; **bold** allowed).
+    {{< /course-card >}}
+*/ -}}
+{{- $num := .Get "number" -}}
+{{- $title := .Get "title" -}}
+{{- $url := .Get "url" -}}
+{{- $cta := .Get "cta" | default "Open course →" -}}
+{{- $badges := .Get "badges" -}}
+<a class="course-card" href="{{ $url }}">
+  <span class="course-card__num">{{ $num }}</span>
+  <span class="course-card__body">
+    <span class="course-card__title">{{ $title }}</span>
+    <span class="course-card__desc">{{ .Page.RenderString (.Inner | strings.TrimSpace) }}</span>
+    {{- with $badges }}
+    <span class="course-card__badges">
+      {{- range (split . "|") }}<span class="course-card__badge">{{ trim . " " }}</span>{{ end -}}
+    </span>
+    {{- end }}
+    <span class="course-card__cta">{{ $cta }}</span>
+  </span>
+</a>
