@@ -10,6 +10,25 @@ similarity by hand before you reach for a vector database, and write a tool-use 
 from scratch before anyone says the word "agent." Each section builds on the one before
 it.
 
+> **A note on these courses.** This material is based on my own evolving experience
+> building AI applications and working with LLMs. It's practical and opinionated, not
+> authoritative — the field moves quickly, and some choices here will date or differ from
+> yours. Verify anything before relying on it in production.
+
+## Two courses in this repo
+
+This repo hosts **two** related courses, meant to be read in order:
+
+1. **AI Development — Foundations** *(this page)* — build from a raw HTTP request up through
+   sampling, tools, sandboxing, embeddings, RAG, and agents. Start at
+   [`lessons/01-hello-world.md`](lessons/01-hello-world.md).
+2. **Agent Memory: From Chat History to a Knowledge Graph** — a standalone follow-on that
+   *assumes* the foundations and goes deep on cross-session memory: a taxonomy of memory,
+   conversational ingestion, a Neo4j knowledge graph, hybrid retrieval, lifecycle/decay, and
+   a measured, opinionated default. See [`agent-memory/README.md`](agent-memory/README.md).
+
+The rest of this page is the foundations course.
+
 ## What you'll talk to
 
 Every example targets a **hosted, OpenAI-compatible inference server** (running vLLM)

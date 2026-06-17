@@ -7,3 +7,7 @@ numpy
 # Optional, only for the opt-in Section 16 Postgres demo (examples/16/pg_sandbox.py).
 # Uncomment if you set DATABASE_URL to a throwaway dev database:
 # psycopg[binary]
+
+# Optional, only for the Agent Memory course's Neo4j graph demos (agent-memory/).
+# Uncomment if you set NEO4J_URI to a throwaway dev database (see agent-memory/README.md):
+# neo4j
