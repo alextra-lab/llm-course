@@ -32,6 +32,13 @@ The graph's one special power is the **multi-hop join**: "what city is my employ
 That is the ability Unit 3 could not provide, and it is the *only* reason to accept the extra
 complexity. If your problem never needs it, the graph is just extra cost.
 
+```mermaid
+flowchart LR
+    A((Alex)) -->|WORKS_AT| B((Acme Corp))
+    B -->|LOCATED_IN| C((Portland))
+    A -.->|two-hop answer to<br/>which city is my employer in| C
+```
+
 ## The honest part: graphs don't always win
 
 Here this course refuses to oversell. The research result is **conditional**, not "graphs are

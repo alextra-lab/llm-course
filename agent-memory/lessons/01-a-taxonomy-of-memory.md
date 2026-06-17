@@ -42,6 +42,23 @@ decide about the migration?"). Semantic memory is *timeless and general* — you
 lookup or by meaning ("where is Acme based?"). A good system turns episodic memory into
 semantic memory over time: many turns about Acme's location combine into one durable fact.
 
+```mermaid
+flowchart TD
+    subgraph Working["Working memory — ends with the session (§12)"]
+        W[Current prompt / messages]
+    end
+    subgraph Persistent["Persistent memory — the subject of this course"]
+        E[Episodic<br/>what happened, when]
+        S[Semantic<br/>what is true]
+        PR[Procedural<br/>how to do things]
+        PF[Profile<br/>stable facts about the user]
+        D[Derived<br/>summaries, reflections]
+    end
+    E -->|consolidate over time| S
+    E -->|reflect, e.g. Reflexion| D
+    S -->|summarize| D
+```
+
 **Reflexion** (Shinn et al., *NeurIPS* 2023; arXiv:2303.11366) is the clearest example of
 **derived, episodic-verbal** memory. An agent reviews a failed attempt, writes a short
 lesson in words ("I forgot to check the return code"), stores it, and retrieves it next time
