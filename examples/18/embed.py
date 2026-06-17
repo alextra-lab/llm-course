@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))  # the examples/ dir
-from common import get_client, EMBED_MODEL
+from common import get_embed_client, EMBED_MODEL
 
 if not EMBED_MODEL:
     raise SystemExit(
@@ -21,7 +21,7 @@ if not EMBED_MODEL:
         "(gpt-oss-120b is a chat model and usually won't produce embeddings.)"
     )
 
-client = get_client()
+client = get_embed_client()
 
 response = client.embeddings.create(
     model=EMBED_MODEL,

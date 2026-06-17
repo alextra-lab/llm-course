@@ -22,7 +22,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))  # the examples/ dir
-from common import get_client, MODEL, EMBED_MODEL
+from common import get_client, get_embed_client, MODEL, EMBED_MODEL
 
 client = get_client()
 
@@ -51,8 +51,10 @@ DOCS = [
 ]
 
 if EMBED_MODEL:
+    embed_client = get_embed_client()   # may point at a different endpoint than chat
+
     def _embed(texts):
-        r = client.embeddings.create(model=EMBED_MODEL, input=texts)
+        r = embed_client.embeddings.create(model=EMBED_MODEL, input=texts)
         return np.array([d.embedding for d in r.data])
 
     _DOC_VECS = _embed(DOCS)

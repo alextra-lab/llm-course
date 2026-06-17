@@ -22,7 +22,7 @@ from pydantic import BaseModel
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))               # agent-memory/examples
 sys.path.append(str(Path(__file__).resolve().parents[3] / "examples"))  # foundations examples
-from common import get_client, MODEL, EMBED_MODEL
+from common import get_client, get_embed_client, MODEL, EMBED_MODEL
 from common_graph import get_graph
 
 TURN = ("Hey, I'm Alex -- I just started as a data engineer at Acme Corp, "
@@ -113,8 +113,9 @@ def main():
 
     embed = None
     if EMBED_MODEL:
+        embed_client = get_embed_client()   # may point at a different endpoint than chat
         def embed(text):
-            v = client.embeddings.create(model=EMBED_MODEL, input=[text]).data[0].embedding
+            v = embed_client.embeddings.create(model=EMBED_MODEL, input=[text]).data[0].embedding
             return list(v)
     else:
         print("(EMBED_MODEL not set -- storing nodes without embeddings; hybrid recall waits.)")

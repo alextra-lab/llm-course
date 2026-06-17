@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parents[3] / "examples"))  # foundations examples
-from common import get_client, EMBED_MODEL
+from common import get_embed_client, EMBED_MODEL
 
 # The SAME facts Unit 2 stored in SQLite -- now we'll recall them by meaning.
 FACTS = [
@@ -37,7 +37,7 @@ def main():
     if not EMBED_MODEL:
         print("EMBED_MODEL not set -- skipping (this unit needs embeddings). See Section 18.")
         return
-    client = get_client()
+    client = get_embed_client()
     fact_vecs = embed(client, FACTS)   # embed the memory ONCE, up front
 
     # The two queries that keyword search whiffed on in Unit 2 -- now by meaning.

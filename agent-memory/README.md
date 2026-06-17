@@ -78,7 +78,7 @@ land.)*
 4. **[Why a Graph](lessons/04-why-a-graph.md)** — vector vs. relational vs. graph, and the honest, *conditional* evidence. ✅
 5. **[Modeling Memory as a Graph](lessons/05-modeling-memory-as-a-graph.md)** — Neo4j via Docker; sessions, entities, and multi-hop Cypher by hand. ✅
 6. **[Ingestion: Extracting Structure](lessons/06-ingestion-extracting-structure.md)** — LLM entity/relation extraction from a turn; embed entities; the dedup problem. ✅
-7. **Retrieval & Context Assembly** — entity-match traversal + hybrid graph/vector + rerank; a `search_memory` tool.
+7. **[Retrieval & Context Assembly](lessons/07-retrieval-and-context-assembly.md)** — entity-match traversal + hybrid graph/vector + rerank; a `search_memory` tool. ✅
 8. **Curation & Lifecycle** — promotion/demotion, decay (time vs. access), the promotion gate, consolidation.
 9. **Measure Before You Optimize** — recall@k / precision@k / MRR / nDCG over your memory.
 10. **Observability & Privacy** — joinable telemetry, visibility scopes, PII, Cypher injection, access control.
