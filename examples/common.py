@@ -27,6 +27,13 @@ MODEL = os.environ.get("MODEL", "openai/gpt-oss-120b")
 # An embedding model id, used from Section 18 onward (usually a different model).
 EMBED_MODEL = os.environ.get("EMBED_MODEL", "")
 
+# Embeddings may live on a DIFFERENT server than chat. These two are optional: leave them
+# unset and embeddings use the same endpoint as chat (OPENAI_BASE_URL/OPENAI_API_KEY), so a
+# single OpenAI-compatible server keeps working unchanged. Set them to run, say, a remote
+# chat model while serving embeddings from a local Ollama (EMBED_BASE_URL=http://localhost:11434/v1).
+EMBED_BASE_URL = os.environ.get("EMBED_BASE_URL", "")
+EMBED_API_KEY = os.environ.get("EMBED_API_KEY", "")
+
 
 def ssl_verify():
     """Decide how TLS certificates are verified, from the environment.
@@ -52,9 +59,25 @@ def ssl_verify():
 
 
 def get_client() -> OpenAI:
-    """Build an OpenAI SDK client pointed at our hosted endpoint."""
+    """Build an OpenAI SDK client pointed at our hosted (chat) endpoint."""
     return OpenAI(
         base_url=os.environ["OPENAI_BASE_URL"],
         api_key=os.environ["OPENAI_API_KEY"],
+        http_client=httpx.Client(verify=ssl_verify()),
+    )
+
+
+def get_embed_client() -> OpenAI:
+    """Build the client used for EMBEDDINGS (Section 18+).
+
+    Identical to get_client() by default, but EMBED_BASE_URL / EMBED_API_KEY override the
+    endpoint so embeddings can come from a different server than chat — e.g. a local Ollama
+    for embeddings while chat stays on a remote endpoint. Each falls back to the chat value
+    (OPENAI_BASE_URL / OPENAI_API_KEY) when unset, so existing single-endpoint setups are
+    unaffected. (Many local servers ignore the key; we send a placeholder if none is set.)
+    """
+    return OpenAI(
+        base_url=EMBED_BASE_URL or os.environ["OPENAI_BASE_URL"],
+        api_key=EMBED_API_KEY or os.environ.get("OPENAI_API_KEY") or "EMPTY",
         http_client=httpx.Client(verify=ssl_verify()),
     )

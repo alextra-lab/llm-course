@@ -14,12 +14,12 @@ from pathlib import Path
 import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))  # the examples/ dir
-from common import get_client, EMBED_MODEL
+from common import get_embed_client, EMBED_MODEL
 
 if not EMBED_MODEL:
     raise SystemExit("Set EMBED_MODEL in your .env (see examples/18/embed.py).")
 
-client = get_client()
+client = get_embed_client()
 
 
 def embed(texts):
