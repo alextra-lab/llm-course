@@ -111,7 +111,7 @@ The arc is 13 standalone units (0–12). *(Authoring in progress — links appea
 land.)*
 
 0. **[The Context Problem](lessons/00-the-context-problem.md)** — the window as a budget; context rot, lost-in-the-middle, primacy/recency; compression vs. memory; the thesis stated. ✅
-1. **[Measuring the Window](lessons/01-measuring-the-window.md)** — token accounting without `tiktoken`; where the budget goes (system / tools / history / tool outputs); build a context meter.
+1. **[Measuring the Window](lessons/01-measuring-the-window.md)** — token accounting without `tiktoken`; where the budget goes (system / tools / history / tool outputs); build a context meter. ✅
 2. **[The Cheapest Compression Is None](lessons/02-the-cheapest-compression-is-none.md)** — the cost of compressing too early (quality *and* cache); when *not* to compress; headroom thinking.
 3. **[Drop & Window: The Safe Baseline](lessons/03-drop-and-window.md)** — eviction policies, drop-oldest, trim priority (history → memory → tool defs), the sliding window (reuses §12).
 4. **[Summarizing Evicted Turns](lessons/04-summarizing-evicted-turns.md)** — structured summarization; a 4-section schema (Decisions / Entities / Facts / Open Items); a cheap compressor model; async; graceful fallback.
