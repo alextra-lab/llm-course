@@ -3,6 +3,12 @@ title: "Agent Memory"
 linkTitle: "Agent Memory"
 weight: 30
 no_list: true
+# Render this course as a Docsy `docs` section (like Foundations). Without this, its pages
+# fall back to the generic root baseof, which renders scripts.html via `partialCached` with
+# no variant key -- caching the per-page Mermaid gate site-wide and racing it away on build,
+# so diagrams ship as raw code. The docs baseof renders scripts.html per page (uncached).
+cascade:
+  type: docs
 ---
 
 **Agent Memory: From Chat History to a Knowledge Graph** — the second course, a hands-on,
