@@ -116,7 +116,7 @@ land.)*
 3. **[Drop & Window: The Safe Baseline](lessons/03-drop-and-window.md)** — eviction policies, drop-oldest, trim priority (history → memory → tool defs), the sliding window (reuses §13). ✅
 4. **[Summarizing Evicted Turns](lessons/04-summarizing-evicted-turns.md)** — structured summarization; a 4-section schema (Decisions / Entities / Facts / Open Items); a cheap compressor model; async; graceful fallback. ✅
 5. **[Head, Middle, Tail](lessons/05-head-middle-tail.md)** — the anchored-preservation invariant: keep head + tail verbatim, compress only the middle. ✅
-6. **[Cheap Before Smart: The Deterministic Pre-Pass](lessons/06-deterministic-pre-pass.md)** — collapse large tool outputs to one-line descriptors before the summarizer; observation masking vs. LLM summarization.
+6. **[Cheap Before Smart: The Deterministic Pre-Pass](lessons/06-deterministic-pre-pass.md)** — collapse large tool outputs to one-line descriptors before the summarizer; observation masking vs. LLM summarization. ✅
 7. **[When to Fire: Triggers & Async Compression](lessons/07-triggers-and-async.md)** — threshold triggers (soft async / hard sync), the re-fire cursor, non-blocking background compression, latency.
 8. **[Offloading & Paging: Gist Memory](lessons/08-offloading-and-paging.md)** — store full bytes externally, keep a short reference, page back on demand; the read→edit dependency hazard.
 9. **[Cache-Aware Compaction](lessons/09-cache-aware-compaction.md)** — KV-cache & prefill economics; the byte-identity invariant; volatility-gradient layout; why compaction breaks the cache; cost-optimal scheduling.
