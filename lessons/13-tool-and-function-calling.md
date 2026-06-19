@@ -12,9 +12,10 @@ message, and get a final answer that uses it. This is the mechanic behind every 
 where Pydantic-style schemas from Section 6 pay off (tools are described with JSON
 schemas). It's one round trip here; Section 14 turns it into a loop.
 
-> **Your endpoint must have tool calling enabled** (vLLM's automatic tool choice with a
-> `gpt-oss` tool parser). If `tool_calls` comes back empty in the examples, that's the
-> likely cause — note it and read on; the mechanics are the same everywhere.
+> **Your endpoint must support tool calling** (the OpenAI-style `tools` / `tool_choice`
+> parameters). Not every server does — run `python scripts/preflight.py` to check yours. If
+> `tool_calls` comes back empty in the examples, that's the likely cause — note it and read
+> on; the mechanics are the same everywhere.
 
 ---
 

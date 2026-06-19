@@ -5,10 +5,10 @@ You write a list of {role, content} messages. The model never sees that list --
 it sees ONE flat string of tokens with special delimiter tokens. The bridge
 between the two is the model's "chat template".
 
-vLLM can show you that rendered string via its /tokenize endpoint -- a vLLM
-extension that lives at the server ROOT, not under /v1. Not every hosted
-endpoint exposes it, so this script falls back to counting tokens via the
-normal chat endpoint's `usage` when /tokenize isn't reachable.
+Some servers expose a NON-STANDARD `/tokenize` endpoint (it lives at the server
+ROOT, not under /v1) that can show you that rendered string. It is not part of the
+OpenAI API, so most endpoints don't have it -- this script falls back to counting
+tokens via the standard chat endpoint's `usage` when /tokenize isn't reachable.
 
     python examples/01/show_template.py
 """
@@ -51,8 +51,17 @@ try:
         verify=verify,
     )
     resp.raise_for_status()
-    body = resp.json()
-except requests.RequestException as err:
+    data = resp.json()
+    # Some OpenAI-compatible servers answer 200 with an error body instead of a 404,
+    # so raise_for_status() won't catch them. Only treat this as a real tokenize
+    # response if the expected fields (count / tokens) are actually present.
+    if isinstance(data, dict) and ("count" in data or "tokens" in data):
+        body = data
+    else:
+        print("/tokenize did not return the expected token fields on this endpoint "
+              f"(got keys: {list(data) if isinstance(data, dict) else type(data).__name__}).\n")
+except (requests.RequestException, ValueError) as err:
+    # ValueError covers a non-JSON 200 body (resp.json() failing).
     print(f"/tokenize not available on this endpoint ({err}).\n")
 
 if body is not None:
@@ -63,14 +72,18 @@ if body is not None:
     if token_strs:
         # Joining the token pieces reconstructs the EXACT string the model sees,
         # including the special role delimiters and the trailing generation prompt.
+        # Everything here that ISN'T your two sentences -- the role markers, the
+        # channel/format tokens, the trailing generation prompt -- is the template's
+        # fixed overhead. That is why even an empty message costs tokens (Section 3).
         print("\n=== rendered template (reconstructed from tokens) ===")
         print("".join(token_strs))
     else:
         print("\n=== token ids ===")
         print(body.get("tokens"))
 else:
-    # Fallback: we can't see the rendered string, but `usage.prompt_tokens` still
-    # tells us how many tokens these messages became after the template was applied.
+    # Fallback: without /tokenize we can't reconstruct the rendered string, but
+    # `usage.prompt_tokens` still tells us how many tokens these messages became
+    # AFTER the template was applied -- text plus the template's fixed overhead.
     resp = requests.post(
         f"{base_url}/chat/completions",
         headers=headers,
@@ -79,5 +92,7 @@ else:
         verify=verify,
     )
     resp.raise_for_status()
-    print("=== prompt token count (from usage) ===")
+    print("=== tokens after templating (from usage.prompt_tokens) ===")
     print(resp.json()["usage"]["prompt_tokens"])
+    print("(the rendered template string itself needs the /tokenize endpoint, "
+          "which this server doesn't expose.)")

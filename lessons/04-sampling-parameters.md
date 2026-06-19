@@ -60,16 +60,25 @@ only when you *want* variety. Change one knob, observe, repeat.
 Reading about it isn't the same as seeing it. Create **`work/temperature.py`**:
 
 ```python
+from openai import BadRequestError
 from common import get_client, MODEL
 
 client = get_client()
 prompt = [{"role": "user", "content": "In one sentence, describe a city at night."}]
 
 def generate(temperature: float) -> str:
-    r = client.chat.completions.create(
-        model=MODEL, messages=prompt, temperature=temperature, max_tokens=60,
-    )
-    return r.choices[0].message.content.strip()
+    try:
+        r = client.chat.completions.create(
+            # 120 tokens of room so a reasoning model still has space for a
+            # visible sentence after it finishes thinking (Sections 2-3).
+            model=MODEL, messages=prompt, temperature=temperature, max_tokens=120,
+        )
+    except BadRequestError:
+        # Servers disagree on the maximum temperature: some accept up to 2.0, some
+        # higher, some reject anything above 1.0. Don't crash -- report and move on.
+        return f"(this server rejected temperature={temperature})"
+    # content can be None/empty on a reasoning model that spent the budget thinking.
+    return (r.choices[0].message.content or "").strip()
 
 for temp in (0.0, 0.7, 1.3):
     print(f"\n=== temperature = {temp} ===")
@@ -91,6 +100,11 @@ What to look for:
   the thread. **That drift is the same mechanism behind hallucination:** higher
   temperature means more willingness to pick a low-probability (often wrong) token. When
   people say "lower the temperature to reduce hallucinations," this is what they mean.
+
+> **The maximum temperature is server-specific.** The OpenAI API caps `temperature` at
+> `2.0`; some servers accept more, and a few reject anything above `1.0`. That's why
+> `generate()` above catches the error instead of crashing — run `python scripts/preflight.py`
+> to see your endpoint's ceiling. Stay at or below it.
 
 > **Reasoning-model note.** Temperature affects both `gpt-oss-120b`'s thinking and its
 > final text. For factual tasks, low temperature plus the model's own reasoning
@@ -138,8 +152,10 @@ Same `seed` *(int)* + same inputs → same output. Change the seed → different
 
 ## Challenges
 
-1. **Find the breaking point.** In `work/temperature.py`, add `1.8` and `2.0` to the
-   sweep. *Success:* you can name the temperature at which output becomes nonsense.
+1. **Find the breaking point.** In `work/temperature.py`, push the sweep higher — add
+   `1.8`, then `2.0`, then keep going until your server rejects the value. *Success:* you
+   can name both the temperature at which output becomes nonsense *and* your server's
+   maximum accepted temperature (the point where `generate()` reports a rejection).
 2. **Swap the lever.** Write a version that sweeps `top_p` over `0.3, 0.7, 1.0` at fixed
    `temperature=1.0`. *Success:* you can describe how `top_p` feels different from
    `temperature`.

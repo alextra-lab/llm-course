@@ -10,8 +10,9 @@ This is ONE round trip done by hand. Section 14 turns it into a loop.
 
     python examples/13/tool_call.py
 
-Requires the endpoint to have tool-calling enabled (vLLM auto tool choice). If
-tool_calls comes back empty, your endpoint may not support it.
+Requires an endpoint that supports tool calling (OpenAI-style tools / tool_choice).
+If tool_calls comes back empty, your endpoint may not support it -- run
+scripts/preflight.py to check.
 """
 
 import ast

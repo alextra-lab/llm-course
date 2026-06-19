@@ -9,8 +9,11 @@ numbers of tokens.
     python examples/03/count_tokens.py
 
 Note: prompt_tokens includes a fixed overhead from the chat template (the role
-delimiters from Section 1). To isolate the text itself, we measure an empty
-message once as a baseline and subtract it.
+delimiters from Section 1). We deliberately do NOT subtract an empty message to
+"isolate" the text: the template wraps an empty message differently from a real one,
+so that subtraction is misleading on some models (the harmony template used by
+gpt-oss is one). Instead we print the RAW counts and read them by comparing rows --
+two non-empty messages share the same fixed overhead, so the difference is the text.
 """
 
 import sys
@@ -32,25 +35,24 @@ def prompt_tokens(text: str) -> int:
     return response.usage.prompt_tokens
 
 
-baseline = prompt_tokens("")  # overhead of an empty user message
-
 samples = [
+    "",                 # the fixed template overhead, paid on every request
     "hello",
+    "HELLO",            # casing CAN change the split -- compare with 'hello'
     "  hello",          # leading whitespace is its own token(s)
-    "HELLO",            # casing changes the tokenization
-    "hello world",
+    "hello world",      # one more word than 'hello' -> the jump is its cost
     "antidisestablishmentarianism",   # one long rare word -> several tokens
-    " catastrophe",
     "🦜🦜🦜",            # emoji are often multiple tokens each
     "def fib(n): return n if n < 2 else fib(n-1) + fib(n-2)",  # code
 ]
 
-print(f"(template overhead baseline = {baseline} tokens)\n")
-print(f"{'text-only tokens':>16}   text")
+print(f"{'prompt_tokens':>13}   text")
 print("-" * 60)
 for s in samples:
-    text_tokens = prompt_tokens(s) - baseline
-    print(f"{text_tokens:>16}   {s!r}")
+    print(f"{prompt_tokens(s):>13}   {s!r}")
 
-print("\nTakeaway: tokens are sub-word chunks, not words or characters.")
-print("Whitespace, casing, rare words, emoji, and code all change the count.")
+print("\nRead by COMPARING rows, not in isolation:")
+print("  - '' is not zero: that is the chat template's fixed overhead.")
+print("  - 'hello' vs 'HELLO': casing can shift the count (model-specific).")
+print("  - 'hello' vs 'hello world': the difference is the added word.")
+print("Tokens are sub-word chunks; the split itself depends on the model.")
