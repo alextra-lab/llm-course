@@ -5,7 +5,7 @@ In Section 1 every script built its own client and read its own env vars, on
 purpose — so you saw the moving parts. From here on we factor that one bit of
 boilerplate into a single place and import it.
 
-Because our example scripts live in numbered folders (examples/02/, examples/03/,
+Because our example scripts live in numbered folders (examples/02/, examples/04/,
 ...), they aren't an importable package. The two lines at the top of each script
 that uses this helper add the `examples/` directory to Python's import path so
 `from common import ...` works no matter what folder you run from:
@@ -24,7 +24,7 @@ from openai import OpenAI
 # The model id, read once. Every script uses the same one for this course.
 MODEL = os.environ.get("MODEL", "openai/gpt-oss-120b")
 
-# An embedding model id, used from Section 18 onward (usually a different model).
+# An embedding model id, used from Section 19 onward (usually a different model).
 EMBED_MODEL = os.environ.get("EMBED_MODEL", "")
 
 # Embeddings may live on a DIFFERENT server than chat. These two are optional: leave them
@@ -68,7 +68,7 @@ def get_client() -> OpenAI:
 
 
 def get_embed_client() -> OpenAI:
-    """Build the client used for EMBEDDINGS (Section 18+).
+    """Build the client used for EMBEDDINGS (Section 19+).
 
     Identical to get_client() by default, but EMBED_BASE_URL / EMBED_API_KEY override the
     endpoint so embeddings can come from a different server than chat — e.g. a local Ollama

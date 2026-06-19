@@ -29,7 +29,7 @@ BUDGET = 8000   # the model's working window, in tokens (ask YOUR server for the
 SYSTEM = ("You are a coding assistant. Plan before you act, use the tools provided, and keep "
           "your answers short and correct.")
 
-# Tool schemas count too -- they are resent every turn (foundations §22).
+# Tool schemas count too -- they are resent every turn (foundations §23).
 TOOLS = [
     {"type": "function", "function": {"name": "read_file", "description": "Read a file from disk.",
      "parameters": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}}},
@@ -74,7 +74,7 @@ def meter(messages, tools, budget):
 def main():
     breakdown, total = meter(MESSAGES, TOOLS, BUDGET)
 
-    # The observability through-line starts here: one joinable line per measurement (§9 shape).
+    # The observability through-line starts here: one joinable line per measurement (§10 shape).
     session_id, trace_id = uuid.uuid4().hex[:8], uuid.uuid4().hex[:8]
     log_event(session_id, trace_id, 0, "context_meter", budget=BUDGET, total=total,
               fraction=round(total / BUDGET, 3), **breakdown)

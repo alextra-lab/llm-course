@@ -14,8 +14,8 @@ cascade:
 **Agent Memory: From Chat History to a Knowledge Graph** — the second course, a hands-on,
 opinionated follow-on to the [Foundations course](/docs/).
 
-> **Do the Foundations course first.** This course *assumes* it — it leans on §12
-> (conversation state), §18 (embeddings), §19 (RAG), and §22 (agents) and does not re-teach
+> **Do the Foundations course first.** This course *assumes* it — it leans on §13
+> (conversation state), §19 (embeddings), §20 (RAG), and §23 (agents) and does not re-teach
 > them. If those aren't familiar, start with [Foundations](/docs/).
 
 It goes deep on what an agent knows **across** sessions: a taxonomy of memory, conversational

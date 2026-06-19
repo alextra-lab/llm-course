@@ -13,7 +13,7 @@ nothing**, and it puts numbers on what you lose when you ignore that rule.
 
 **Where this fits:** Unit 0 made "do nothing" the first branch of the decision tree; Unit 1
 gave you the meter that reads the budget. This unit explains *why* that first branch is there.
-It leans on §10 (prompt caching — the cost you cannot see) and §12 (the growing `messages`
+It leans on §11 (prompt caching — the cost you cannot see) and §13 (the growing `messages`
 list). It points forward to Unit 7 (the trigger thresholds that decide the moment to act) and
 Unit 9 (cache-aware compaction in full). Think of this as the unit that earns the right to be
 lazy.
@@ -54,7 +54,7 @@ summary drops is pure cost. **The only compression with no downside is the one y
 ## The cost you cannot see: the prompt cache
 
 The quality cost is at least visible eventually. The second cost is invisible until you read
-your bill, and it is usually the larger one. It is the **prompt cache** (§10).
+your bill, and it is usually the larger one. It is the **prompt cache** (§11).
 
 Recall how caching works. The server caches the key/value tensors for a prefix of your prompt;
 on the next call, if that prefix is **byte-for-byte identical**, it reuses the cached work
@@ -136,7 +136,7 @@ can prove, from the telemetry, that the agent actually took it.
 
 > **Observe:** this unit emits a `compaction_decision` record — `decision` (skip/compress),
 > `fraction` of budget, the `soft` threshold, and `cache_tokens_at_risk` — on every turn, using
-> the foundations §9 joining tuple. The loop it closes is the discipline of the whole course:
+> the foundations §10 joining tuple. The loop it closes is the discipline of the whole course:
 > with these lines you can measure how often the agent compressed while under budget (pure waste)
 > and how much cache each compaction put at risk, and tune the threshold from data instead of
 > from a guess. A do-nothing you logged is a decision; a do-nothing you did not is a blind spot.
@@ -162,7 +162,7 @@ can prove, from the telemetry, that the agent actually took it.
   fires in long runs is *not yet measured* (the lighter thresholds trip first).
 - Compression is **lossy and irreversible**: under pressure that trade is worth it, but under
   budget you take the loss and get nothing back.
-- The invisible cost is the **prompt cache** (§10): a normal turn appends and stays a cache hit,
+- The invisible cost is the **prompt cache** (§11): a normal turn appends and stays a cache hit,
   while compaction rewrites the prefix and forces a full re-prefill from the edit point —
   Anthropic: a modification "invalidates the cache from that point onward."
 - Define "under budget" with **headroom**: reserve tokens for the response and set a **soft

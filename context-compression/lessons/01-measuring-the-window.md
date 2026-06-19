@@ -11,8 +11,8 @@ see *what* is filling the window, not just that it is full. You will count witho
 check that count against the server, and emit the first joinable telemetry line of this course.
 
 **Where this fits:** Unit 0 said the window is a budget you already overspend. This unit measures
-it. It leans on §3 (tokens, and the course's rule: ask the *server*, do not guess), §9 (the
-joinable `session_id`/`trace_id`/`step` log line), §12 (the `messages` list), and §22 (tool
+it. It leans on §4 (tokens, and the course's rule: ask the *server*, do not guess), §10 (the
+joinable `session_id`/`trace_id`/`step` log line), §13 (the `messages` list), and §23 (tool
 schemas). It is also the first unit with an `Observe` note that *builds* something, not just
 points forward — the meter you write here is the baseline every later compaction is measured
 against.
@@ -22,7 +22,7 @@ against.
 ## Count without a tokenizer
 
 You need a token count to know how full the window is. The exact count depends on the model's
-tokenizer — but this course takes no Hugging Face downloads and no `tiktoken` (§3). For
+tokenizer — but this course takes no Hugging Face downloads and no `tiktoken` (§4). For
 *budgeting* that is fine, because budgeting does not need the exact number; it needs a number
 good enough to answer "are we getting close?"
 
@@ -47,7 +47,7 @@ message content.)*
 ## Ask the server when it matters
 
 Sometimes 10–20% is not good enough — you are right at the limit, or a decision turns on the
-exact number. Then do what §3 taught: **ask the server.** Every completion already reports the
+exact number. Then do what §4 taught: **ask the server.** Every completion already reports the
 exact input count in `usage.prompt_tokens`, so the smallest possible call returns the truth:
 
 ```python
@@ -69,7 +69,7 @@ attribute the tokens to their source — and the sources are exactly the parts U
 ```python
 breakdown = {
     "system":       estimate_tokens([m for m in messages if m["role"] == "system"]),
-    "tools":        estimate_tokens(json.dumps(tools)),          # schemas, resent every turn (§22)
+    "tools":        estimate_tokens(json.dumps(tools)),          # schemas, resent every turn (§23)
     "history":      estimate_tokens([m for m in messages if m["role"] in ("user", "assistant")]),
     "tool_outputs": estimate_tokens([m for m in messages if m["role"] == "tool"]),
 }
@@ -99,7 +99,7 @@ session runs.
 
 A meter you read once and forget is not observability. The course's discipline is to **emit**
 every measurement as a structured, joinable line, so the whole run reconstructs from a shared
-key (§9). The meter is where that through-line begins:
+key (§10). The meter is where that through-line begins:
 
 ```python
 session_id, trace_id = uuid.uuid4().hex[:8], uuid.uuid4().hex[:8]
@@ -121,7 +121,7 @@ here on, you can see it. *(`log_event` lives in
 
 > **Security:** log the *shape* of the context, never its *content*. The meter records token
 > counts and percentages — safe, high-value metadata — but a message body can carry secrets or
-> personal data, so it must not land in a log without a policy (§9). The meter also doubles as a
+> personal data, so it must not land in a log without a policy (§10). The meter also doubles as a
 > tripwire: the context-overflow attack from Unit 0 — a hostile tool result or pasted document
 > padding the window to push your system prompt out — shows up here as a sudden spike in
 > `tool_outputs`. You will not catch that by eye in a 100-turn run; you will catch it in the
@@ -129,7 +129,7 @@ here on, you can see it. *(`log_event` lives in
 
 > **Observe:** this unit *is* the start of the through-line. It emits one joinable
 > `context_meter` line per measurement — `total`, `fraction` of budget, and the per-source
-> breakdown — using the foundations §9 tuple. The loop it closes is the most basic one in the
+> breakdown — using the foundations §10 tuple. The loop it closes is the most basic one in the
 > course: you now have a number for "how full, and with what?", which every later unit needs to
 > decide *whether* to compress and to prove the compaction actually helped.
 
@@ -148,11 +148,11 @@ here on, you can see it. *(`log_event` lives in
 ## Recap
 
 - For budgeting you do not need an exact token count, so the course uses a **heuristic**
-  (~4 chars/token + a small per-message overhead) — no `tiktoken`, no downloads (§3).
+  (~4 chars/token + a small per-message overhead) — no `tiktoken`, no downloads (§4).
 - When precision matters, **ask the server**: `usage.prompt_tokens` is the exact input count.
 - A total is not enough; **attribute tokens to their source** (system / tools / history / tool
   outputs). Tool outputs are usually by far the largest — the meter makes that visible.
-- Emit every measurement as a **joinable `context_meter` line** (§9 tuple). This is the baseline
+- Emit every measurement as a **joinable `context_meter` line** (§10 tuple). This is the baseline
   the rest of the course measures compaction against — observability starts in Unit 1, not at
   the end.
 - Log the context's **shape, not its content** — and let the meter double as an overflow

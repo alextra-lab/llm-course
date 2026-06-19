@@ -16,7 +16,7 @@ the first practical result of that decision. We build the graph the slow, explic
 purpose: writing Cypher by hand now means that when Unit 6 lets an LLM extract these same
 nodes and edges automatically, you will know *exactly* what it is producing and why.
 
-> **Optional (opt-in), like §16.** This unit needs Neo4j. As with the foundations course's
+> **Optional (opt-in), like §17.** This unit needs Neo4j. As with the foundations course's
 > Postgres demo, the script skips cleanly when the database is not configured — so you can read
 > the whole unit even if you do not start a container. To *run* it, you need a working `docker`
 > and `pip install neo4j`.
@@ -30,7 +30,7 @@ ways to store "Alex works at Acme, which is in Portland":
 
 - **Rows** (a table): good for lookups by key, but relationships live in foreign keys and joins
   you write by hand, and the *kinds* of relationship are fixed by your schema.
-- **Vectors** (§18–19): good at "find facts that *mean* something similar to this query." But
+- **Vectors** (§19–20): good at "find facts that *mean* something similar to this query." But
   each fact is an independent point; nothing *connects* "Alex" to "Portland."
 - **A graph:** facts are **nodes**, relationships are **first-class edges** you can traverse.
   "Which city is Alex's employer in?" becomes *follow `WORKS_AT`, then follow `LOCATED_IN`* — a
@@ -59,7 +59,7 @@ docker run --rm -d --name memgraph-neo4j -p 7474:7474 -p 7687:7687 \
 
 `--rm` makes it temporary (it is removed when stopped); `NEO4J_AUTH` sets the password directly
 so there is no first-run setup. Point the course environment at it — the same optional pattern
-as §16's `DATABASE_URL`:
+as §17's `DATABASE_URL`:
 
 ```bash
 export NEO4J_URI=bolt://localhost:7687 NEO4J_USER=neo4j NEO4J_PASSWORD=devpassword
@@ -195,12 +195,12 @@ ingestion in later units; right now you have the basic structure they all share.
 
 > **Security:** Notice that `$session` is a **bound parameter**, never formatted into the query
 > string. Building Cypher with f-strings around user-supplied text is **Cypher injection** — the
-> graph version of the SQL injection in §16. A "name" like `' }) DETACH DELETE (n) //` formatted
+> graph version of the SQL injection in §17. A "name" like `' }) DETACH DELETE (n) //` formatted
 > directly into a `MERGE` can change or delete your memory. Always pass values as parameters
 > (`driver.execute_query(q, name=user_text)`); never put them in with an f-string. Unit 10
 > returns to this with access scopes and PII.
 
-> **Observe:** Each write is now a `MERGE`, so emit a joinable line (foundations §9) with
+> **Observe:** Each write is now a `MERGE`, so emit a joinable line (foundations §10) with
 > `operation="write"` naming the node and edge it created or matched. Because `MERGE` either
 > creates or reuses, that record answers a question a flat store could not: *did this turn add a
 > new entity, or attach to one already there?* New-versus-matched counts over a session are how
@@ -226,7 +226,7 @@ ingestion in later units; right now you have the basic structure they all share.
 
 - Memory is a network of connected entities over time, so we store it as a **graph**: facts are
   **nodes**, relationships are **traversable edges**.
-- **Neo4j via Docker** is an optional backend (like §16 Postgres); the shared `get_graph()`
+- **Neo4j via Docker** is an optional backend (like §17 Postgres); the shared `get_graph()`
   helper skips cleanly when it is not configured.
 - We modeled `Session -[:MENTIONS]-> Entity` plus an entity **relationship vocabulary**, and
   wrote it with **`MERGE`** (idempotent), protected by a **uniqueness constraint** (no duplicate

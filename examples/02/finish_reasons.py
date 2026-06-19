@@ -50,4 +50,4 @@ if reasoning is not None:
     print(f"(those tokens went to hidden thinking: reasoning_tokens={reasoning})")
 print("\nKey point: finish_reason='length' means the answer is NOT complete -- whether")
 print("the text is cut off mid-sentence or comes back empty. Check the reason, never the")
-print("text length. (Why a tiny budget vanishes into thinking is Section 5.)")
+print("text length. (Why a tiny budget vanishes into thinking is Section 6.)")

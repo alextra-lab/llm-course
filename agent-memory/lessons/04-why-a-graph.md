@@ -72,8 +72,8 @@ a *different tool for a different question*, not a direct replacement for fact l
 
 The decision tree from Unit 0, now with the evidence behind step 3:
 
-1. **No cross-session memory needed?** → window/summarize (§12). Stop.
-2. **Facts mostly independent lookups?** → vector store / RAG (Unit 3, §19). **Stop here — the
+1. **No cross-session memory needed?** → window/summarize (§13). Stop.
+2. **Facts mostly independent lookups?** → vector store / RAG (Unit 3, §20). **Stop here — the
    evidence says a graph would cost more for no benefit.**
 3. **Need to *correlate* — multi-hop, "who/what/when across history," relational questions?**
    → *now* a graph is worth its complexity. This is the only branch where it is.
@@ -102,7 +102,7 @@ course can give is: *do not build the rest of it.*
 
 > **Observe:** This is a decide unit — you build no graph here — so the note points forward.
 > When you do traverse, the signal to watch is the *hops* and *token cost* of each recall on the
-> joinable line (foundations §9). That turns Unit 4's argument into measurement: did the join
+> joinable line (foundations §10). That turns Unit 4's argument into measurement: did the join
 > surface a fact vector recall missed, and what did the traversal cost? Without that record, "a
 > graph helps here" stays an opinion.
 

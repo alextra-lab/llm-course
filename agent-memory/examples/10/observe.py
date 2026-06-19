@@ -6,7 +6,7 @@ optional in production:
 
   - OBSERVABILITY: every memory read/write emits a structured, JOINABLE log line carrying the
     same trace_id as the request that caused it -- so you can reconstruct exactly what an agent
-    remembered or recalled for any conversation (foundations Sections 9-10, 16 audit log).
+    remembered or recalled for any conversation (foundations Sections 10-11, 17 audit log).
   - PRIVACY: memory is SCOPED to an owner with a visibility, recall filters by the asking actor
     (so one user can't read another's private memory), PII is redacted before it's logged, and
     every query BINDS its values so a hostile scope can't rewrite the Cypher (Units 5-6).

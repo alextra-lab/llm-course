@@ -324,7 +324,7 @@ def check_tokenize() -> None:
         ok = False
     caps["tokenize"] = ok
     if ok:
-        say(PASS, "present -- examples/01/show_template.py can print the exact rendered "
+        say(PASS, "present -- examples/03/show_template.py can print the exact rendered "
                   "template string as a bonus.")
     else:
         say(INFO, "not available -- this is normal. You measure prompt size with "

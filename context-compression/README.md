@@ -2,7 +2,7 @@
 
 The **third** course in this repo — a hands-on follow-on to the
 [foundations course](../README.md). The foundations course covered context in about a
-lesson and a half (§3 tokens and the window; §12 stateless history with windowing and
+lesson and a half (§4 tokens and the window; §13 stateless history with windowing and
 summarization). The [Agent Memory](../agent-memory/README.md) course then set this whole
 topic aside on purpose — its Unit 0 says context management is "the thing you already
 built," and goes off to study memory *across* sessions instead. This course goes back and
@@ -19,8 +19,8 @@ instrumentation earns, not the author.
 
 ## Who this is for
 
-This course **assumes the foundations course.** It leans on §3 (tokens and the context
-window), §10 (prompt caching), §12 (conversation state and history), and §22 (agents),
+This course **assumes the foundations course.** It leans on §4 (tokens and the context
+window), §11 (prompt caching), §13 (conversation state and history), and §23 (agents),
 and does *not* re-teach them. If those aren't familiar, do the foundations course first —
 start at [`../lessons/01-hello-world.md`](../lessons/01-hello-world.md). It is a sibling of
 the [Agent Memory](../agent-memory/README.md) course, not a sequel: read them in either
@@ -38,7 +38,7 @@ tree, and it will tell you to do nothing at all when nothing is the right answer
 
 1. **Are you under budget?** Yes → do nothing. The cheapest compression is none —
    compressing early costs answer quality *and* throws away your prompt cache.
-2. **Approaching the budget?** → drop or window the oldest turns first (§12). It's cheap,
+2. **Approaching the budget?** → drop or window the oldest turns first (§13). It's cheap,
    and on old turns it's usually safe.
 3. **Losing content from the *middle* that still matters?** → keep the **head** (system +
    first user message) and the **tail** (recent turns) verbatim, and compress only the
@@ -72,7 +72,7 @@ database, nothing to install beyond the foundations `requirements.txt`. It intro
 small shared helper, [`examples/common_context.py`](examples/common_context.py):
 
 - a **token estimator** — a word/character heuristic, in keeping with the foundations
-  no-`tiktoken` stance (§3): when an exact count matters we ask the *server* (response
+  no-`tiktoken` stance (§4): when an exact count matters we ask the *server* (response
   `usage`, or vLLM's `/tokenize`); for budgeting math the heuristic is enough; and
 - a tiny on-disk **blob store** (plain files / SQLite, like Agent Memory Unit 2) for the
   offloading-and-paging unit.
@@ -103,7 +103,7 @@ before/after trace of what the model saw and how its output changed. Compression
 see is compression you can't trust, so the telemetry is first-class code here, not an
 afterthought. This course follows the repo's [Observability Standard](../OBSERVABILITY.md):
 a per-lesson `Observe` note, and the joinable `session_id`/`trace_id`/`step` log line reused
-from foundations §9. Unit 11 consolidates it into a quality-and-feedback harness, but you
+from foundations §10. Unit 11 consolidates it into a quality-and-feedback harness, but you
 start measuring in Unit 1. (Observability and evaluation are deep enough to deserve their own
 course one day; this one keeps them welded to the compression they watch.)
 
@@ -113,7 +113,7 @@ land.)*
 0. **[The Context Problem](lessons/00-the-context-problem.md)** — the window as a budget; context rot, lost-in-the-middle, primacy/recency; compression vs. memory; the thesis stated. ✅
 1. **[Measuring the Window](lessons/01-measuring-the-window.md)** — token accounting without `tiktoken`; where the budget goes (system / tools / history / tool outputs); build a context meter. ✅
 2. **[The Cheapest Compression Is None](lessons/02-the-cheapest-compression-is-none.md)** — the cost of compressing too early (quality *and* cache); when *not* to compress; headroom thinking. ✅
-3. **[Drop & Window: The Safe Baseline](lessons/03-drop-and-window.md)** — eviction policies, drop-oldest, trim priority (history → memory → tool defs), the sliding window (reuses §12). ✅
+3. **[Drop & Window: The Safe Baseline](lessons/03-drop-and-window.md)** — eviction policies, drop-oldest, trim priority (history → memory → tool defs), the sliding window (reuses §13). ✅
 4. **[Summarizing Evicted Turns](lessons/04-summarizing-evicted-turns.md)** — structured summarization; a 4-section schema (Decisions / Entities / Facts / Open Items); a cheap compressor model; async; graceful fallback. ✅
 5. **[Head, Middle, Tail](lessons/05-head-middle-tail.md)** — the anchored-preservation invariant: keep head + tail verbatim, compress only the middle. ✅
 6. **[Cheap Before Smart: The Deterministic Pre-Pass](lessons/06-deterministic-pre-pass.md)** — collapse large tool outputs to one-line descriptors before the summarizer; observation masking vs. LLM summarization.

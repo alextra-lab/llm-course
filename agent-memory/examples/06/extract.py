@@ -3,8 +3,8 @@ Unit 6 - Ingestion: let an LLM extract graph structure from a raw turn (OPT-IN: 
 
 In Unit 5 you wrote the nodes and edges by hand. Here the LLM does it: read one
 conversational turn, emit (entity, relation, entity) triples, validate the JSON
-(foundations Section 6), MERGE them into the SAME graph, embed each entity for hybrid
-recall later (Section 18) -- and meet the problem the uniqueness constraint only hinted
+(foundations Section 7), MERGE them into the SAME graph, embed each entity for hybrid
+recall later (Section 19) -- and meet the problem the uniqueness constraint only hinted
 at: deduplication.
 
 Requires the chat endpoint (as every example does). The graph write is OPT-IN: set
@@ -29,7 +29,7 @@ from common_graph import get_graph
 
 
 def log_event(session_id, trace_id, step, operation, **fields):
-    """One joinable telemetry line per memory op (foundations Section 9 shape). The
+    """One joinable telemetry line per memory op (foundations Section 10 shape). The
     session_id/trace_id/step tuple ties this run together; Unit 10 adds redaction + scope."""
     print(json.dumps({"session_id": session_id, "trace_id": trace_id, "step": step,
                       "operation": operation, **fields}, sort_keys=True), file=sys.stderr)
@@ -63,7 +63,7 @@ Message: {turn}"""
 
 
 def extract(client, turn: str) -> Extraction:
-    """Ask the model for triples, and VALIDATE the JSON before we trust it (Section 6)."""
+    """Ask the model for triples, and VALIDATE the JSON before we trust it (Section 7)."""
     r = client.chat.completions.create(
         model=MODEL,
         messages=[{"role": "user", "content": EXTRACT_PROMPT.format(turn=turn)}],
@@ -116,7 +116,7 @@ def main():
         return   # skip notice already printed -- this unit writes to the graph
 
     client = get_client()
-    session_id, trace_id = uuid.uuid4().hex[:8], uuid.uuid4().hex[:8]   # one run; see Section 9
+    session_id, trace_id = uuid.uuid4().hex[:8], uuid.uuid4().hex[:8]   # one run; see Section 10
     extraction = extract(client, TURN)
     print("entities: ", [(e.name, e.type) for e in extraction.entities])
     print("relations:", [(r.subject, r.predicate, r.object) for r in extraction.relations])
@@ -132,7 +132,7 @@ def main():
 
     with driver:
         write_triples(driver, extraction, embed)
-        # Telemetry: what did this turn write to memory? (foundations Section 9 joinable line)
+        # Telemetry: what did this turn write to memory? (foundations Section 10 joinable line)
         log_event(session_id, trace_id, 0, "ingest",
                   entities=[e.name for e in extraction.entities],
                   predicates=[r.predicate for r in extraction.relations])

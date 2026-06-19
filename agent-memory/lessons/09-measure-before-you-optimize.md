@@ -147,7 +147,7 @@ including this course's.
 > win one by sacrificing the other). The goal is a memory the user trusts, not a leaderboard.
 
 > **Observe:** The metrics here are not a separate machinery — recall@k, MRR, and nDCG are
-> computed *from* the recalls you have been logging since Unit 2 (foundations §9), scored against
+> computed *from* the recalls you have been logging since Unit 2 (foundations §10), scored against
 > your labeled ids. The joinable line is the raw data; the metric is the summary. That closes the
 > loop the whole course turns on: *did this change to recall actually raise the number, or did it
 > only feel better?*

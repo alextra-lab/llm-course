@@ -10,7 +10,7 @@ Units 5-6 filled a graph. Now we read from it two ways and combine them:
 
 Then we RERANK the candidates by recency x importance x relevance (Generative Agents,
 Park et al., UIST 2023; arXiv:2304.03442), ASSEMBLE the top facts into a prompt, and wrap
-the whole thing as a `search_memory` tool an agent can call (foundations Section 22).
+the whole thing as a `search_memory` tool an agent can call (foundations Section 23).
 
 OPT-IN: set NEO4J_URI (see Unit 5) or the script skips cleanly. EMBED_MODEL is optional --
 without it the RELEVANCE term is unavailable, so we rank on recency x importance and say so.
@@ -33,7 +33,7 @@ from common_graph import get_graph
 
 
 def log_event(session_id, trace_id, step, operation, **fields):
-    """One joinable telemetry line per memory op (foundations Section 9 shape). The
+    """One joinable telemetry line per memory op (foundations Section 10 shape). The
     session_id/trace_id/step tuple ties this run together; Unit 10 adds redaction + scope."""
     print(json.dumps({"session_id": session_id, "trace_id": trace_id, "step": step,
                       "operation": operation, **fields}, sort_keys=True), file=sys.stderr)
@@ -122,16 +122,16 @@ def search_memory(driver, query, embed=None, k=3, session_id=None, trace_id=None
     for name, _ in top:
         facts.extend(traverse(driver, name))
     facts = list(dict.fromkeys(facts))   # dedup, keep order
-    if session_id is not None:   # the recall operation logs itself (foundations Section 9)
+    if session_id is not None:   # the recall operation logs itself (foundations Section 10)
         log_event(session_id, trace_id, step, "recall", query=query,
                   ranked_by="relevance" if has_relevance else "recency+importance",
                   entities=[name for name, _ in top], recalled=len(facts))
     return "\n".join(f"- {f}" for f in facts)
 
 
-# The tool an agent calls (foundations Section 22). The schema is what the model sees; the
+# The tool an agent calls (foundations Section 23). The schema is what the model sees; the
 # function above is what runs when it calls. We build the spec here; wiring it into a chat
-# loop is the same tool-calling pattern as Section 22.
+# loop is the same tool-calling pattern as Section 23.
 SEARCH_MEMORY_TOOL = {
     "type": "function",
     "function": {
@@ -177,13 +177,13 @@ def main():
         # 2 + 3. Broad recall + rerank + assembly: no anchor, just a question. Note how the
         # OLD-but-IMPORTANT allergy still surfaces -- recency alone would bury it; importance
         # rescues it. That is the whole point of the multi-signal score.
-        session_id, trace_id = uuid.uuid4().hex[:8], uuid.uuid4().hex[:8]   # one run; see Section 9
+        session_id, trace_id = uuid.uuid4().hex[:8], uuid.uuid4().hex[:8]   # one run; see Section 10
         for i, q in enumerate(["what am I allergic to?", "where is my employer?"]):
             print(f"\nsearch_memory({q!r}) ->")
             print(search_memory(driver, q, embed, session_id=session_id, trace_id=trace_id, step=i))
 
         # 4. Assemble into a prompt the way the agent would (we build the messages; calling the
-        # model is the Section 22 loop).
+        # model is the Section 23 loop).
         context = search_memory(driver, "what am I allergic to?", embed,
                                 session_id=session_id, trace_id=trace_id, step=2)
         messages = [
@@ -193,7 +193,7 @@ def main():
         ]
         print("\nassembled system prompt:\n", messages[0]["content"])
         print("\nsearch_memory tool name:", SEARCH_MEMORY_TOOL["function"]["name"],
-              "(wire into a tool-calling loop exactly as in foundations Section 22)")
+              "(wire into a tool-calling loop exactly as in foundations Section 23)")
 
 
 if __name__ == "__main__":
