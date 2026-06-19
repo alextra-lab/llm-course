@@ -111,11 +111,11 @@ You have a recap. Where does it go in the message list? In the evicted slice's p
 head, then the recap, then the verbatim tail. But the recap's **role** is a trap worth flagging.
 
 The intuitive choice is `role="system"` — it is meta-information about the conversation, not a real
-turn. That choice can make the summary silently vanish. Many chat stacks (and the role-fixer in a
-production harness) validate the transcript by keeping only the **first** system message and
-dropping any later system-role message. A recap inserted as a second system message in the middle
-of the conversation is exactly such a message — so it is quietly deleted, and you are back to a
-blind gap with none of the facts you paid a model to extract.
+turn. That choice can make the summary silently vanish. Some transcript validators (and the
+role-fixer in a production harness) keep only the **first** system message and drop any later
+system-role message. A recap inserted as a second system message in the middle of the conversation
+is exactly such a message — so it is quietly deleted, and you are back to a blind gap with none of
+the facts you paid a model to extract.
 
 The fix is to insert the recap as **`role="assistant"`**. An assistant message in the middle of a
 transcript is ordinary and survives validation:
@@ -136,12 +136,14 @@ not at all, so the rebuilt transcript never has an orphaned result.)
 It is tempting to read all this as a clean win — summarize the middle, slot the recap in, repeat
 every turn forever. It is not, and the reason is the prompt cache from Unit 2.
 
-A recap inserted at a fixed position in the middle of the prompt is, by construction, a byte that
-changes. Re-run the summarizer next turn and the recap text differs; even re-inserting the *same*
-recap shifts everything after it. Either way the cached prefix stops matching from the recap
-onward, and the server re-prefills the rest at full price — every turn. The naive "summarize and
-re-insert each turn" design is a cache-buster wearing the costume of an optimization. Build it,
-then put the Unit 1 meter on it and watch the cached-prefix tokens collapse turn after turn.
+A recap that you regenerate each turn is, by construction, a run of bytes that changes. Re-run the
+summarizer next turn and the recap text differs, so the cached prefix stops matching from the recap
+position onward and the server re-prefills everything after it at full price — every turn. A static
+marker avoids this precisely because it never changes: its bytes stay identical, so the prefix keeps
+matching (Unit 2's byte-identity rule). The naive "summarize and re-insert each turn" design looks
+cheaper but invalidates the cache on every turn. The example measures exactly this: with the Unit 1
+heuristic it compares the prefix tokens reused on the next turn under a static marker versus a
+regenerated recap.
 
 This is why a production harness, under its default cache-frozen layout, **disables** summary
 re-insertion and lets the static `[Earlier messages truncated]` marker win: a marker that never
@@ -178,10 +180,10 @@ is a real way to break your cache.
    turn does not crash — it falls back to the marker. *Success:* the `compaction` record shows
    `fallback=true` and a non-empty `lost_ids`, and you can name which tail question can no longer
    be answered as a result.
-3. **Break the cache, then see it.** Insert the recap, then re-summarize and re-insert on a
-   simulated next turn, and use the Unit 1 meter to compare the cached-prefix tokens before and
-   after the recap position. *Success:* you can state how many previously-cached tokens the
-   re-insertion invalidates — and why a static marker would not have.
+3. **Break the cache, then see it.** Read the example's cache check, which simulates a next turn
+   and compares the prefix tokens reused under a static marker versus a regenerated recap.
+   *Success:* you can state how many previously-cached tokens the re-insertion invalidates, and why
+   the static marker keeps them — the reason production froze the layout (Unit 9).
 
 ## Recap
 
