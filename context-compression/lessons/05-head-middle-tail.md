@@ -13,7 +13,7 @@ symmetric: **keep the head and the tail verbatim, and only ever compress the mid
 **Where this fits:** this is the precise shape of the decision tree's third branch (Unit 0) — "losing
 content from the *middle* that still matters." It combines Unit 3's head anchor with Unit 4's
 middle summarizer, and adds the missing tail anchor. It leans on Unit 0's lost-in-the-middle
-result and §10 (the cache likes stable ends). It points forward to Unit 6 (a cheap deterministic
+result and §11 (the cache likes stable ends). It points forward to Unit 6 (a cheap deterministic
 pre-pass *inside* the middle, before you pay the summarizer) and Unit 9 (the cache-frozen layout,
 which is exactly a `[head][recap][tail]` rebuild done on a schedule).
 
@@ -116,7 +116,7 @@ after compress-in-place: 7 messages, 2617 tokens, 33% of budget -- compressed 6 
 invariant: head verbatim True | tail verbatim True | middle replaced by 1 recap message(s)
 ```
 
-That "byte-for-byte" is not only correctness — it is a cache property (§10). Within a single
+That "byte-for-byte" is not only correctness — it is a cache property (§11). Within a single
 compression pass, the head and the tail are kept unchanged and the one region that is replaced is
 the recap in the middle, so the change is confined to one place. (Across turns the boundary is
 recomputed each pass, so the layout is not yet stable enough for the cache to span turns — keeping
@@ -150,7 +150,7 @@ contents are still needed, rather than blindly dropped the way Unit 3's blunt ba
 
 > **Observe:** this unit emits a `compaction` record with `strategy="head-tail"`,
 > `head_tokens`/`middle_tokens`/`tail_tokens`, and `head_verbatim`/`tail_verbatim` flags — using the
-> §9 joining tuple. The loop it closes is the invariant itself: both verbatim flags must be `true` on
+> §10 joining tuple. The loop it closes is the invariant itself: both verbatim flags must be `true` on
 > every record, checked by object identity, so the log *proves* the head and tail were carried
 > through unchanged and only the middle region was replaced, rather than asserting it. The three
 > token counts also show, run over run, how the split is moving — a middle that keeps growing while
@@ -179,7 +179,7 @@ contents are still needed, rather than blindly dropped the way Unit 3's blunt ba
   number of recent messages (~4) — whichever binds last sets the boundary.
 - The **invariant**: only the **middle** is ever compressed; head and tail pass through
   **byte-verbatim** (check it by object identity). This also confines cache invalidation to the
-  one region that changes (§10), which is what makes Unit 9's frozen layout possible.
+  one region that changes (§11), which is what makes Unit 9's frozen layout possible.
 - Snap the tail boundary so it never **splits a tool pair** (the Unit 3 rule, at the seam).
 - Be honest: the floors are **configurable** (set from the workload) with a real tradeoff (a bigger
   verbatim tail = less headroom), and the middle is the *safest* place to lose fidelity, **not a free
