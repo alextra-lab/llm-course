@@ -29,11 +29,14 @@ exception. The hard ceiling is far away, and — this is the part that is easy t
 degraded at 11% of its window. So compressing now buys you nothing on either ceiling. It only
 costs.
 
-This is not a hunch. A production agent harness that ships a three-phase budget drop measured
-its own trigger and found it almost never fired — at peak it reached about 2.5% of the token
-ceiling across real sessions. The safety net was real and correct to have, but in practice the
-agent's honest answer to "should I compress this turn?" was *no* almost every single time. The
-default state of a healthy agent is do-nothing. The work of this unit is to make that the
+This is not a hunch. A production agent harness that ships a three-phase budget drop as its
+*last-resort* safety net measured how full the window actually got, and across its evaluation
+sessions occupancy peaked at about **2.5%** of the token ceiling — never close to the level that
+would force that heavy drop. One honesty caveat the course keeps: those were short evaluation
+sessions, so the right reading is not "an agent never compresses" but "the window rarely fills
+enough to force the *heaviest* compaction." A genuinely long run does cross the lighter
+thresholds you will build in Units 3–7. Even so, turn to turn, the default state of a healthy
+agent is do-nothing. The work of this unit is to make that the
 *deliberate*, measured default — not an accident of never crossing the limit.
 
 ## Compression is lossy, and you cannot undo it
@@ -156,7 +159,8 @@ can prove, from the telemetry, that the agent actually took it.
 ## Recap
 
 - The opening rule of the course: **under budget, do nothing.** A healthy agent spends most of
-  its life there, and a real harness's drop trigger was measured firing on ~2.5% of its ceiling.
+  its life there — a real harness's *last-resort* drop saw occupancy peak at ~2.5% of its ceiling
+  in short sessions, never high enough to fire (longer runs do cross the lighter thresholds).
 - Compression is **lossy and irreversible**: under pressure that trade is worth it, but under
   budget you take the loss and get nothing back.
 - The invisible cost is the **prompt cache** (§10): a normal turn appends and stays a cache hit,
