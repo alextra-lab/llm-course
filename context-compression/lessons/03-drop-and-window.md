@@ -123,7 +123,7 @@ sibling course's whole job). **Tool definitions** go last, because an agent that
 schemas mid-task cannot act at all. Drop the cheapest-to-lose first; keep the thing whose loss is
 fatal.
 
-## The honest part: this baseline is coarse, and in production it barely fires
+## The honest part: this baseline is coarse, and how often it fires is unmeasured
 
 Two truths keep this unit measured rather than triumphant.
 
@@ -133,12 +133,13 @@ the single most recent user message in one step — not a gradual, message-by-me
 course teaches the gentler sliding window as the **safer default** and treats the all-or-nothing
 collapse as the blunt last resort it is.
 
-Second, that last resort almost never runs. As Unit 2 noted, the same gateway's drop was
-measured peaking at about **2.5%** of its token ceiling — but that figure came from short
-evaluation sessions that never filled the window, so it says the net is *rarely reached*, not
-that it is *unnecessary*. Whether it fires in genuinely long runs is an open, testable
-question; until someone drives a real long session and watches the occupancy curve, "it never
-fires" is a statement about the test, not the mechanism.
+Second, how often that last resort runs is genuinely unknown. The sessions used to exercise the
+gateway never filled the window, so the telemetry cannot say whether the heavy drop fires often
+or never — "it rarely fires" would be a statement about the test, not the mechanism. Until
+someone drives a real long session and watches the occupancy curve climb, treat the frequency of
+the heaviest compaction as *unmeasured*, and rely on it only as the backstop it is designed to
+be. (Measuring exactly this — does the curve ever reach the drop, and which trigger fires first —
+is a clean experiment, and the kind the rest of the course keeps insisting on.)
 
 And the deeper limit, the one that powers the rest of the course: dropping is **lossy and
 irreversible**, exactly like Unit 2's warning. If the giant old tool output you just evicted was
@@ -186,9 +187,9 @@ artifact instead of dropping it (Unit 8).
 - Leave a **marker** where content was removed, so the model asks instead of inventing.
 - When whole components must go, shed them in priority order **history → memory → tool defs** —
   cheapest-to-lose first, the fatal-to-lose last.
-- Be honest about the baseline: production's version is an **all-or-nothing** collapse that, on
-  the evidence so far, **rarely fires** — and dropping is lossy. Its one bad case (a needed or
-  recent giant) is exactly what Units 4, 5, and 8 fix.
+- Be honest about the baseline: production's version is an **all-or-nothing** collapse whose
+  real-world frequency is **unmeasured** (the tests never filled the window) — and dropping is
+  lossy. Its one bad case (a needed or recent giant) is exactly what Units 4, 5, and 8 fix.
 
 ## Next
 

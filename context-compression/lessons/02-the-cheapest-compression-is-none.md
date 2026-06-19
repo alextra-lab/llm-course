@@ -29,14 +29,13 @@ exception. The hard ceiling is far away, and — this is the part that is easy t
 degraded at 11% of its window. So compressing now buys you nothing on either ceiling. It only
 costs.
 
-This is not a hunch. A production agent harness that ships a three-phase budget drop as its
-*last-resort* safety net measured how full the window actually got, and across its evaluation
-sessions occupancy peaked at about **2.5%** of the token ceiling — never close to the level that
-would force that heavy drop. One honesty caveat the course keeps: those were short evaluation
-sessions, so the right reading is not "an agent never compresses" but "the window rarely fills
-enough to force the *heaviest* compaction." A genuinely long run does cross the lighter
-thresholds you will build in Units 3–7. Even so, turn to turn, the default state of a healthy
-agent is do-nothing. The work of this unit is to make that the
+One caution, because this course tries to let measurements do the arguing rather than the author:
+do not over-claim here. A production agent harness ships a three-phase budget drop as a
+*last-resort* net, but the sessions used to evaluate it never came close to filling the window,
+so that telemetry cannot tell you how often the heavy drop actually fires in a genuinely long
+run — that is simply *not yet measured*. The defensible claim is the narrow one: the heaviest
+compaction exists for a window that is truly full; the lighter thresholds you build in Units 3–7
+trip well before that; and turn to turn, the default state of a healthy agent is do-nothing. The work of this unit is to make that the
 *deliberate*, measured default — not an accident of never crossing the limit.
 
 ## Compression is lossy, and you cannot undo it
@@ -159,8 +158,8 @@ can prove, from the telemetry, that the agent actually took it.
 ## Recap
 
 - The opening rule of the course: **under budget, do nothing.** A healthy agent spends most of
-  its life there — a real harness's *last-resort* drop saw occupancy peak at ~2.5% of its ceiling
-  in short sessions, never high enough to fire (longer runs do cross the lighter thresholds).
+  its life there; the heaviest last-resort drop is for a genuinely full window, and how often it
+  fires in long runs is *not yet measured* (the lighter thresholds trip first).
 - Compression is **lossy and irreversible**: under pressure that trade is worth it, but under
   budget you take the loss and get nothing back.
 - The invisible cost is the **prompt cache** (§10): a normal turn appends and stays a cache hit,
