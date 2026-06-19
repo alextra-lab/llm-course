@@ -9,7 +9,7 @@ numbers of tokens.
     python examples/04/count_tokens.py
 
 Note: prompt_tokens includes a fixed overhead from the chat template (the role
-delimiters from Section 1). We deliberately do NOT subtract an empty message to
+delimiters from Section 3). We deliberately do NOT subtract an empty message to
 "isolate" the text: the template wraps an empty message differently from a real one,
 so that subtraction is misleading on some models (the harmony template used by
 gpt-oss is one). Instead we print the RAW counts and read them by comparing rows --

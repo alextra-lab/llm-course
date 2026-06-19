@@ -2,11 +2,11 @@
 Section 25 - Capstone: a small support assistant that ties the course together.
 
 It composes:
-  - retrieval (Section 19/19): a search_kb tool, using embeddings if EMBED_MODEL
+  - retrieval (Section 19/20): a search_kb tool, using embeddings if EMBED_MODEL
     is set, otherwise a keyword fallback so it always runs;
-  - tools + agent loop (Sections 14/14/22): search_kb + a safe calculator;
+  - tools + agent loop (Sections 14/15/22): search_kb + a safe calculator;
   - guardrails (Section 21): a tool registry, a safe (no-eval) calculator, a step cap;
-  - observability + cost (Sections 10/10): per-call logging and a running cost total;
+  - observability + cost (Sections 10/11): per-call logging and a running cost total;
   - evaluation (Section 24): a tiny golden check at the end.
 
     python examples/25/capstone.py

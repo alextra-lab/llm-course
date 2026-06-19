@@ -36,9 +36,11 @@ flowchart LR
     C --> D["the model"]
 ```
 
-The template is a small program written in **Jinja2**. It does not live in your code — it
-is **metadata that ships with the model** (in its tokenizer/server configuration). The
-server loads it and applies it to every request automatically. You never write the
+The template is usually a small program (most commonly written in **Jinja2**). It does not
+live in your code — it is **metadata that ships with the model** (in its tokenizer/server
+configuration); the standard API doesn't expose the implementation, so treat "Jinja" as the
+common case, not a guarantee. The server loads it and applies it to every request
+automatically. You never write the
 delimiters by hand; you just send `messages`, and the right template runs on the other side.
 
 ---
@@ -69,9 +71,10 @@ print("'hi'  :", prompt_tokens("hi"))
 python work/template_cost.py
 ```
 
-The empty message is **not zero**. That number is the template's **fixed overhead** — the
-role markers and the trailing "your turn" cue that wrap *every* request before the model
-reads it. You're paying it on each call, on top of your actual text. *(Reference:
+The empty message is **not zero**. That number is the per-request **template overhead** for
+this simple one-message shape — the role markers and the trailing "your turn" cue that wrap
+the request before the model reads it. You're paying it on each call, on top of your actual
+text. (It grows with more messages, system prompts, and tool definitions.) *(Reference:
 [`examples/03/template_cost.py`](../examples/03/template_cost.py).)*
 
 > **Why this matters now:** Section 4 measures token counts and budgets the context window.
@@ -116,8 +119,9 @@ on the server. The honest, portable move is to *measure* its effect, as you just
 
 ## Different model, different template
 
-Because the template belongs to the model, **the same messages become a different string —
-and a different token count — on every model**. Here is the empty-message overhead measured
+Because the template belongs to the model, **the same messages can become a different string
+— and a different token count — on different models** (models that share a tokenizer and
+template will agree). Here is the empty-message overhead measured
 across four endpoints with identical code:
 
 | Model (server) | Template overhead (`""`) | `max_tokens=16` reply |
@@ -196,11 +200,11 @@ count. Either way it's a peek behind the curtain, not something the course depen
 
 ## Recap
 
-- The **chat template** is a per-model Jinja program (shipped with the model) that renders
-  your `messages` into one flat token string with special delimiters — the model's real
-  input.
+- The **chat template** is a per-model template (commonly Jinja2, shipped with the model)
+  that renders your `messages` into one flat token string with special delimiters — the
+  model's real input.
 - You can't print that string with the standard API and no tokenizer, but `usage.prompt_tokens`
-  lets you **measure** it; the non-zero empty-message count is the template's fixed overhead.
+  lets you **measure** it; the non-zero empty-message count is the per-request template overhead.
 - The template belongs to the model, so **the same messages cost different tokens on
   different models** — measure, don't assume.
 - `gpt-oss-120b` uses **harmony**, which adds private reasoning **channels** — why its

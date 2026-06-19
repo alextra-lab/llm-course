@@ -95,7 +95,7 @@ def check_models(client) -> None:
 # --- behaviour probes (each maps to lessons) ---------------------------------
 
 def check_tokens_and_overhead(client) -> None:
-    section("Token counting & template overhead -- Section 3")
+    section("Token counting & template overhead -- Section 4")
 
     def ptoks(text):
         return chat(client, text, max_tokens=1).usage.prompt_tokens
@@ -111,12 +111,12 @@ def check_tokens_and_overhead(client) -> None:
     note(f"Every request carries about {empty} tokens of fixed template cost. Even a "
          "one-word prompt is at least that size.")
     if empty > 30:
-        say(WARN, f"overhead is large ({empty}); Section 3 compares raw counts rather than "
+        say(WARN, f"overhead is large ({empty}); Section 4 compares raw counts rather than "
                   "subtracting an empty-message baseline.")
 
 
 def check_reasoning_budget(client):
-    section("max_tokens behaviour & reasoning fields -- Sections 2, 3, 5")
+    section("max_tokens behaviour & reasoning fields -- Sections 2, 4, 6")
     try:
         r = chat(client, "Write a short paragraph about the ocean.", max_tokens=16)
     except Exception as err:
@@ -151,19 +151,19 @@ def check_reasoning_budget(client):
 
 
 def check_reasoning_effort(client) -> None:
-    section("reasoning_effort parameter -- Section 5")
+    section("reasoning_effort parameter -- Section 6")
     try:
         chat(client, "hi", max_tokens=1, extra_body={"reasoning_effort": "low"})
         caps["reasoning_effort"] = True
         say(PASS, "accepted.")
     except Exception as err:
         caps["reasoning_effort"] = False
-        say(INFO, f"rejected ({type(err).__name__}); Section 5's reasoning_effort dial is "
+        say(INFO, f"rejected ({type(err).__name__}); Section 6's reasoning_effort dial is "
                   "not available on this endpoint.")
 
 
 def check_sampling(client) -> None:
-    section("Sampling: temperature ceiling, seed, n>1 -- Sections 2, 4")
+    section("Sampling: temperature ceiling, seed, n>1 -- Sections 2, 5")
     highest = None
     for temp in (0.0, 1.0, 1.5, 2.0, 2.5, 3.0):
         try:
@@ -178,7 +178,7 @@ def check_sampling(client) -> None:
         say(INFO, "temperature accepted up to at least 3.0.")
     else:
         say(INFO, f"highest temperature accepted: {highest}.")
-        note(f"The highest temperature your server accepts is {highest}. Keep Section 4 "
+        note(f"The highest temperature your server accepts is {highest}. Keep Section 5 "
              f"values at or below it; higher values raise an error.")
 
     try:
@@ -193,7 +193,7 @@ def check_sampling(client) -> None:
     say(INFO, f"seed {'accepted (determinism not verified here)' if caps['seed'] else 'rejected'}; "
               f"n>1 {'supported' if caps['multi_n'] else 'not supported'}.")
     if not caps["seed"]:
-        note("The seed parameter is rejected, so Section 4's reproducibility demo will "
+        note("The seed parameter is rejected, so Section 5's reproducibility demo will "
              "not run as written.")
     if not caps["multi_n"]:
         note("Requesting several answers at once (n>1) is not supported; Section 2's "
@@ -201,7 +201,7 @@ def check_sampling(client) -> None:
 
 
 def check_streaming(client) -> None:
-    section("Streaming (stream=True) -- Section 7")
+    section("Streaming (stream=True) -- Section 8")
     try:
         stream = chat(client, "count to three", max_tokens=8, stream=True)
         got = any(True for _ in stream)
@@ -209,14 +209,14 @@ def check_streaming(client) -> None:
         say(PASS if got else WARN, "streaming works." if got else "no chunks received.")
     except Exception as err:
         caps["stream"] = False
-        say(WARN, f"not supported ({type(err).__name__}); Section 7's streaming examples "
+        say(WARN, f"not supported ({type(err).__name__}); Section 8's streaming examples "
                   "will not run.")
-        note("Streaming (stream=True) is not supported, so Section 7's live-output "
+        note("Streaming (stream=True) is not supported, so Section 8's live-output "
              "examples will not run on this endpoint.")
 
 
 def check_json_mode(client) -> None:
-    section("Structured / JSON output (response_format) -- Section 6")
+    section("Structured / JSON output (response_format) -- Section 7")
     # Servers disagree on the form: some accept both; some want json_schema and reject
     # json_object (or the reverse). Try the standard variants before concluding.
     schema = {"type": "json_schema", "json_schema": {"name": "r", "schema": {
@@ -233,14 +233,14 @@ def check_json_mode(client) -> None:
         except Exception:
             continue
     if not caps["json"]:
-        say(INFO, "no server JSON mode; Section 6 still works by parsing the text and "
+        say(INFO, "no server JSON mode; Section 7 still works by parsing the text and "
                   "validating with Pydantic.")
-        note("Server-enforced JSON mode (response_format) is not available; Section 6 "
+        note("Server-enforced JSON mode (response_format) is not available; Section 7 "
              "uses plain parsing plus Pydantic validation instead.")
 
 
 def check_tools(client) -> None:
-    section("Tool / function calling -- Sections 13, 14, 22, 24")
+    section("Tool / function calling -- Sections 14, 15, 23, 25")
     tool = {"type": "function", "function": {
         "name": "get_weather", "description": "Get the weather for a city",
         "parameters": {"type": "object", "properties": {"city": {"type": "string"}},
@@ -266,30 +266,30 @@ def check_tools(client) -> None:
         say(PASS, "the server returned a tool call when asked to use one.")
     elif ran:
         say(WARN, "the server accepted tools but did not return a tool call.")
-        note("Tool calling did not produce a call in this test; Sections 13-14 and the "
+        note("Tool calling did not produce a call in this test; Sections 14-15 and the "
              "agent sections may be unreliable on this endpoint.")
     else:
         say(WARN, "not supported (the tools parameter was rejected).")
-        note("Tool / function calling is not supported. Sections 13-14, 22 and 24 (the "
+        note("Tool / function calling is not supported. Sections 14-15, 23 and 25 (the "
              "agent sections and the capstone) depend on it and will not run.")
 
 
 def check_caching() -> None:
-    section("Prompt-cache reporting -- Section 10")
+    section("Prompt-cache reporting -- Section 11")
     if caps.get("cached_field"):
         say(INFO, "usage includes prompt_tokens_details (cached-token reporting present).")
     else:
         say(INFO, "no prompt_tokens_details in usage; caching may still happen unseen.")
-        note("Your server does not report cached tokens, so Section 10 explains prompt "
+        note("Your server does not report cached tokens, so Section 11 explains prompt "
              "caching but cannot show the savings as a number.")
 
 
 def check_embeddings(client) -> None:
-    section("Embeddings -- Sections 18, 19, 24")
+    section("Embeddings -- Sections 19, 20, 25")
     embed_model = os.environ.get("EMBED_MODEL", "")
     if not embed_model:
         caps["embeddings"] = "unset"
-        say(INFO, "EMBED_MODEL not set -- set it before Section 18 (it is often a "
+        say(INFO, "EMBED_MODEL not set -- set it before Section 19 (it is often a "
                   "different model than the chat model).")
         return
     try:
@@ -300,7 +300,7 @@ def check_embeddings(client) -> None:
         caps["embeddings"] = "fail"
         say(WARN, f"EMBED_MODEL={embed_model!r} set but embeddings failed "
                   f"({type(err).__name__}).")
-        note("EMBED_MODEL is set but embeddings failed; Sections 18-19 (and parts of the "
+        note("EMBED_MODEL is set but embeddings failed; Sections 19-20 (and parts of the "
              "capstone) need a working embedding model.")
 
 
@@ -332,29 +332,29 @@ def check_tokenize() -> None:
 
 
 def check_local_tools() -> None:
-    section("Local tools for the sandboxing sections -- Section 16 (optional)")
+    section("Local tools for the sandboxing sections -- Section 17 (optional)")
     caps["docker"] = bool(shutil.which("docker"))
     caps["pg"] = bool(os.environ.get("DATABASE_URL"))
     say(INFO, f"docker CLI {'found' if caps['docker'] else 'not found'}; "
               f"DATABASE_URL {'set' if caps['pg'] else 'not set'} "
-              "(both optional; Section 16 skips cleanly without them).")
+              "(both optional; Section 17 skips cleanly without them).")
 
 
 # --- lesson coverage roll-up -------------------------------------------------
 
 def coverage() -> None:
-    """Translate the probes into a per-section readiness list (covers all 24)."""
+    """Translate the probes into a per-section readiness list (covers all 25)."""
     section("Lesson coverage")
 
     def line(secs, msg):
         print(f"  {secs}: {msg}")
 
-    line("Sections 1-2, 8-9, 11-12, 20-21, 23",
-         "ready -- standard Chat Completions is all they need.")
-    line("Section 3 (Tokens)",
+    line("Sections 1-3, 9-10, 12-13, 21-22, 24",
+         "ready -- standard Chat Completions is all they need (incl. Chat Templates, §3).")
+    line("Section 4 (Tokens)",
          f"ready (template overhead is {caps.get('overhead', '?')} tokens).")
     temp = caps.get("temp_max")
-    line("Section 4 (Sampling)",
+    line("Section 5 (Sampling)",
          "ready -- " + (f"max temperature {temp}; " if temp is not None and temp < 3 else "")
          + ("seed accepted, " if caps.get("seed") else "seed NOT accepted, ")
          + ("n>1 ok." if caps.get("multi_n") else "n>1 not supported."))
@@ -362,31 +362,31 @@ def coverage() -> None:
         rdetail = ("reports reasoning tokens" if caps.get("reasoning_tokens")
                    else "returns reasoning text" if caps.get("reasoning_content")
                    else "exposes no reasoning detail")
-        line("Section 5 (Reasoning)",
+        line("Section 6 (Reasoning)",
              f"ready -- this is a reasoning model; {rdetail}; "
              + ("reasoning_effort works." if caps.get("reasoning_effort")
                 else "reasoning_effort not available."))
     else:
-        line("Section 5 (Reasoning)",
+        line("Section 6 (Reasoning)",
              "ready to read -- your model does not think before answering, so the "
              "reasoning examples mainly explain the concept.")
-    line("Section 6 (Validating responses)",
+    line("Section 7 (Validating responses)",
          "ready -- " + ("server JSON mode available." if caps.get("json")
                         else "no server JSON mode; uses text parsing + Pydantic."))
-    line("Section 7 (Streaming)",
+    line("Section 8 (Streaming)",
          "ready." if caps.get("stream") else "BLOCKED -- streaming not supported.")
-    line("Section 10 (Cost & caching)",
+    line("Section 11 (Cost & caching)",
          "ready -- " + ("cached tokens are reported." if caps.get("cached_field")
                         else "cached tokens not reported (caching may be unseen)."))
     tools_ok = caps.get("tools")
-    line("Sections 13-14, 22, 24 (Tools, Agents, Capstone)",
+    line("Sections 14-15, 23, 25 (Tools, Agents, Capstone)",
          "ready." if tools_ok else "BLOCKED -- tool/function calling not supported.")
-    line("Sections 15-16 (Sandboxing)",
+    line("Sections 16-17 (Sandboxing)",
          f"local & optional -- docker {'found' if caps.get('docker') else 'not found'}.")
-    line("Section 17 (MCP)",
+    line("Section 18 (MCP)",
          "runs in your client, not the model endpoint -- not checked here.")
     emb = caps.get("embeddings")
-    line("Sections 18-19 (Embeddings, RAG)",
+    line("Sections 19-20 (Embeddings, RAG)",
          {"ok": "ready.", "fail": "needs a working EMBED_MODEL (currently failing).",
           "unset": "set EMBED_MODEL before you start them."}.get(emb, "check EMBED_MODEL."))
 
