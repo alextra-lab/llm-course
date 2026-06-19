@@ -2,14 +2,14 @@
 Unit 5 - Head, Middle, Tail: anchor both ends, compress only the middle.
 
 Unit 3 anchored the HEAD (system + first user message) and dropped from the front. But the
-recent TAIL -- the turns the model is actively using -- is just as load-bearing as the task at
-the head, and a front-dropping window will eventually eat it. This unit makes the invariant
+recent TAIL -- the messages the model is actively using -- is just as load-bearing as the task at
+the head, and a front-dropping window will eventually remove it. This unit makes the invariant
 explicit: keep the head AND the tail verbatim, and only ever compress the MIDDLE.
 
 What this shows:
   - _head_end()  -- the head: leading system messages + the first user message (the task).
   - _tail_start() -- the tail: walk back from the end until it holds at least a FRACTION of the
-    budget in tokens AND at least a minimum number of turns (two floors, not one).
+    budget in tokens AND at least a minimum number of recent messages (two floors, not one).
   - compress_in_place() -- split into head / middle / tail, compress ONLY the middle (here a
     static marker; in practice Unit 4's structured summarizer plugs in), reassemble, and prove
     the head and tail came through byte-identical.
@@ -29,7 +29,7 @@ from common_context import estimate_tokens, log_event
 
 BUDGET = 8000
 TAIL_RATIO = 0.25     # the tail must hold at least this fraction of the budget, verbatim...
-TAIL_MIN_TURNS = 4    # ...AND at least this many recent messages (whichever is larger wins)
+TAIL_MIN_MSGS = 4     # ...AND at least this many recent messages (the spine phrases this as turns)
 
 # The recap that stands in the MIDDLE's place. role=assistant, not system (the Unit 4 hazard: a
 # non-first system message is dropped by role validation). Here it is the static marker; swapping
@@ -77,9 +77,9 @@ def _head_end(messages):
     return i
 
 
-def _tail_start(messages, head_end, budget, ratio=TAIL_RATIO, min_turns=TAIL_MIN_TURNS):
-    """Walk back from the end until the tail holds >= ratio*budget tokens AND >= min_turns messages.
-    Two floors, not one: the token floor keeps enough recent context; the turn floor protects a
+def _tail_start(messages, head_end, budget, ratio=TAIL_RATIO, min_msgs=TAIL_MIN_MSGS):
+    """Walk back from the end until the tail holds >= ratio*budget tokens AND >= min_msgs messages.
+    Two floors, not one: the token floor keeps enough recent context; the message floor protects a
     short-but-active exchange whose tokens are small. Never cross into the head; if even all of the
     non-head messages do not meet the floors, the middle is empty (nothing to compress -- Unit 2)."""
     floor = ratio * budget
@@ -87,7 +87,7 @@ def _tail_start(messages, head_end, budget, ratio=TAIL_RATIO, min_turns=TAIL_MIN
     while start > head_end:
         candidate = start - 1
         tail = messages[candidate:]
-        if estimate_tokens(tail) >= floor and len(tail) >= min_turns:
+        if estimate_tokens(tail) >= floor and len(tail) >= min_msgs:
             return _snap_to_pair_boundary(messages, candidate, head_end)
         start = candidate
     return head_end
@@ -95,11 +95,17 @@ def _tail_start(messages, head_end, budget, ratio=TAIL_RATIO, min_turns=TAIL_MIN
 
 def _snap_to_pair_boundary(messages, idx, head_end):
     """Never let the tail BEGIN on a tool result: that would orphan it from its assistant tool-call
-    (which the recap would swallow). Move the boundary back to include the call, so a tool pair is
+    (which the recap would replace). Move the boundary back to include the call, so a tool pair is
     never split across the middle/tail line (the Unit 3 tool-pair rule, applied at the seam)."""
     while idx > head_end and messages[idx]["role"] == "tool":
         idx -= 1
     return idx
+
+
+def _all_same(a, b):
+    """True only if a and b are the same messages by IDENTITY (`is`) -- proof they were carried
+    through unchanged, not rebuilt into equal-looking copies."""
+    return len(a) == len(b) and all(x is y for x, y in zip(a, b))
 
 
 def compress_middle(middle):
@@ -131,24 +137,25 @@ def main():
     (head, h_tok), (middle, m_tok), (tail, t_tok) = parts["head"], parts["middle"], parts["tail"]
     print(f"split: head {len(head)} msgs/{h_tok} tok | middle {len(middle)} msgs/{m_tok} tok "
           f"| tail {len(tail)} msgs/{t_tok} tok  (tail floor = {TAIL_RATIO:.0%} budget "
-          f"& >= {TAIL_MIN_TURNS} turns)")
+          f"& >= {TAIL_MIN_MSGS} messages)")
     print(f"after compress-in-place: {len(kept)} messages, {after} tokens, {after / BUDGET:.0%} "
           f"of budget -- compressed {len(middle)} middle message(s)")
 
-    # The invariant, checked by identity: every head and tail message is the SAME object in the
-    # output -- byte-verbatim, not a re-rendered copy. Only the middle was touched.
-    head_ok = kept[:len(head)] == head
-    tail_ok = kept[len(kept) - len(tail):] == tail
-    tail_compressed = any(m is RECAP for m in tail)   # must never happen
-    print(f"invariant: head verbatim {head_ok} | tail verbatim {tail_ok} | "
-          f"tail ever compressed {tail_compressed}")
+    # The invariant, checked by IDENTITY (`is`), not equality: every head and tail message is the
+    # SAME object in the output, so we know it was carried through byte-verbatim, not re-rendered
+    # into an equal-looking copy. Equality (`==`) would also pass for a rebuilt copy and hide that.
+    head_verbatim = _all_same(kept[:len(head)], head)
+    tail_verbatim = _all_same(kept[len(kept) - len(tail):], tail)
+    print(f"invariant: head verbatim {head_verbatim} | tail verbatim {tail_verbatim} | "
+          f"middle replaced by {len(kept) - len(head) - len(tail)} recap message(s)")
 
-    # The compaction record -- strategy=head-tail (OBSERVABILITY.md). The loop Unit 11 closes:
-    # was a tail turn ever compressed? It must be zero -- that is the invariant this unit enforces.
+    # The compaction record -- strategy=head-tail (OBSERVABILITY.md). The loop Unit 11 closes: the
+    # head and tail must come through verbatim (identity-true) every pass, and only the middle
+    # region is replaced -- that is the invariant this unit enforces, proven rather than asserted.
     log_event(session_id, trace_id, 0, "compaction", strategy="head-tail", trigger="soft",
               tokens_before=before, tokens_after=after,
               head_tokens=h_tok, middle_tokens=m_tok, tail_tokens=t_tok,
-              compressed=len(middle), tail_compressed=tail_compressed)
+              compressed=len(middle), head_verbatim=head_verbatim, tail_verbatim=tail_verbatim)
 
 
 if __name__ == "__main__":
