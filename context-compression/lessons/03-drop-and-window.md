@@ -6,7 +6,7 @@ weight: 3
 
 **Goal:** build the cheapest compaction that actually frees tokens. Unit 2 said do nothing while
 you are under budget; this unit is what to do the moment you cross the line. The answer is the
-oldest trick in the book and still the right first move: **drop the oldest turns**. You will
+oldest and simplest method, and still the right first move: **drop the oldest turns**. You will
 build a sliding window that anchors the parts you must never lose, drops the stale middle until
 the prompt fits again, and records every drop — the safe baseline that every smarter mechanism
 later in the course has to beat.
@@ -14,9 +14,9 @@ later in the course has to beat.
 **Where this fits:** this is the second branch of the decision tree (Unit 0). It builds directly
 on §12 (the sliding-window history you already wrote) and on Unit 1's meter and Unit 2's
 threshold — you drop *because* the meter crossed the line. It points forward to Unit 4 (summarize
-what you are about to drop, instead of losing it) and Unit 5 (head/middle/tail, which fixes the
-one case this baseline handles badly). Think of this as the floor: simple, fast, lossy, and the
-thing to reach for before anything cleverer.
+what you are about to drop, instead of losing it), Unit 5 (keep a head *and* a tail, so only the
+middle is ever dropped), and Unit 8 (offload a giant artifact instead of deleting it). Think of
+this as the floor: simple, fast, lossy, and the thing to reach for before anything cleverer.
 
 ---
 
@@ -28,10 +28,13 @@ messages**. It costs no model call, no extra latency, and — by the recency log
 removes the turns least likely to matter to the next answer. This is the sliding window from §12,
 now used on purpose as a compaction step rather than a passive cap.
 
-Why oldest-first, and not (say) the largest message? Because order carries meaning. The model
-attends most to the start and end of the context (Unit 0's U-shape), and the *end* is where the
-live work is. Dropping from the front removes the coldest content and leaves the recent tail —
-the turns the next response actually depends on — untouched.
+Why oldest-first, and not (say) the largest message? Because order and structure carry meaning.
+The model attends most to the start and end of the context (Unit 0's U-shape), and the *end* is
+where the live work is, so dropping from the front removes the coldest content and leaves the
+recent tail untouched. "Oldest" is a good *heuristic* for "least likely to matter," not a
+guarantee — the real rule the next section makes precise is to preserve what is still depended
+on: the task at the head, the live tail, and the internal structure of a turn (an assistant
+tool-call and its result are one unit, not two).
 
 ## Anchor the head, or you will drop the task
 
@@ -52,34 +55,46 @@ def _head_end(messages):
         i += 1
     return i
 
+def _sanitize_tool_pairs(messages):
+    """Drop a tool result whose assistant tool-call is gone -- an orphan is an invalid transcript."""
+    live = {tc["id"] for m in messages for tc in (m.get("tool_calls") or [])}
+    return [m for m in messages if not (m["role"] == "tool" and m.get("tool_call_id") not in live)]
+
 def sliding_window(messages, budget):
     head_end = _head_end(messages)
     head, middle = messages[:head_end], list(messages[head_end:])
-    dropped = 0
     while middle and estimate_tokens(head + [MARKER] + middle) > budget:
-        middle.pop(0)          # evict the OLDEST middle turn -- least likely to matter now
-        dropped += 1
+        middle.pop(0)                       # evict the OLDEST middle message first
+    middle = _sanitize_tool_pairs(middle)   # a drop can orphan a tool result -- remove it
+    dropped = (len(messages) - head_end) - len(middle)
     return (head + [MARKER] + middle if dropped else head + middle), dropped
 ```
 
-The `MARKER` — a short `[Earlier messages truncated]` system line — is not decoration. It tells
-the model that a gap exists, so it can ask instead of confidently inventing what was there. A
-silent deletion invites confident wrong answers; a marked one invites a question.
+Two details make this safe rather than merely small. The `MARKER` — a short
+`[Earlier messages truncated]` line — is not decoration: it tells the model a gap exists, so it
+can ask instead of confidently inventing what was there. (Its *role* matters and is revisited in
+Unit 4, where the marker grows into a real summary; here a plain placeholder is enough.) And
+`_sanitize_tool_pairs` removes any tool result whose assistant tool-call was just evicted —
+because in an agent history an assistant tool-call and its `tool` result are **one unit**, and
+deleting half of it leaves an orphaned result that most providers reject. Dropping by message is
+fine *as long as* you repair the structure afterward; a shipped gateway runs exactly this
+sanitize step after every trim.
 
-Run it on a session that has gone over budget — a system prompt, the task, an early big file
-read, and several recent turns *(Reference:
+Run it on a session that has gone over budget — a system prompt, the task, an early big file read
+(a real assistant-call/tool-result pair), and several recent turns *(Reference:
 [`examples/03/drop_and_window.py`](../examples/03/drop_and_window.py))*:
 
 ```
-before: 16 messages, 9656 tokens, 121% of budget (OVER)
-after sliding window: 15 messages, 203 tokens, 3% of budget -- dropped 2 oldest middle turn(s)
+before: 17 messages, 9674 tokens, 121% of budget (OVER)
+after sliding window: 16 messages, 221 tokens, 3% of budget -- dropped 2 oldest middle message(s)
 head preserved? system + task still present: True
 ```
 
-The window dropped two old turns — including the large early file read — and the prompt fits
-again, with the task still anchored at the front. Notice how far it fell: one giant old tool
-output was almost the entire budget, so removing it recovered nearly everything. That is the
-baseline working — and also a preview of its bluntness, which the next two sections sharpen.
+The window dropped the two oldest middle messages — the file-read call and its large result —
+and the prompt fits again, with the task still anchored at the front. Notice how far it fell:
+one giant old tool output was almost the entire budget, so removing it recovered nearly
+everything. That is the baseline working — and also a preview of its bluntness, which the next
+two sections sharpen.
 
 ## When you must shed whole components: a priority order
 
@@ -100,11 +115,13 @@ def trim_priority(components, budget):
     return dropped, total
 ```
 
-The order encodes a judgment about what is recoverable. Old **history** is the most replaceable —
-it is in the past and often summarized elsewhere. **Memory** passages can be re-retrieved next
-turn if needed (that is the sibling course's whole job). **Tool definitions** go last, because an
-agent that loses its tool schemas mid-task cannot act at all. Drop the cheapest-to-lose first;
-keep the thing whose loss is fatal.
+This is coarse on purpose: it drops a *whole category* at a time, not the stale items inside one,
+so it is a blunter tool than the message-level window above. The order encodes a judgment about
+what is recoverable. Old **history** is the most replaceable — it is in the past and often
+summarized elsewhere. **Memory** passages can be re-retrieved next turn if needed (that is the
+sibling course's whole job). **Tool definitions** go last, because an agent that loses its tool
+schemas mid-task cannot act at all. Drop the cheapest-to-lose first; keep the thing whose loss is
+fatal.
 
 ## The honest part: this baseline is coarse, and in production it barely fires
 
@@ -112,9 +129,9 @@ Two truths keep this unit measured rather than triumphant.
 
 First, the real thing is blunter than the tidy loop above. The production gateway's history
 trim is **all-or-nothing**: when it fires, it collapses the history to the system messages plus
-the single most recent user message in one step — not a gentle turn-by-turn slide. It is a
-guillotine, not a dial. The course teaches the gentler sliding window as the better *primary*
-design and treats the all-or-nothing collapse as the blunt last resort it is.
+the single most recent user message in one step — not a gradual, message-by-message slide. The
+course teaches the gentler sliding window as the **safer default** and treats the all-or-nothing
+collapse as the blunt last resort it is.
 
 Second, that last resort almost never runs. As Unit 2 noted, the same gateway's drop was
 measured peaking at about **2.5%** of its token ceiling — but that figure came from short
@@ -126,8 +143,9 @@ fires" is a statement about the test, not the mechanism.
 And the deeper limit, the one that powers the rest of the course: dropping is **lossy and
 irreversible**, exactly like Unit 2's warning. If the giant old tool output you just evicted was
 the file the model still needs to edit, you did not compress it — you deleted it. Worse, if the
-giant is *recent*, the sliding window cannot touch it without eating the live tail. That single
-gap is the reason the next units exist: **summarize** the turns before you drop them (Unit 4),
+giant is *recent*, the sliding window cannot touch it without dropping the recent turns the model
+is using. That single gap is the reason the next units exist: **summarize** the turns before you
+drop them (Unit 4),
 keep a **head and tail** so the middle is all that ever goes (Unit 5), and **offload** a giant
 artifact instead of dropping it (Unit 8).
 
@@ -139,11 +157,11 @@ artifact instead of dropping it (Unit 8).
 > meter for the `tool_outputs` spike that signals someone is steering your window.
 
 > **Observe:** this unit emits a `compaction` record — `strategy="drop"`, `trigger`,
-> `tokens_before`, `tokens_after`, and `dropped` (how many turns) — using the §9 joining tuple,
+> `tokens_before`, `tokens_after`, and `dropped` (how many messages) — using the §9 joining tuple,
 > the first real compaction in the course's through-line. The loop it closes: a drop is a silent
 > deletion unless you record it, so the record turns "the window got smaller somehow" into "we
-> dropped 2 turns at turn N, from 9,656 to 203 tokens." The quality half — *was a dropped turn
-> referenced later?* — is the `referenced_later` flag that Unit 11 adds on top of this exact line.
+> dropped 2 messages at step N, from 9,674 to 221 tokens." The quality half — *was a dropped
+> message referenced later?* — is the `referenced_later` flag that Unit 11 adds on top of this line.
 
 ## Challenges
 
