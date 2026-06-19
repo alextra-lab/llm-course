@@ -71,7 +71,7 @@ behind a server and be reused.
 ## Build a tiny MCP server
 
 Let's make this concrete by hand-rolling a server — no library, just stdlib. Create
-**`work/mcp_server.py`**. It exposes two tools: the Section 14/14 `calculate`, and a small
+**`work/mcp_server.py`**. It exposes two tools: the Section 14/15 `calculate`, and a small
 `doc_search` over an in-memory dict.
 
 ```python

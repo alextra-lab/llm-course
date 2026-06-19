@@ -3,7 +3,7 @@ Section 18 - A tiny MCP server over stdio (JSON-RPC 2.0).
 
 MCP isn't magic: a server reads JSON-RPC requests on stdin and writes responses
 on stdout, one JSON object per line. This server advertises two tools -- the
-Section 14/14 `calculate` and a small `doc_search` -- and runs them on request.
+Section 14/15 `calculate` and a small `doc_search` -- and runs them on request.
 It needs no model and no endpoint; it's meant to be spawned by a client (see
 mcp_client.py). Run it directly with empty stdin and it exits cleanly at EOF.
 

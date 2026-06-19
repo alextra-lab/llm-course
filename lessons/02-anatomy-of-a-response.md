@@ -236,7 +236,7 @@ this in Sections 7 and 9.
 ```
 
 - **`response.usage.prompt_tokens`** *(int)* — how many tokens your input became *after
-  templating* (Section 1).
+  templating* (Section 3).
 - **`response.usage.completion_tokens`** *(int)* — how many tokens the model generated.
 - **`response.usage.total_tokens`** *(int)* — the sum.
 

@@ -5,7 +5,7 @@ Your messages are rendered by the model's chat template into one flat token
 string before the model sees them. You can't print that string with only the
 standard API (and this course uses no local tokenizer), but you CAN measure its
 size: usage.prompt_tokens counts the tokens AFTER templating. An empty message is
-not zero -- the difference exposes the template's fixed per-request overhead.
+not zero -- that count is the observable per-request overhead the template adds.
 
     python examples/03/template_cost.py
 """

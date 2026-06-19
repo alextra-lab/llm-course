@@ -9,7 +9,7 @@ before it answers*. You'll write scripts that reveal the model's private reasoni
 the **reasoning tokens** you pay for, and turn the `reasoning_effort` dial up and down to
 see the trade-off.
 
-**Where this fits:** this ties together the harmony template (Section 1), the `usage`
+**Where this fits:** this ties together the harmony template (Section 3), the `usage`
 block (Section 2), and the token budget (Section 4). Reasoning tokens are why your
 `completion_tokens` were sometimes bigger than the visible answer.
 
@@ -22,7 +22,7 @@ generates a private chain of thought — working the problem, weighing options, 
 itself — and *then* writes the final answer. You usually see only the answer, but the
 thinking happened, token by token.
 
-Recall the **harmony** format from Section 1: that's exactly what its *channels* are for.
+Recall the **harmony** format from Section 3: that's exactly what its *channels* are for.
 `gpt-oss-120b` writes its reasoning into an **analysis** channel and its reply into a
 **final** channel. The server separates them, usually surfacing the reasoning as
 `response.choices[0].message.reasoning_content` *(str)* alongside the normal
@@ -169,7 +169,7 @@ Keep the `assistant` turn's `content`; drop its `reasoning_content`.
 
 ## Recap
 
-- A reasoning model **thinks first** (the harmony *analysis* channel from Section 1), then
+- A reasoning model **thinks first** (the harmony *analysis* channel from Section 3), then
   answers; the thinking often surfaces as `response.choices[0].message.reasoning_content`.
 - Reasoning is generated text: it's in `completion_tokens`, spends the **context budget**
   (Section 4), and is **billed** (Section 11).

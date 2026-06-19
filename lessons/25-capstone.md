@@ -26,12 +26,12 @@ section composes them into something you'd actually ship a v0 of.
 An "Acme support assistant" that answers customer questions about a (made-up) company:
 
 ```
-question ─▶ agent loop ─▶ [ search_kb tool ]  (retrieval, §19/19)
-                         [ calculate tool ]   (tools, §14/14)
+question ─▶ agent loop ─▶ [ search_kb tool ]  (retrieval, §19/20)
+                         [ calculate tool ]   (tools, §14/15)
                               │
                          every model call is logged (§10) and costed (§11)
                               │
-                         final answer (grounded; "I don't know" if unknown, §20/20)
+                         final answer (grounded; "I don't know" if unknown, §20/21)
 
 then: a tiny eval suite scores it (§24)
 ```

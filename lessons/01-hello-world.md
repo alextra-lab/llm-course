@@ -247,32 +247,15 @@ same conversation**:
 2. **What the model receives** — a single, flat **string of tokens**. The model has no
    concept of "roles" or "a list." It only ever sees text.
 
-The thing that converts #1 into #2 is the **chat template** — a small template (in
-Jinja2) that ships *inside the model's own tokenizer configuration*. The server renders
-your messages through it. For a model in the widely-used "ChatML" format (easy to read),
-your two messages become this exact string:
+The thing that converts #1 into #2 is the **chat template** — a small, per-model template
+that wraps your messages in **special tokens** (turn markers like `<|im_start|>` /
+`<|im_end|>`, plus a trailing "your turn" cue). It ships *with the model*, and the server
+applies it automatically — you never write those delimiters by hand. Different models use
+different templates; ours, `gpt-oss-120b`, uses OpenAI's richer **harmony** format.
 
-```
-<|im_start|>system
-You are a concise, friendly assistant.<|im_end|>
-<|im_start|>user
-Say hello in one short sentence.<|im_end|>
-<|im_start|>assistant
-```
-
-- `<|im_start|>` / `<|im_end|>` are **special tokens** marking boundaries; the role name
-  is just text after the marker.
-- The dangling `<|im_start|>assistant` at the end is the **generation prompt**: it tells
-  the model "your turn — continue from here."
-
-Different model families use **different templates**. Our model, `gpt-oss-120b`, uses
-OpenAI's **harmony** format, which is richer than ChatML — it even gives the model
-separate *channels* for private reasoning and the final answer (that reasoning is the
-subject of Section 6). So the real rendered string for our model won't look like the tidy
-ChatML above. That's the point: **same messages, a different rendered string for every
-model** — which is why the template belongs to the model, not to the API. The server
-applies the right one automatically; you never hand-write delimiters. But knowing they're
-there is what separates "it just works" from "I understand why."
+That's all you need for now — **Section 3 is a whole lesson on the template** (and Section 6
+on harmony's reasoning channels). Hold onto the one idea: *what you write is a list; what
+the model reads is one flat string of tokens.*
 
 ### Prove it yourself — measure the tokens
 

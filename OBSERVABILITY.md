@@ -35,7 +35,7 @@ never omitted. Same discipline as security.
 
 ### 2. The canonical joinable telemetry artifact (reused, not reinvented)
 
-Every course reuses the foundations telemetry shape from **§9 (Observability & Logging)** —
+Every course reuses the foundations telemetry shape from **§10 (Observability & Logging)** —
 do **not** invent a new one per course. One structured **JSONL record per operation**,
 stamped with the joining tuple:
 
@@ -47,12 +47,12 @@ stamped with the joining tuple:
 - **`trace_id`** — one logical operation (an agent run, a turn).
 - **`step`** — integer ordering within the trace.
 - Server ids (`response.id`, `x-request-id`) identify *one* call; the tuple above is what
-  ties a whole run together — the "missing-foreign-key" point from §9.
+  ties a whole run together — the "missing-foreign-key" point from §10.
 
 The reference implementations to copy from:
 
-- **Foundations §9** — `logged_chat(session_id, trace_id, step, **kwargs)` and the
-  joinable-logs section. Source: [`examples/09/log_calls.py`](examples/09/log_calls.py).
+- **Foundations §10** — `logged_chat(session_id, trace_id, step, **kwargs)` and the
+  joinable-logs section. Source: [`examples/10/log_calls.py`](examples/10/log_calls.py).
 - **Agent Memory §10** — `log_event(actor, operation, **fields)` extends the same line
   with an `actor`, an `operation`, and **PII redaction at the boundary**. Source:
   [`agent-memory/examples/10/observe.py`](agent-memory/examples/10/observe.py).
@@ -90,9 +90,9 @@ small `log_event` helper in its `common_*.py`. Domain records seen in the wild:
 
 ## Per-course application
 
-- **Foundations** — already *implies* observability and meets the bar: a dedicated §9 plus
-  deliberate callbacks in §2, §8, §10, §16, §22 ("make degradation loud"), §23, and §24,
-  with the same JSONL+trace artifact recurring across §9/§16/§22. It is grandfathered: it
+- **Foundations** — already *implies* observability and meets the bar: a dedicated §10 plus
+  deliberate callbacks in §2, §9, §11, §17, §23 ("make degradation loud"), §24, and §25,
+  with the same JSONL+trace artifact recurring across §10/§17/§23. It is grandfathered: it
   is not required to add the structural `Observe` note retroactively, though it may.
 - **Agent Memory** — **retrofit to first-class.** Today observability is a two-unit
   destination (Unit 9 metrics, Unit 10 telemetry/privacy) and the capstone claims controls

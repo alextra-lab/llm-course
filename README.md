@@ -62,7 +62,7 @@ supports.
 |---|---|---|
 | Chat completions (`POST /v1/chat/completions`) | every section | **Required** |
 | Model listing (`GET /v1/models`) | §1 | Recommended |
-| Tokenize endpoint (`POST /tokenize`, non-standard) | §1 | Optional bonus — falls back to `usage` token counts |
+| Tokenize endpoint (`POST /tokenize`, non-standard) | §3 | Optional bonus — falls back to `usage` token counts |
 | Reasoning fields (`reasoning_content`, `reasoning_tokens`, `reasoning_effort`) | §6 | Optional — the model still answers |
 | Cached-token reporting (`prompt_tokens_details.cached_tokens`) | §11 | Optional — caching may still happen unseen |
 | **Tool calling** (OpenAI-style `tools` / `tool_choice`) | §14, §15, §23, §25 | **Required for those sections** |
