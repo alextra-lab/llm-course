@@ -14,8 +14,8 @@ composition.
 framework" and recognize the engine underneath.
 
 > **Reminder — needs tool calling.** The agent is built on the tool loop, so your endpoint
-> must have **tool calling enabled** (vLLM auto tool choice). If `tool_calls` is always
-> empty, that's why. See the README's "What your endpoint needs to support."
+> must support **tool calling** (OpenAI-style `tools` / `tool_choice`). If `tool_calls` is
+> always empty, that's why. See the README's "What your endpoint needs to support."
 
 ---
 

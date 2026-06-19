@@ -13,8 +13,9 @@ exercises every section.
 **Where this fits:** the finish line. Sections 1–23 each added one capability; this
 section composes them into something you'd actually ship a v0 of.
 
-> **Reminder — endpoint features.** The capstone uses **tool calling** (Section 13; vLLM
-> auto tool choice) and, for retrieval, an **embedding model** (`EMBED_MODEL`, Section 18)
+> **Reminder — endpoint features.** The capstone uses **tool calling** (Section 13;
+> OpenAI-style `tools` / `tool_choice`) and, for retrieval, an **embedding model**
+> (`EMBED_MODEL`, Section 18)
 > — it falls back to keyword search if that's unset. See the README's "What your endpoint
 > needs to support" for the full list.
 

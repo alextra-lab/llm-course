@@ -27,8 +27,11 @@ tokenizer by reading `response.usage.prompt_tokens` *(int)* straight from the se
 
 ### Write the measurement
 
-Create **`work/count.py`**. We measure an empty message first to subtract the chat
-template's fixed overhead, then count some sample strings:
+Create **`work/count.py`**. We read `usage.prompt_tokens` for a few strings and compare
+them. Notice we **don't** subtract an empty message to "isolate the text": the chat
+template wraps an empty message differently from a real one, so that subtraction is
+misleading on some models. Instead we read the raw counts and compare strings *to each
+other* — the fixed template cost is the same in both, so the **difference** is the text:
 
 ```python
 from common import get_client, MODEL
@@ -43,14 +46,11 @@ def prompt_tokens(text: str) -> int:
     )
     return response.usage.prompt_tokens
 
-baseline = prompt_tokens("")          # template overhead of an empty message
+samples = ["", "hello", "HELLO", "  hello", "hello world",
+           "antidisestablishmentarianism", "🦜🦜🦜", "def f(n): return n*n"]
 
-samples = ["hello", "  hello", "HELLO", "antidisestablishmentarianism", "🦜🦜🦜",
-           "def f(n): return n*n"]
-
-print(f"(overhead baseline = {baseline} tokens)\n")
 for s in samples:
-    print(f"{prompt_tokens(s) - baseline:>4}   {s!r}")
+    print(f"{prompt_tokens(s):>4}   {s!r}")
 ```
 
 Run it:
@@ -59,17 +59,40 @@ Run it:
 python work/count.py
 ```
 
-Watch the counts change in ways that surprise people new to this:
+Read the numbers by **comparing rows**, not in isolation:
 
-- `"hello"` vs `"  hello"` differ — whitespace is tokenized.
-- `"hello"` vs `"HELLO"` differ — casing matters.
-- `"antidisestablishmentarianism"` is one *word* but several *tokens*.
-- emoji and code fragment into many tokens.
+- The empty string `""` is not zero — that is the chat template's **fixed overhead**, paid
+  on every request. It can be small, or surprisingly large, depending on the model.
+- `"hello"` vs `"HELLO"` — casing *can* change the split. On many models it adds a token;
+  on some it makes no difference for a given word. Measure, don't assume.
+- `"hello"` vs `"  hello"` — leading whitespace is itself tokenized.
+- `"hello"` vs `"hello world"` — the jump is the cost of the added word.
+- `"antidisestablishmentarianism"` is one *word* but several *tokens*; emoji and code
+  fragment into many.
 
 > **Why measure through the server?** Tokenization is **model-specific** — `gpt-oss-120b`
-> splits text differently than Llama or Mistral would. The server hosting the model has
-> the *exact* right tokenizer, so its `usage` counts are ground truth.
+> splits text differently than another model would. The server hosting the model has the
+> *exact* right tokenizer, so its `usage` counts are ground truth.
 > [`examples/03/count_tokens.py`](../examples/03/count_tokens.py) is the reference.
+
+### The same code, different endpoints
+
+The numbers you just measured are **specific to your model and server** — and they vary far
+more than people expect. Here is the *same* code run against four different endpoints:
+
+| Model (server) | Template overhead (`""`) | `max_tokens=16` reply | reasoning tokens? | reasoning text? | max temperature |
+|---|---|---|---|---|---|
+| `gpt-oss-120b` | 63 | empty (spent thinking) | reported | no | ≥ 3 |
+| a reasoning Qwen | 10 | empty (spent thinking) | no | yes | ≥ 3 |
+| an instruct Qwen | 12 | text, cut off | no | no | ≥ 3 |
+| OpenAI `gpt-4o-mini` | 7 | text, cut off | reported | no | 2.0 |
+
+One request, four endpoints, almost nothing in common: the fixed overhead ranges from 7 to
+63 tokens; a tiny `max_tokens` returns **empty** text on the reasoning models but **partial**
+text on the others (Section 2); the reasoning fields (Section 5) appear on some and not
+others; and the highest accepted `temperature` (Section 4) differs. The takeaway for the
+whole course: **don't assume — measure.** `python scripts/preflight.py` runs exactly these
+checks against *your* endpoint and prints your own row.
 
 ---
 
@@ -108,13 +131,15 @@ from common import get_client, MODEL
 
 client = get_client()
 
-# 1. Cap the output and watch it get cut off.
+# 1. Cap the output. On a reasoning model the few tokens are spent thinking, so the
+#    reply may come back EMPTY -- but finish_reason still tells you it was cut off.
 r = client.chat.completions.create(
     model=MODEL,
     messages=[{"role": "user", "content": "List the planets of the solar system."}],
     max_tokens=10,
 )
-print("finish_reason:", r.choices[0].finish_reason, "->", r.choices[0].message.content)
+print("finish_reason:", r.choices[0].finish_reason,
+      "-> content:", repr(r.choices[0].message.content))
 
 # 2. Exceed the window on purpose; the error reveals the limit.
 huge = "word " * 200_000
@@ -131,10 +156,11 @@ except BadRequestError as err:
 python work/budget.py
 ```
 
-The first call truncates (`finish_reason="length"`); the second is rejected, and the
-error states the exact window size. That error is a feature: it's the most reliable way
-to learn a model's limit. *(Reference:
-[`examples/03/context_budget.py`](../examples/03/context_budget.py).)*
+The first call is cut off (`finish_reason="length"`) — and on a reasoning model the
+content comes back **empty**, because those 10 tokens were spent thinking rather than
+answering (Section 2). The second call is rejected, and the error states the exact window
+size. That error is a feature: it's the most reliable way to learn a model's limit.
+*(Reference: [`examples/03/context_budget.py`](../examples/03/context_budget.py).)*
 
 ---
 

@@ -1,7 +1,7 @@
 """
 Section 1 - Hello World: which model is being served?
 
-A vLLM server usually serves ONE model, named by its Hugging Face repo id.
+An OpenAI-compatible server may serve one or more models, each with an id.
 If you don't know what to put in MODEL, ask the server:
 
     GET <base_url>/models

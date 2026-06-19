@@ -2,7 +2,8 @@
 Section 3 - The context window: input + output must fit in one budget.
 
 Two demonstrations:
-  1. A small max_tokens ceiling truncates the OUTPUT (finish_reason="length").
+  1. A small max_tokens ceiling cuts the OUTPUT short (finish_reason="length"). On a
+     reasoning model the reply may even be EMPTY -- the few tokens were spent thinking.
   2. Asking for more tokens than the model's window allows is a hard error -- and
      the error message reveals the window size.
 
@@ -26,8 +27,9 @@ response = client.chat.completions.create(
     max_tokens=10,
 )
 print("=== capped output ===")
-print("finish_reason:", response.choices[0].finish_reason, "(='length' means truncated)")
-print(response.choices[0].message.content)
+print("finish_reason:", response.choices[0].finish_reason, "(='length' means not finished)")
+print("content:", repr(response.choices[0].message.content),
+      "(may be EMPTY on a reasoning model -- the budget went to thinking)")
 
 # --- 2. Blow past the window on purpose to reveal its size ----------------------
 print("\n=== exceeding the context window ===")

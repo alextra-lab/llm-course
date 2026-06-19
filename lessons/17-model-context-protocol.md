@@ -15,7 +15,7 @@ AI") rather than a new capability.
 
 > **Reminder — the model bridge needs tool calling.** The server and client we build run
 > with no endpoint at all. Only the last step — letting the model drive the tools — needs
-> your endpoint with **tool calling enabled** (vLLM auto tool choice), exactly as in
+> your endpoint with **tool calling** (OpenAI-style `tools` / `tool_choice`), exactly as in
 > Sections 13–14.
 
 ---

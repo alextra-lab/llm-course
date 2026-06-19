@@ -33,9 +33,10 @@ abstraction will feel like a convenience, not magic.
 Throughout this course you'll talk to a **hosted, OpenAI-compatible inference server**.
 Two phrases there matter:
 
-- **Inference server** — a program that has a model loaded and answers requests. Ours
-  runs [vLLM](https://docs.vllm.ai/), a fast serving engine, and serves `gpt-oss-120b`.
-  You don't run it; it's hosted for you. You just send it HTTP requests.
+- **Inference server** — a program that has a model loaded and answers requests. Ours is
+  hosted for you and serves `gpt-oss-120b`. We don't assume *which* server software it
+  runs — only that it speaks the OpenAI API. You don't run it; you just send it HTTP
+  requests.
 - **OpenAI-compatible** — it speaks the same HTTP API that OpenAI popularized:
   `POST /v1/chat/completions`, `GET /v1/models`, and so on. Learn this protocol once and
   the same code talks to OpenAI, vLLM, llama.cpp, and dozens of others.
@@ -310,9 +311,12 @@ The second number is much bigger — your longer message became more tokens. You
 reading `usage.prompt_tokens`, the size of your messages *after* the template was
 applied, straight from the server. Section 3 builds a whole lesson on this.
 
-> **Reference:** [`examples/01/show_template.py`](../examples/01/show_template.py) goes
-> further — if your endpoint exposes vLLM's `/tokenize` helper, it prints the actual
-> rendered harmony string and token ids. Run it to peek at the real delimiters.
+> **Reference (optional bonus):** [`examples/01/show_template.py`](../examples/01/show_template.py)
+> goes further — *if* your server happens to expose a `/tokenize` endpoint (a non-standard
+> extension some servers add, not part of the OpenAI API), it prints the actual rendered
+> template string and token ids so you can see the real delimiters. Most endpoints don't
+> expose it; then the script just prints the token count instead. Either way it's a
+> peek-behind-the-curtain extra, not something the course depends on.
 
 ---
 
@@ -331,7 +335,9 @@ Write these from scratch (new files in `work/`). References are listed, but try 
    the *user* message is unchanged but the style flips.
 3. **A token counter.** Using `work/tokens.py` as a starting point, write a `count(text)`
    function and print the token count of: your name, a full sentence, and the same
-   sentence in ALL CAPS. *Success:* the three counts differ. *(Reference idea:
+   sentence in ALL CAPS. *Success:* you can report all three counts and say whether ALL
+   CAPS changed the sentence's count on **your** model — it often does, by a little, but
+   the split is model-specific, so don't assume. *(Reference idea:
    [`examples/03/count_tokens.py`](../examples/03/count_tokens.py) — used in Section 3.)*
 4. **Discover the model id.** Write a script that sends `GET <base_url>/models` (with the
    `Authorization` header) and prints each model id from the JSON. *Success:* it prints

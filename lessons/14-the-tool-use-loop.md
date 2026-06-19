@@ -12,8 +12,8 @@ You'll build a small driver that can use several tools across multiple steps. Th
 **Where this fits:** Section 13 gave you the handshake; here you automate it. This is the
 core machinery that Section 22 (Agents) dresses up with planning and more tools.
 
-> **Reminder — needs tool calling.** Like Section 13, this needs your endpoint to have
-> **tool calling enabled** (vLLM auto tool choice). If `tool_calls` comes back empty,
+> **Reminder — needs tool calling.** Like Section 13, this needs your endpoint to support
+> **tool calling** (OpenAI-style `tools` / `tool_choice`). If `tool_calls` comes back empty,
 > that's the cause — the loop logic still applies. See the README's "What your endpoint
 > needs to support."
 

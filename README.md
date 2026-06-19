@@ -38,35 +38,41 @@ The rest of this page is the foundations course.
 
 ## What you'll talk to
 
-Every example targets a **hosted, OpenAI-compatible inference server** (running vLLM)
-serving **`gpt-oss-120b`**, OpenAI's open-weight reasoning model. You don't run a
-server — you point three environment variables at the hosted one and go. Because the
-API is OpenAI-compatible, the same code works against many providers and models.
+Every example targets a **hosted, OpenAI-compatible inference server** serving
+**`gpt-oss-120b`**, OpenAI's open-weight reasoning model. The course assumes nothing about
+*which* server software is behind the API — only that it speaks the OpenAI Chat Completions
+protocol. You don't run a server — you point three environment variables at the hosted one
+and go. Because the API is OpenAI-compatible, the same code works against many providers,
+servers (OpenAI, vLLM, llama.cpp, and others), and models — so behaviour can differ between
+them; run `python scripts/preflight.py` to see what your endpoint does.
 
 > This course uses **no Hugging Face Hub downloads and no `tiktoken`.** When we need to
 > tokenize or inspect a model's chat template, we ask the *server* (via token counts in
-> the response, or vLLM's `/tokenize` endpoint when it's exposed).
+> the response, or a non-standard `/tokenize` endpoint when a server happens to expose one).
 
 ## What your endpoint needs to support
 
-The examples target a vLLM endpoint serving `gpt-oss-120b`, but a few capabilities depend
-on how that endpoint is configured. **The scripts degrade gracefully** — if something
-isn't available, they tell you instead of crashing — so you can always read along.
+The examples target an OpenAI-compatible endpoint serving `gpt-oss-120b`, but a few
+capabilities depend on the server and model behind the API. **The scripts degrade
+gracefully** — if something isn't available, they tell you instead of crashing — so you can
+always read along. Run `python scripts/preflight.py` to see which of these your own endpoint
+supports.
 
 | Capability | Used in | Required? |
 |---|---|---|
 | Chat completions (`POST /v1/chat/completions`) | every section | **Required** |
 | Model listing (`GET /v1/models`) | §1 | Recommended |
-| Tokenize endpoint (`POST /tokenize`) | §1 | Optional — falls back to `usage` token counts |
+| Tokenize endpoint (`POST /tokenize`, non-standard) | §1 | Optional bonus — falls back to `usage` token counts |
 | Reasoning fields (`reasoning_content`, `reasoning_tokens`, `reasoning_effort`) | §5 | Optional — the model still answers |
 | Cached-token reporting (`prompt_tokens_details.cached_tokens`) | §10 | Optional — caching may still happen unseen |
-| **Tool calling** (vLLM auto tool choice) | §13, §14, §22, §24 | **Required for those sections** |
+| **Tool calling** (OpenAI-style `tools` / `tool_choice`) | §13, §14, §22, §24 | **Required for those sections** |
 | **Embeddings** (`POST /v1/embeddings` + an `EMBED_MODEL`) | §18, §19, §24 | **Required for those sections** (capstone falls back to keyword search) |
 | Docker (a working `docker` CLI) | §16 | Optional — the container demo prints a skip notice without it |
 | Postgres (a throwaway **dev** `DATABASE_URL`) | §16 | Optional — the SQL-sandbox demo is opt-in and skips cleanly without it |
 
 If a feature isn't enabled on your endpoint, the relevant lesson says so up front. None of
-these are needed to *read* the course — every script degrades gracefully.
+these are needed to *read* the course — every script degrades gracefully. To see which of
+these your own endpoint supports, run `python scripts/preflight.py` (see [Setup](#setup)).
 
 ## Setup
 
@@ -99,11 +105,19 @@ along; the capstone falls back to keyword search automatically.
 Verify it works:
 
 ```bash
-python examples/01/list_models.py   # prints the model id(s) the endpoint serves
-python examples/01/raw_http.py      # your first completion, the raw HTTP way
+python scripts/preflight.py          # checks your endpoint against what the lessons assume
 ```
 
-If `list_models.py` prints a model id and `raw_http.py` prints a greeting, you're ready.
+The preflight makes a handful of tiny calls (it never changes anything) and prints a report:
+is the chat endpoint reachable, how big is the template's token overhead, is your model a
+*reasoning* model (so a tight `max_tokens` returns empty content), what is the highest
+`temperature` your server accepts, and which optional features are available. **The model
+and the inference server both change how the examples behave** — the preflight tells you
+where your endpoint matches the lessons and where it will differ, before you hit a surprise.
+Fix any `FAIL` lines before starting; `WARN` lines are expected differences, not errors.
+
+If you prefer a one-line smoke test, `python examples/01/list_models.py` prints the served
+model ids and `python examples/01/raw_http.py` prints a greeting.
 
 ### Troubleshooting: SSL / certificates
 

@@ -48,7 +48,9 @@ from common import get_client, MODEL
 
 ## Write a script that shows the whole response
 
-Create **`work/inspect.py`**:
+Create **`work/inspect_response.py`** (we use this longer name on purpose: a file called
+`inspect.py` would shadow Python's built-in `inspect` module — which the `openai` library
+imports — and your script would crash on import before it ran):
 
 ```python
 import json
@@ -72,7 +74,7 @@ print(json.dumps(response.model_dump(), indent=2, default=str))
 Run it:
 
 ```bash
-python work/inspect.py
+python work/inspect_response.py
 ```
 
 You'll get the full object. Here's a trimmed version of what you're looking at:
@@ -153,7 +155,7 @@ Read it level by level (type in parentheses).
 - **`response.choices[0].message.reasoning_content`** *(str, or absent)* — present for
   our reasoning model when the endpoint exposes it (Section 5).
 
-Now add these three lines to the end of `work/inspect.py` and rerun — confirm you can
+Now add these three lines to the end of `work/inspect_response.py` and rerun — confirm you can
 reach each one:
 
 ```python
@@ -195,22 +197,32 @@ def ask(max_tokens):
         model=MODEL, messages=prompt, max_tokens=max_tokens
     )
     choice = response.choices[0]
-    return choice.finish_reason, choice.message.content
+    return choice.finish_reason, choice.message.content or ""
 
-reason, text = ask(200)          # generous ceiling -> finishes naturally
-print(f"[200] {reason!r}: {text}\n")
+reason, text = ask(300)          # generous ceiling -> finishes naturally
+print(f"[300] {reason!r} ({len(text)} chars): {text}\n")
 
-reason, text = ask(8)            # tiny ceiling -> cut off mid-thought
-print(f"[8] {reason!r}: {text}")
+reason, text = ask(8)            # tiny ceiling -> not finished
+print(f"[8] {reason!r} ({len(text)} chars): {text!r}")
 ```
 
 ```bash
 python work/finish.py
 ```
 
-The second answer stops mid-sentence with `finish_reason="length"`. **Rule of thumb:**
-if you need a complete answer, check `finish_reason == "stop"` (or handle `"length"`
-deliberately). We'll rely on this in Sections 6 and 8.
+The first call finishes on its own (`finish_reason="stop"`). The second hits the ceiling
+and returns `finish_reason="length"` — **but look closely at the text it returns.** If
+`gpt-oss-120b` (a reasoning model) is behind your endpoint, those 8 tokens are spent
+*thinking*, so `content` comes back **empty**: `finish_reason="length"` with nothing to
+show. Behind a model that doesn't think first, you'd instead see a sentence chopped off in
+the middle. Either way the answer is **not complete**.
+
+That is the real lesson: **`finish_reason` is the truth, not the text.** Never decide an
+answer is done by looking at whether `content` is non-empty — a `"length"` result is
+incomplete whether it is truncated *or* empty. **Rule of thumb:** if you need a complete
+answer, check `finish_reason == "stop"` (or handle `"length"` deliberately). Why a tiny
+budget can vanish into thinking is Section 5; for now, just trust the reason. We'll rely on
+this in Sections 6 and 8.
 
 > **Reference:** [`examples/02/inspect_response.py`](../examples/02/inspect_response.py)
 > and [`examples/02/finish_reasons.py`](../examples/02/finish_reasons.py).
@@ -251,7 +263,7 @@ avoid the context limit (Section 3), log activity (Section 9), and compute **cos
 
 ## Challenges
 
-Write these in `work/` (extend or copy `work/inspect.py`).
+Write these in `work/` (extend or copy `work/inspect_response.py`).
 
 1. **Ask for two answers.** Add `n=2` to the `create(...)` call and print
    `len(response.choices)` and both `choices[i].message.content`. *Success:* you get two
