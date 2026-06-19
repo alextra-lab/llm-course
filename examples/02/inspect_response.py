@@ -36,7 +36,7 @@ print("finish_reason :", choice.finish_reason)
 print("usage         :", response.usage)
 
 # gpt-oss is a reasoning model, so the message MIGHT also carry its private
-# thinking. We only peek here; Section 5 is all about this.
+# thinking. We only peek here; Section 6 is all about this.
 reasoning = getattr(choice.message, "reasoning_content", None)
 if reasoning:
-    print("\n(this model also returned reasoning_content -- see Section 5)")
+    print("\n(this model also returned reasoning_content -- see Section 6)")

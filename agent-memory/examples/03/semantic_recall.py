@@ -1,6 +1,6 @@
 """
 Unit 3 - Semantic recall: embed the same facts and retrieve by MEANING, not keyword.
-Reuses the foundations embed + cosine helpers (Sections 18-19). Needs EMBED_MODEL; skips
+Reuses the foundations embed + cosine helpers (Sections 19-20). Needs EMBED_MODEL; skips
 cleanly without it, so the unit still reads.
 
     python agent-memory/examples/03/semantic_recall.py
@@ -35,7 +35,7 @@ def cosine(a, b):
 
 def main():
     if not EMBED_MODEL:
-        print("EMBED_MODEL not set -- skipping (this unit needs embeddings). See Section 18.")
+        print("EMBED_MODEL not set -- skipping (this unit needs embeddings). See Section 19.")
         return
     client = get_embed_client()
     fact_vecs = embed(client, FACTS)   # embed the memory ONCE, up front

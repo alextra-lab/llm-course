@@ -33,7 +33,7 @@ def recall_recent(db, k=3):
 
 
 def recall_keyword(db, term, k=3):
-    # Parameter is BOUND, never string-formatted -- SQL injection discipline from §16.
+    # Parameter is BOUND, never string-formatted -- SQL injection discipline from §17.
     rows = db.execute(
         "SELECT text FROM turns WHERE text LIKE ? ORDER BY ts DESC LIMIT ?",
         (f"%{term}%", k),

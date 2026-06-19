@@ -6,7 +6,7 @@ weight: 0
 
 **Goal:** understand the problem this course solves, and why it is harder than "the window
 is full." A long-running agent keeps adding to the message list it resends every turn
-(§12), and eventually that list will not fit in the model's context window. That is the
+(§13), and eventually that list will not fit in the model's context window. That is the
 *obvious* ceiling. The harder truth is a second, softer ceiling: a model uses a full window
 *worse* than a short one. So you compress not only to fit, but to keep the model accurate —
 and every choice about what to drop, summarize, or keep has a cost you must measure. This
@@ -14,8 +14,8 @@ course is about managing that budget without losing the things the agent still n
 
 **Where this fits:** this is the start of the **third** course, a sibling of the
 [Agent Memory](../../agent-memory/README.md) course — read them in either order. It assumes
-the foundations course: §3 (tokens and the context window), §10 (prompt caching), §12
-(conversation state and history), and §22 (agents). The Agent Memory course began by setting
+the foundations course: §4 (tokens and the context window), §11 (prompt caching), §13
+(conversation state and history), and §23 (agents). The Agent Memory course began by setting
 this whole topic aside — its Unit 0 calls context management "the thing you already built"
 and goes off to study memory *across* sessions. This course goes back and develops the part
 that was set aside: keeping *one* long session inside the window.
@@ -24,8 +24,8 @@ that was set aside: keeping *one* long session inside the window.
 
 ## Two ceilings, not one
 
-In §12 you made a stateless API hold a conversation by resending the whole `messages` list
-every turn. An agent (§22) does the same, and adds tool calls and their results to the list
+In §13 you made a stateless API hold a conversation by resending the whole `messages` list
+every turn. An agent (§23) does the same, and adds tool calls and their results to the list
 as it works. The list only grows. Two different limits are waiting for it.
 
 The **hard ceiling** is the context window: a fixed number of tokens the model can accept.
@@ -53,9 +53,9 @@ That is the idea the whole course is built on.
 It helps to see what fills the window in the first place. Every turn, the prompt is roughly:
 
 - the **system prompt** — fixed instructions, usually small;
-- the **tool definitions** — schemas for every tool the agent can call (§22);
-- **retrieved context** — memory or RAG passages injected for this turn (§19);
-- the **conversation history** — every prior user, assistant, and tool message (§12);
+- the **tool definitions** — schemas for every tool the agent can call (§23);
+- **retrieved context** — memory or RAG passages injected for this turn (§20);
+- the **conversation history** — every prior user, assistant, and tool message (§13);
 - the **tool outputs** — and these are the dangerous ones. A single file read, a stack
   trace, or a command's output can be larger than the entire conversation around it.
 
@@ -63,7 +63,7 @@ History and tool outputs grow without limit; the rest is mostly fixed. A long se
 just that list getting longer:
 
 ```python
-# A long session is a messages list that keeps growing (foundations §12).
+# A long session is a messages list that keeps growing (foundations §13).
 messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 budget = 8000   # the model's working window, in tokens (ask the server for the real number)
 
@@ -116,7 +116,7 @@ model see in the prompt?", but the mechanisms are unrelated.
 
 One naming caution, picked up properly in Unit 9: this course means **context compression** —
 shrinking the *input tokens* the model reads. That is different from *KV-cache compression* (a
-runtime-memory trick that frees no space in your window) and from *prompt caching* (§10, which
+runtime-memory trick that frees no space in your window) and from *prompt caching* (§11, which
 reuses an unchanged prefix — and which, as you will see, compaction breaks).
 
 ## The thesis
@@ -128,7 +128,7 @@ do the cheapest thing that works, and compress only what you must — but it wal
 decision tree, and it will tell you to do nothing when nothing is the right move:
 
 1. **Under budget?** Do nothing. The cheapest compression is none.
-2. **Approaching the budget?** Drop or window the oldest turns first (§12) — cheap, and
+2. **Approaching the budget?** Drop or window the oldest turns first (§13) — cheap, and
    usually safe on old turns.
 3. **Losing content from the middle that still matters?** Keep the **head** and **tail**
    verbatim; compress only the middle.
@@ -153,14 +153,14 @@ defensible default in Unit 12.
 > one. Every later unit carries an `Observe` note: it instruments the compaction it builds —
 > a token meter, a compaction record, a before/after trace of what the model saw and whether
 > its output changed — using the joinable `session_id`/`trace_id`/`step` line from foundations
-> §9. A compression you cannot see is one you cannot trust, so you start measuring in Unit 1,
+> §10. A compression you cannot see is one you cannot trust, so you start measuring in Unit 1,
 > not at the end. This is the repo's [Observability Standard](../../OBSERVABILITY.md).
 
 ## Challenges
 
 These are thinking-and-experiment tasks; the building starts in Unit 1.
 
-1. **Feel the budget run out.** Take any §12 or §22 script, keep appending turns (or let an
+1. **Feel the budget run out.** Take any §13 or §23 script, keep appending turns (or let an
    agent run for many steps), and print the running token count each turn. *Success:* you can
    say which part of the prompt — history or tool output — crossed the budget first.
 2. **Find where your budget goes.** For one real prompt, estimate the token share of the

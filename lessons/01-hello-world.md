@@ -19,10 +19,10 @@ the model actually sees.
 > **Security is a through-line.** Safety isn't one chapter at the end — every section
 > closes with a short **Security** note tied to that topic, because the mistakes that
 > matter (leaked keys, prompt injection, running untrusted output) show up the moment you
-> use each feature. Isolation is big enough to earn its own two sections (15–16,
-> Sandboxing), and the defenses come together in Section 20.
+> use each feature. Isolation is big enough to earn its own two sections (16–17,
+> Sandboxing), and the defenses come together in Section 21.
 
-**Where this fits:** this is lesson 1 of 24 — everything else builds on it. We start at
+**Where this fits:** this is lesson 1 of 25 — everything else builds on it. We start at
 the bottom on purpose. Once you've sent the literal request yourself, every later
 abstraction will feel like a convenience, not magic.
 
@@ -225,14 +225,14 @@ Each entry in `messages` has a **role**. You've already used the core three:
   once, applies to the whole conversation.
 - **`user`** — a turn from the human.
 - **`assistant`** — a turn from the model. You also *write* assistant messages yourself
-  to replay a conversation or to show worked examples (we'll lean on this in Section 11).
+  to replay a conversation or to show worked examples (we'll lean on this in Section 12).
 
 Other roles you'll meet later have become standard too:
 
 - **`tool`** — results handed back from a tool the model asked to call. It replaced the
-  older `function` role, now deprecated. (Section 13.)
+  older `function` role, now deprecated. (Section 14.)
 - **`developer`** — a newer role from reasoning models; essentially `system`'s successor
-  in an explicit *platform > developer > user* chain of command. (Section 5.)
+  in an explicit *platform > developer > user* chain of command. (Section 6.)
 
 For now: **system, user, assistant** is enough to hold a conversation.
 
@@ -268,7 +268,7 @@ Say hello in one short sentence.<|im_end|>
 Different model families use **different templates**. Our model, `gpt-oss-120b`, uses
 OpenAI's **harmony** format, which is richer than ChatML — it even gives the model
 separate *channels* for private reasoning and the final answer (that reasoning is the
-subject of Section 5). So the real rendered string for our model won't look like the tidy
+subject of Section 6). So the real rendered string for our model won't look like the tidy
 ChatML above. That's the point: **same messages, a different rendered string for every
 model** — which is why the template belongs to the model, not to the API. The server
 applies the right one automatically; you never hand-write delimiters. But knowing they're
@@ -309,14 +309,14 @@ python work/tokens.py
 
 The second number is much bigger — your longer message became more tokens. You're
 reading `usage.prompt_tokens`, the size of your messages *after* the template was
-applied, straight from the server. Section 3 builds a whole lesson on this.
+applied, straight from the server. **Section 3** is a whole lesson on the template itself,
+and **Section 4** turns these counts into a budget.
 
-> **Reference (optional bonus):** [`examples/01/show_template.py`](../examples/01/show_template.py)
-> goes further — *if* your server happens to expose a `/tokenize` endpoint (a non-standard
-> extension some servers add, not part of the OpenAI API), it prints the actual rendered
-> template string and token ids so you can see the real delimiters. Most endpoints don't
-> expose it; then the script just prints the token count instead. Either way it's a
-> peek-behind-the-curtain extra, not something the course depends on.
+> **Looking ahead:** [`examples/03/show_template.py`](../examples/03/show_template.py)
+> (Section 3) goes further — *if* your server happens to expose a `/tokenize` endpoint (a
+> non-standard extension some servers add, not part of the OpenAI API), it prints the actual
+> rendered template string so you can see the real delimiters. Most endpoints don't expose
+> it; then it just prints the token count instead. We pick this apart in Section 3.
 
 ---
 
@@ -338,7 +338,7 @@ Write these from scratch (new files in `work/`). References are listed, but try 
    sentence in ALL CAPS. *Success:* you can report all three counts and say whether ALL
    CAPS changed the sentence's count on **your** model — it often does, by a little, but
    the split is model-specific, so don't assume. *(Reference idea:
-   [`examples/03/count_tokens.py`](../examples/03/count_tokens.py) — used in Section 3.)*
+   [`examples/04/count_tokens.py`](../examples/04/count_tokens.py) — used in Section 4.)*
 4. **Discover the model id.** Write a script that sends `GET <base_url>/models` (with the
    `Authorization` header) and prints each model id from the JSON. *Success:* it prints
    the id you put in `MODEL`. *(Reference:

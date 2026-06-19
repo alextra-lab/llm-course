@@ -58,7 +58,7 @@ def decide(messages, budget, soft=SOFT, reserved=RESERVED):
 
 
 def cache_cost_of_compacting(messages, edit_index):
-    """Estimate the prompt-cache tokens a compaction would throw away (§10).
+    """Estimate the prompt-cache tokens a compaction would throw away (§11).
 
     A normal turn APPENDS to the end, so the prefix is byte-identical and the whole thing is a
     cache hit (cheap). Rewriting history at `edit_index` changes the bytes from there on, so

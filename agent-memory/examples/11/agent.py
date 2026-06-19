@@ -8,7 +8,7 @@ This is the whole course in one loop. For each user turn the agent:
                    (Unit 7).
   3. RESPONDS   -- answer with the recalled memory in the prompt.
 
-Every operation emits one JOINABLE telemetry line (the foundations Section 9 shape:
+Every operation emits one JOINABLE telemetry line (the foundations Section 10 shape:
 session_id / trace_id / step) with PII redacted at the boundary (Unit 10) -- so a whole run
 reconstructs from a shared key, and you can see exactly what the agent remembered and recalled.
 Telemetry goes to stderr as JSONL (so the human narration on stdout stays clean):
@@ -38,7 +38,7 @@ from common_graph import get_graph
 
 IMPORTANCE_GATE = 4   # entities the model rates below this are trivia -- not stored (Unit 8)
 
-# --- Observability (foundations Section 9 + Unit 10): one joinable, redacted line per op ------
+# --- Observability (foundations Section 10 + Unit 10): one joinable, redacted line per op ------
 _EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 _PHONE = re.compile(r"\+?\d[\d ()-]{7,}\d")
 
@@ -50,7 +50,7 @@ def _redact(value):
 
 
 def log_event(session_id, trace_id, step, operation, **fields):
-    """Emit one structured, JOINABLE telemetry line (foundations Section 9 shape). The
+    """Emit one structured, JOINABLE telemetry line (foundations Section 10 shape). The
     session_id/trace_id/step tuple ties every op in this run together; values are redacted
     (Unit 10). Server ids identify one call -- this tuple reconstructs the whole run."""
     line = {"session_id": session_id, "trace_id": trace_id, "step": step,
@@ -162,7 +162,7 @@ def respond(client, context, question, session_id, trace_id, step):
                   {"role": "user", "content": question}])
     latency_ms = round((time.perf_counter() - start) * 1000)
     usage = r.usage
-    # Telemetry: the response call, in the foundations Section 9 shape (tokens, finish, latency).
+    # Telemetry: the response call, in the foundations Section 10 shape (tokens, finish, latency).
     log_event(session_id, trace_id, step, "respond",
               finish_reason=r.choices[0].finish_reason, prompt_tokens=usage.prompt_tokens,
               completion_tokens=usage.completion_tokens, latency_ms=latency_ms)
@@ -187,7 +187,7 @@ def main():
     else:
         print("(EMBED_MODEL not set -- recall ranks by importance, not relevance.)")
 
-    # One session, one trace for this run; step orders the ops so the run reconstructs (Section 9).
+    # One session, one trace for this run; step orders the ops so the run reconstructs (Section 10).
     session_id = uuid.uuid4().hex[:8]
     trace_id = uuid.uuid4().hex[:8]
     print(f"(telemetry -> stderr; this run: session_id={session_id} trace_id={trace_id})")

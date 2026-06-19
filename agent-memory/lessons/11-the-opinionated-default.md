@@ -91,7 +91,7 @@ python work/agent.py
 *(Reference: [`examples/11/agent.py`](../examples/11/agent.py).)*
 
 Every operation above also emits one **joinable telemetry line** on stderr — the foundations
-§9 shape (`session_id` / `trace_id` / `step`), with PII redacted at the boundary (Unit 10).
+§10 shape (`session_id` / `trace_id` / `step`), with PII redacted at the boundary (Unit 10).
 Run it with `2> run.jsonl` and a single `grep` on the `trace_id` replays the whole turn:
 
 ```json
@@ -114,9 +114,9 @@ gets there by walking down a tree, and it sends you away early if your problem d
 
 ```mermaid
 flowchart TD
-    A{"Need memory<br/>across sessions?"} -->|No| B["Window / summarize (§12).<br/><b>Stop — you're done.</b>"]
+    A{"Need memory<br/>across sessions?"} -->|No| B["Window / summarize (§13).<br/><b>Stop — you're done.</b>"]
     A -->|Yes| C{"Mostly independent<br/>fact lookups?"}
-    C -->|Yes| E["Vector store / plain RAG (§18–19).<br/><b>Don't build a graph.</b>"]
+    C -->|Yes| E["Vector store / plain RAG (§19–20).<br/><b>Don't build a graph.</b>"]
     C -->|"No — need to<br/>correlate facts"| F{"Multi-hop: who / what /<br/>when across history?"}
     F -->|Yes| H{"Shaped by ongoing<br/>conversation?"}
     H -->|"Yes"| I["<b>Knowledge graph,</b><br/>built <b>incrementally</b> per turn<br/>(this course)"]
@@ -137,7 +137,7 @@ holds on every branch: gate what you write, decay what you read, and measure bef
 Being opinionated includes saying when the opinion does not apply. Do **not** build this if:
 
 - **A window or summary is enough.** If the agent only needs the last few turns, you do not need
-  cross-session memory at all (foundations §12). This is most chat features.
+  cross-session memory at all (foundations §13). This is most chat features.
 - **Lookups are independent.** If your facts are unrelated documents and queries are "find the
   passage that answers this," a vector store is simpler, faster, and cheaper. Unit 4's numbers are
   blunt: graph traversal cost far more tokens than top-*k* vector search on simple lookups, and
@@ -185,5 +185,5 @@ You have built, by hand, a complete agent-memory system and the judgment to know
 warranted. From here: take an optional advanced path into **document ingestion** (the spine of
 this course was conversation; a fixed corpus favors the batch branch and GraphRAG), harden the
 **consolidation** pass (Unit 8) into a scheduled job, or fold this `search_memory` tool into a
-real agent from foundations §22. Whatever you build, keep the last rule of the tree: **measure
+real agent from foundations §23. Whatever you build, keep the last rule of the tree: **measure
 before you optimize.**

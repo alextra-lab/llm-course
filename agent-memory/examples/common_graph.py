@@ -4,7 +4,7 @@ Shared Neo4j helper for the Agent Memory course (course 2).
 Like the foundations course's `examples/common.py`, this factors out one bit of
 boilerplate — opening a driver to your Neo4j database — into a single place. It is
 OPT-IN: every script that uses it skips cleanly when NEO4J_URI is unset or the `neo4j`
-driver isn't installed, mirroring the Section 16 `DATABASE_URL` pattern in the
+driver isn't installed, mirroring the Section 17 `DATABASE_URL` pattern in the
 foundations course. That way the graph lessons read end-to-end even with no database.
 
 The course-2 example scripts live in numbered folders (agent-memory/examples/05/, ...),

@@ -37,7 +37,7 @@ from common_graph import get_graph
 
 
 def log_event(session_id, trace_id, step, operation, **fields):
-    """One joinable telemetry line per memory op (foundations Section 9 shape). The
+    """One joinable telemetry line per memory op (foundations Section 10 shape). The
     session_id/trace_id/step tuple ties this run together; Unit 10 adds redaction + scope."""
     print(json.dumps({"session_id": session_id, "trace_id": trace_id, "step": step,
                       "operation": operation, **fields}, sort_keys=True), file=sys.stderr)
@@ -127,7 +127,7 @@ def main():
     driver = get_graph()
     if driver is None:
         return   # skip notice already printed -- this unit writes/reads the graph
-    session_id, trace_id = uuid.uuid4().hex[:8], uuid.uuid4().hex[:8]   # one run; see Section 9
+    session_id, trace_id = uuid.uuid4().hex[:8], uuid.uuid4().hex[:8]   # one run; see Section 10
 
     with driver:
         driver.execute_query(SEED)
@@ -149,7 +149,7 @@ def main():
         # running club survives because we just accessed it. Only trivial 'weather' is dropped.
         forgotten = forget_pass(driver)
         survivors = [m["name"] for m in memories(driver)]
-        # Telemetry: an automated editor must log what it removed (foundations Section 9).
+        # Telemetry: an automated editor must log what it removed (foundations Section 10).
         log_event(session_id, trace_id, 0, "forget", dropped=forgotten, kept=survivors)
         print(f"\nforget_pass dropped: {forgotten}")
         print("surviving memories:", survivors)

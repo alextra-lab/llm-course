@@ -105,7 +105,7 @@ The thing that trips people up is the **nesting**: `choices` is a *list*, and th
 you actually want — `message`, `finish_reason` — live *inside each item of that list*,
 not at the top level. Here's the same object as a tree, labelled with the exact dot-path
 you'd use to reach each value, and its **type** (note the types — you'll declare these
-exact ones in Section 6):
+exact ones in Section 7):
 
 ```
 response                                              object
@@ -130,12 +130,12 @@ Read it level by level (type in parentheses).
 
 **Top level** — metadata about the whole call:
 
-- **`response.id`** *(str)* — a unique id for this completion. Worth logging (Section 9);
+- **`response.id`** *(str)* — a unique id for this completion. Worth logging (Section 10);
   it's what you quote when something looks wrong.
 - **`response.created`** *(int)* — a Unix timestamp (seconds since 1970).
 - **`response.model`** *(str)* — the model that actually answered.
 - **`response.system_fingerprint`** *(str)* — an opaque id for the exact server/model
-  config; when it changes, outputs can change even with identical inputs (Section 9).
+  config; when it changes, outputs can change even with identical inputs (Section 10).
 - **`response.usage`** *(object)* — token accounting (its own section below).
 - **`response.choices`** *(list of objects)* — the list of answers. One item by default;
   ask for several with the `n` parameter and you get several items. Everything you read
@@ -153,7 +153,7 @@ Read it level by level (type in parentheses).
 - **`response.choices[0].message.role`** *(str)* — `"assistant"` for a reply.
 - **`response.choices[0].message.content`** *(str)* — the text you printed in Section 1.
 - **`response.choices[0].message.reasoning_content`** *(str, or absent)* — present for
-  our reasoning model when the endpoint exposes it (Section 5).
+  our reasoning model when the endpoint exposes it (Section 6).
 
 Now add these three lines to the end of `work/inspect_response.py` and rerun — confirm you can
 reach each one:
@@ -181,7 +181,7 @@ sibling field, `response.choices[0].finish_reason` *(str)*, is how the server te
 |---|---|
 | `"stop"` | The model finished naturally. The normal, happy case. |
 | `"length"` | It hit your `max_tokens` (or the context limit) and was **cut off**. |
-| `"tool_calls"` | It wants to call a tool instead of replying (Section 13). |
+| `"tool_calls"` | It wants to call a tool instead of replying (Section 14). |
 | `"content_filter"` | Output was blocked by a safety filter, if configured. |
 
 Prove the dangerous one to yourself. Create **`work/finish.py`**:
@@ -221,8 +221,8 @@ That is the real lesson: **`finish_reason` is the truth, not the text.** Never d
 answer is done by looking at whether `content` is non-empty — a `"length"` result is
 incomplete whether it is truncated *or* empty. **Rule of thumb:** if you need a complete
 answer, check `finish_reason == "stop"` (or handle `"length"` deliberately). Why a tiny
-budget can vanish into thinking is Section 5; for now, just trust the reason. We'll rely on
-this in Sections 6 and 8.
+budget can vanish into thinking is Section 6; for now, just trust the reason. We'll rely on
+this in Sections 7 and 9.
 
 > **Reference:** [`examples/02/inspect_response.py`](../examples/02/inspect_response.py)
 > and [`examples/02/finish_reasons.py`](../examples/02/finish_reasons.py).
@@ -240,19 +240,19 @@ this in Sections 6 and 8.
 - **`response.usage.completion_tokens`** *(int)* — how many tokens the model generated.
 - **`response.usage.total_tokens`** *(int)* — the sum.
 
-This is the most reused telemetry in the API. It's how you'll measure size (Section 3),
-avoid the context limit (Section 3), log activity (Section 9), and compute **cost**
-(Section 10).
+This is the most reused telemetry in the API. It's how you'll measure size (Section 4),
+avoid the context limit (Section 4), log activity (Section 10), and compute **cost**
+(Section 11).
 
 > **Our reasoning model adds detail here.** Because `gpt-oss-120b` thinks before it
 > answers, on many endpoints `usage` carries a `completion_tokens_details` object with a
 > `reasoning_tokens` *(int)* count, and the message may include `reasoning_content`.
 > Those thinking tokens are part of `completion_tokens` — you pay for them. That's
-> Section 5; for now just notice if `completion_tokens` looks bigger than the visible
+> Section 6; for now just notice if `completion_tokens` looks bigger than the visible
 > answer would suggest.
 
 > **Why the types matter.** Right now you're reading types *off* a response (so you know
-> `prompt_tokens` is an `int` you can add up, and `content` is a `str`). In Section 6
+> `prompt_tokens` is an `int` you can add up, and `content` is a `str`). In Section 7
 > you'll flip this around and *declare* the types you expect (`name: str`, `age: int`,
 > `hobbies: list[str]`) with Pydantic, forcing the model's output to conform. Same idea,
 > applied to output instead of input.
@@ -273,7 +273,7 @@ Write these in `work/` (extend or copy `work/inspect_response.py`).
    *Success:* it prints `TRUNCATED`.
 3. **Spot the thinking tax.** Print `completion_tokens` for a trivial question ("What is
    2+2?") and for a hard one ("Prove there are infinitely many primes."). *Success:* the
-   hard one's `completion_tokens` is much larger — that gap is reasoning (Section 5).
+   hard one's `completion_tokens` is much larger — that gap is reasoning (Section 6).
 
 ---
 
@@ -290,6 +290,6 @@ Write these in `work/` (extend or copy `work/inspect_response.py`).
 
 ## Next
 
-**Section 3 — Tokens & the Context Window:** you'll measure tokens through the server
-(no local tokenizer) and turn `usage` into a budget: input + output must fit in the
-model's context window.
+**Section 3 — Chat Templates & Harmony:** before we count tokens, we'll look at the step
+that turns your `messages` into the string the model actually reads — the chat template —
+and see why even an empty message costs tokens.

@@ -47,7 +47,7 @@ def init_db():
 ```
 
 That is persistence. Replace `:memory:` with a filename and these turns survive the process
-— which is the whole difference between context (§12) and memory.
+— which is the whole difference between context (§13) and memory.
 
 ## Recall: recency and keyword
 
@@ -119,11 +119,11 @@ context.
 
 > **Security:** Even here, the discipline matters: the search term is a **bound parameter**
 > (`LIKE ?`), never formatted into the SQL. Putting user input into a query with an f-string
-> is SQL injection (foundations §16) — and a memory store is *full* of user input. Build the
+> is SQL injection (foundations §17) — and a memory store is *full* of user input. Build the
 > habit now; it is the same habit that keeps Cypher safe in Unit 5.
 
 > **Observe:** This is the first thing you build, so it is the first thing you instrument. Emit
-> one joinable `session_id`/`trace_id`/`step` line (foundations §9) per write and per recall —
+> one joinable `session_id`/`trace_id`/`step` line (foundations §10) per write and per recall —
 > `operation="write"` or `"recall"`, with the search term and how many rows came back. That log
 > answers the baseline question the next two units must beat: *for this query, did keyword recall
 > surface the right fact, or nothing?* See the repo's [Observability Standard](../../OBSERVABILITY.md).
@@ -132,7 +132,7 @@ context.
 
 1. **Make it survive.** Change `:memory:` to a file path, run the script twice, and confirm
    the turns from the first run are recalled in the second. *Success:* you can say in one
-   sentence why this is "memory" and the §12 history was not.
+   sentence why this is "memory" and the §13 history was not.
 2. **Measure the failures.** Write five natural-language questions about the stored facts and
    count how many keyword recall answers correctly. *Success:* a success rate you can compare
    against Unit 3's semantic recall on the *same* questions.

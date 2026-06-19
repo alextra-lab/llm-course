@@ -2,7 +2,7 @@
 
 The **second** course in this repo — a hands-on, opinionated follow-on to the
 [foundations course](../README.md). The foundations course covered memory in about a lesson
-and a half (§12 stateless history + windowing/summarization; §18–19 embeddings and RAG).
+and a half (§13 stateless history + windowing/summarization; §19–20 embeddings and RAG).
 This course goes deep on the part that's actually hard: what an agent knows **across**
 sessions — a taxonomy of memory, conversational ingestion, a real knowledge graph, hybrid
 retrieval, lifecycle and decay, and a *measured*, opinionated default.
@@ -14,8 +14,8 @@ retrieval, lifecycle and decay, and a *measured*, opinionated default.
 
 ## Who this is for
 
-This course **assumes the foundations course.** It leans on §12 (conversation state), §18
-(embeddings), §19 (RAG), and §22 (agents) and does *not* re-teach them. If those aren't
+This course **assumes the foundations course.** It leans on §13 (conversation state), §19
+(embeddings), §20 (RAG), and §23 (agents) and does *not* re-teach them. If those aren't
 familiar, do the foundations course first — start at
 [`../lessons/01-hello-world.md`](../lessons/01-hello-world.md).
 
@@ -25,8 +25,8 @@ This course is **opinionated but honest**. It argues *toward* a particular defau
 knowledge graph with hybrid (graph + embedding) retrieval — but it gets there by walking
 down a decision tree, and it will send you away early if your problem doesn't need a graph:
 
-1. **Need memory across sessions at all?** No → window/summarize (§12). Stop.
-2. **Mostly independent fact lookups?** Yes → a vector store / plain RAG (§18–19). Don't build a graph.
+1. **Need memory across sessions at all?** No → window/summarize (§13). Stop.
+2. **Mostly independent fact lookups?** Yes → a vector store / plain RAG (§19–20). Don't build a graph.
 3. **Need to *correlate* facts — multi-hop, "who/what/when across history"?** Yes → a graph earns its keep.
 4. **Memory shaped by ongoing conversation** (not a fixed corpus)? → favor *incremental* construction.
 5. **Whichever branch:** gate writes, decay reads, and **measure recall before optimizing.**
@@ -39,7 +39,7 @@ and teaches you *when* the graph is worth it.
 ## What's new beyond the foundations setup
 
 Same house style: hosted vLLM (`gpt-oss-120b`), OpenAI SDK, thin dependencies, you write
-every line. The graph units add **one optional backend**, opt-in exactly like the §16
+every line. The graph units add **one optional backend**, opt-in exactly like the §17
 Postgres demo:
 
 - **Neo4j via Docker** for the hands-on graph. Set `NEO4J_URI` / `NEO4J_USER` /
@@ -71,10 +71,10 @@ the whole arc converges on a single, defensible default.
 The arc is 12 standalone units (0–11). *(Authoring in progress — links appear as units
 land.)*
 
-0. **[The Memory Problem](lessons/00-the-memory-problem.md)** — context management (§12) vs. memory; the thesis stated. ✅
+0. **[The Memory Problem](lessons/00-the-memory-problem.md)** — context management (§13) vs. memory; the thesis stated. ✅
 1. **[A Taxonomy of Memory](lessons/01-a-taxonomy-of-memory.md)** — working/episodic/semantic/procedural/profile/derived; which does your agent need? ✅
 2. **[The Naive Baseline](lessons/02-the-naive-baseline.md)** — persist turns to SQLite, recall by recency/keyword; feel it break. ✅
-3. **[Semantic Recall with Embeddings](lessons/03-semantic-recall-with-embeddings.md)** — vector similarity over facts (reuses §18); meaning-match, but no relationships. ✅
+3. **[Semantic Recall with Embeddings](lessons/03-semantic-recall-with-embeddings.md)** — vector similarity over facts (reuses §19); meaning-match, but no relationships. ✅
 4. **[Why a Graph](lessons/04-why-a-graph.md)** — vector vs. relational vs. graph, and the honest, *conditional* evidence. ✅
 5. **[Modeling Memory as a Graph](lessons/05-modeling-memory-as-a-graph.md)** — Neo4j via Docker; sessions, entities, and multi-hop Cypher by hand. ✅
 6. **[Ingestion: Extracting Structure](lessons/06-ingestion-extracting-structure.md)** — LLM entity/relation extraction from a turn; embed entities; the dedup problem. ✅

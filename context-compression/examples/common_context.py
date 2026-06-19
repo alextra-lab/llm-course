@@ -5,7 +5,7 @@ Three small pieces the later units reuse:
 
   - estimate_tokens()      -- a cheap, no-tiktoken heuristic for budgeting math (Unit 1).
   - server_prompt_tokens() -- the EXACT count, from the server, for when precision matters.
-  - log_event()            -- one joinable telemetry line (foundations Section 9 shape), the
+  - log_event()            -- one joinable telemetry line (foundations Section 10 shape), the
                               start of this course's observability through-line.
 
 Like the foundations examples/common.py, these scripts live in numbered folders and aren't an
@@ -42,7 +42,7 @@ def _content_str(content) -> str:
 
 
 def estimate_tokens(messages_or_text) -> int:
-    """Heuristic token count -- no tiktoken, no Hugging Face download (the course rule, §3).
+    """Heuristic token count -- no tiktoken, no Hugging Face download (the course rule, §4).
 
     Pass a string, or a list of chat messages. For a message list we add a small per-message
     overhead for the role and chat-template framing. This is for BUDGETING (is the window
@@ -57,7 +57,7 @@ def estimate_tokens(messages_or_text) -> int:
 
 
 def server_prompt_tokens(client, messages, model) -> int:
-    """The EXACT prompt token count, straight from the server (§3: ask the server, don't guess).
+    """The EXACT prompt token count, straight from the server (§4: ask the server, don't guess).
 
     Make the smallest possible completion (max_tokens=1) and read back usage.prompt_tokens --
     the number of input tokens the model actually saw. Costs one cheap call; use it to check
@@ -68,7 +68,7 @@ def server_prompt_tokens(client, messages, model) -> int:
 
 
 def log_event(session_id, trace_id, step, operation, **fields) -> None:
-    """Emit one structured, JOINABLE telemetry line (foundations Section 9 shape).
+    """Emit one structured, JOINABLE telemetry line (foundations Section 10 shape).
 
     The session_id / trace_id / step tuple ties every record in a run together, so a scattered
     pile of log lines becomes a reconstructable timeline. This course's observability

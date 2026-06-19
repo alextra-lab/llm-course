@@ -25,14 +25,14 @@ two more that are useful in practice:
 
 | Kind | What it holds | Example | Lifecycle |
 |---|---|---|---|
-| **Working** | The current context — what's in the prompt *right now* | The active `messages` list | Ends with the session (§12) |
+| **Working** | The current context — what's in the prompt *right now* | The active `messages` list | Ends with the session (§13) |
 | **Episodic** | Specific past events, "what happened" | "Last Tuesday we debugged the auth bug together" | Persisted; recalled by relevance |
 | **Semantic** | General facts the agent knows | "Acme Corp is in Portland" | Persisted; updated as facts change |
 | **Procedural** | How to do things — skills, routines | A tool-use pattern, a workflow, code | Rarely changes; often in weights/code |
 | **Profile** | Stable facts about *this user* | "Allergic to shellfish; prefers short answers" | Long-lived; privacy-sensitive |
 | **Derived** | Computed *from* other memory | A summary, a reflection, a consolidation | Recomputed as raw memory grows |
 
-You already built **working memory** — it is the context management of §12, and it is *not*
+You already built **working memory** — it is the context management of §13, and it is *not*
 the subject of this course. The other kinds are the persistent ones.
 
 The difference between **episodic** ("what happened, when") and **semantic** ("what is true")
@@ -44,7 +44,7 @@ semantic memory over time: many turns about Acme's location combine into one dur
 
 ```mermaid
 flowchart TD
-    subgraph Working["Working memory — ends with the session (§12)"]
+    subgraph Working["Working memory — ends with the session (§13)"]
         W[Current prompt / messages]
     end
     subgraph Persistent["Persistent memory — the subject of this course"]
@@ -73,7 +73,7 @@ The goal of a taxonomy is not to use every kind — it is **subtraction**. Most 
 tries to avoid. Map your agent onto the decision tree from Unit 0:
 
 - A **stateless Q&A bot** over documents needs **semantic** memory (the documents) and
-  nothing else — that is plain RAG (§18–19). Stop there; do not build episodic stores or a
+  nothing else — that is plain RAG (§19–20). Stop there; do not build episodic stores or a
   graph.
 - A **personal assistant** needs **profile** (your preferences) + **episodic** (what you have
   discussed) + **semantic** (facts it has learned about your world). This is the case that
@@ -95,7 +95,7 @@ yourself.
 
 > **Observe:** This unit builds no code, so nothing is emitted yet — but the *kind* you assign
 > here is the signal to watch later. When you do write a memory, the joinable
-> `session_id`/`trace_id`/`step` line (foundations §9) should carry that kind, so you can later
+> `session_id`/`trace_id`/`step` line (foundations §10) should carry that kind, so you can later
 > ask which kinds your agent actually writes and recalls. If profile memory is most of what you
 > store, that telemetry is pointing you to where your privacy duties live.
 
@@ -113,7 +113,7 @@ yourself.
 
 ## Recap
 
-- "Memory" is several kinds: **working** (context, §12), **episodic** (events), **semantic**
+- "Memory" is several kinds: **working** (context, §13), **episodic** (events), **semantic**
   (facts), **procedural** (skills), plus **profile** (user data) and **derived** (computed).
 - The **episodic → semantic** difference drives storage and retrieval: events are recalled by
   time/relevance and combine into timeless facts.
