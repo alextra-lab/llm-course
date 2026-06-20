@@ -3,7 +3,7 @@ title: FrenchForet
 ---
 
 {{< blocks/cover title="FrenchForet — LLM Engineering" image_anchor="top" height="med" >}}
-<p class="lead mt-5">Two hands-on, foundations-first courses for building with large language models — from your first raw HTTP call to an agent with a knowledge-graph memory.</p>
+<p class="lead mt-5">Three hands-on, foundations-first courses for building with large language models — from your first raw HTTP call to an agent with a knowledge-graph memory that stays inside its context window.</p>
 <a class="btn btn-lg btn-primary me-3 mb-4" href="/docs/">
   Start with Foundations <i class="fas fa-arrow-alt-circle-right ms-2"></i>
 </a>
@@ -13,8 +13,8 @@ title: FrenchForet
 {{< /blocks/cover >}}
 
 {{% blocks/lead color="primary" %}}
-Two courses, meant to be read **in order**. Do the Foundations course first; the Agent Memory
-course assumes it and builds on top.
+Three courses. Do the Foundations course first; **Agent Memory** and **Context Compression** are
+siblings that each assume it and build on top — read those two in either order.
 {{% /blocks/lead %}}
 
 <section class="course-cards-section">
@@ -26,6 +26,10 @@ course assumes it and builds on top.
 
 {{< course-card number="02" title="Agent Memory: From Chat History to a Knowledge Graph" url="/agent-memory/" cta="Continue the course →" badges="12 units|read in order|Assumes Foundations" >}}
 **Do Foundations first.** Goes deep on cross-session memory: a taxonomy of memory, conversational ingestion, a Neo4j knowledge graph, hybrid retrieval, lifecycle and decay, measurement, and a measured, opinionated default.
+{{< /course-card >}}
+
+{{< course-card number="03" title="Context Compression: Keeping a Long Agent Inside the Window" url="/context-compression/" cta="Read the course →" badges="13 units|in progress|Assumes Foundations" >}}
+**Do Foundations first.** A sibling of Agent Memory: keeping *one* long session inside the token budget without losing what matters — measuring the window, dropping and windowing, structured summarization, head/middle/tail preservation, a deterministic pre-pass, and a measured default the instrumentation earns.
 {{< /course-card >}}
 
 </div>

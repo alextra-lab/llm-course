@@ -7,9 +7,10 @@
   built site. Here we rewrite any "../" link to the file's source on GitHub, leaving
   the source markdown untouched.
 
-  Two courses live at different depths, so "../" resolves to different repo paths:
-    - Foundations lessons come from   lessons/              (target content/docs/)
-    - Agent Memory lessons come from  agent-memory/lessons/ (target content/agent-memory/)
+  Courses live at different depths, so "../" resolves to different repo paths:
+    - Foundations lessons come from        lessons/                     (target content/docs/)
+    - Agent Memory lessons come from       agent-memory/lessons/        (target content/agent-memory/)
+    - Context Compression lessons from     context-compression/lessons/ (target content/context-compression/)
   We resolve the link against the right source dir with path.Join (which cleans "..").
 */ -}}
 {{- $dest := .Destination -}}
@@ -18,6 +19,7 @@
   {{- $srcdir := "lessons" -}}
   {{- with .Page.File -}}
     {{- if hasPrefix .Path "agent-memory/" -}}{{- $srcdir = "agent-memory/lessons" -}}{{- end -}}
+    {{- if hasPrefix .Path "context-compression/" -}}{{- $srcdir = "context-compression/lessons" -}}{{- end -}}
   {{- end -}}
   {{- $repopath := path.Join $srcdir $dest -}}
   {{- $ghbase := printf "%s/blob/%s/" .Page.Site.Params.github_repo .Page.Site.Params.github_branch -}}
