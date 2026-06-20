@@ -37,6 +37,11 @@ defaultContentLanguage = "en"
   [[module.mounts]]
     source = "agent-memory/lessons"
     target = "content/agent-memory"
+  # Third course: Context Compression. Same pattern — its own docs section, with
+  # ../examples links rewritten to GitHub by the render-link hook.
+  [[module.mounts]]
+    source = "context-compression/lessons"
+    target = "content/context-compression"
   [[module.mounts]]
     source = "assets"
     target = "assets"
@@ -74,6 +79,10 @@ defaultContentLanguage = "en"
     name = "Agent Memory"
     weight = 20
     url = "/agent-memory/"
+  [[menu.main]]
+    name = "Context Compression"
+    weight = 30
+    url = "/context-compression/"
   [[menu.main]]
     name = "GitHub"
     weight = 50
