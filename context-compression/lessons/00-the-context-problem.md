@@ -137,6 +137,25 @@ decision tree, and it will tell you to do nothing when nothing is the right move
 6. **Latency and cost matter?** Be cache-aware — compaction breaks the prompt cache.
 7. **Whatever branch you took:** measure the effect, and make every compaction observable.
 
+The same tree, as a picture — each branch is a later unit, and every path ends at the same
+"measure it" step:
+
+```mermaid
+flowchart TD
+    A{"Under budget?"} -->|Yes| DN["Do nothing — the cheapest<br/>compression is none (Unit 2)"]
+    A -->|No| DROP["Drop or window the oldest<br/>turns first (Unit 3)"]
+    DROP --> MID{"Losing middle content<br/>that still matters?"}
+    MID -->|"No — the drop was enough"| OBS
+    MID -->|Yes| HT["Keep head + tail verbatim;<br/>compress only the middle (Unit 5)"]
+    HT --> PRE["Pre-pass: collapse big tool outputs<br/>for free before the paid summarizer (Units 6, 4)"]
+    PRE --> BIG{"One tool output or<br/>artifact enormous?"}
+    BIG -->|Yes| OFF["Offload the bytes;<br/>page back on demand (Unit 8)"]
+    BIG -->|No| CACHE["Latency / cost matter?<br/>Be cache-aware: schedule<br/>compaction (Unit 9)"]
+    OFF --> CACHE
+    DN --> OBS["Whatever branch: measure it,<br/>make every compaction<br/>observable (Unit 11)"]
+    CACHE --> OBS
+```
+
 And the move under all of them: **the cheapest tokens are the ones you never generate.**
 Sometimes the answer is not to compress a giant turn, but to *decompose the task* so the
 giant turn never happens. You will build every branch, and the course converges on a single,

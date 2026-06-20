@@ -93,6 +93,21 @@ def _snap_to_pair_boundary(messages, idx, head_end):
 
 ## The invariant: only the middle moves
 
+The two boundaries cut the list into three regions; only the middle is ever eligible for
+compression, and the tail boundary is set by whichever of the two floors binds last:
+
+```mermaid
+flowchart TD
+    subgraph LIST["The messages list"]
+        direction TB
+        HEAD["<b>Head</b> — leading system msgs<br/>+ first user message<br/><i>verbatim, never compressed</i>"]
+        MIDDLE["<b>Middle</b> — everything between<br/><i>the only region compressed</i><br/>(summarize / pre-pass / offload)"]
+        TAIL["<b>Tail</b> — recent turns<br/><i>verbatim, never compressed</i>"]
+        HEAD --> MIDDLE --> TAIL
+    end
+    FLOORS{"Tail boundary: walk back until<br/>BOTH hold — ≥ 0.25 × budget tokens<br/>AND ≥ 4 messages<br/>(whichever binds last)"} -.-> TAIL
+```
+
 With both boundaries fixed, the whole mechanism is one line of intent — head and tail pass through
 untouched, the middle is replaced by a recap:
 

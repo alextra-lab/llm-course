@@ -105,6 +105,17 @@ def decide(messages, budget, soft=0.65, reserved=1000):
     return "compress", f"crossed soft threshold ({fraction:.0%} >= {soft:.0%})"
 ```
 
+Laid out along the budget, the target is not the ceiling but the soft line, with a reserve kept
+back below the top:
+
+```mermaid
+flowchart LR
+    SKIP["Under the soft line:<br/><b>do nothing</b>"]
+    SKIP -->|"soft threshold ~0.65"| ACT["Compaction becomes a question<br/>(Unit 7 sets the exact moment)"]
+    ACT -->|"reserved headroom"| RES["Reserved tokens — kept<br/>free for the model's reply"]
+    RES --> CEIL["Hard ceiling (100%):<br/>call rejected or<br/>silently truncated"]
+```
+
 The threshold is a dial, not a constant. A cheap, append-heavy workload can run the soft line
 higher and lean on the cache longer; a workload with expensive, irreplaceable middle turns sets
 it lower so it never gets close to the hard ceiling. Either way the principle holds: the budget

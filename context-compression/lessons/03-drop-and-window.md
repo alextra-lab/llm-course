@@ -96,6 +96,29 @@ one giant old tool output was almost the entire budget, so removing it recovered
 everything. That is the baseline working — and also a preview of its bluntness, which the next
 two sections sharpen.
 
+The shape of that compaction: the head stays anchored, the oldest middle is dropped and replaced
+by a marker, and the recent turns are left alone, so the prompt falls back under budget.
+
+```mermaid
+flowchart LR
+    subgraph BEFORE["Before — 121% of budget (OVER)"]
+        direction TB
+        b1["system + first user (head)"]
+        b2["old file-read call + large result"]
+        b3["… older turns …"]
+        b4["recent turns"]
+        b1 --- b2 --- b3 --- b4
+    end
+    subgraph AFTER["After — 3% of budget"]
+        direction TB
+        a1["system + first user<br/>(head — anchored, never dropped)"]
+        a2["[Earlier messages truncated] (marker)"]
+        a4["recent turns (kept)"]
+        a1 --- a2 --- a4
+    end
+    BEFORE ==>|"drop oldest middle until it fits;<br/>repair tool pairs"| AFTER
+```
+
 ## When you must shed whole components: a priority order
 
 Sometimes windowing the history is not enough, or the pressure is not in the history at all —

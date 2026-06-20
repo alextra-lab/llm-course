@@ -145,6 +145,27 @@ cheaper but invalidates the cache on every turn. The example measures exactly th
 heuristic it compares the prefix tokens reused on the next turn under a static marker versus a
 regenerated recap.
 
+The two designs across a single turn boundary — the static marker holds the prefix byte-identical,
+the regenerated recap does not:
+
+```mermaid
+flowchart TD
+    subgraph STATIC["Static marker — bytes never change"]
+        direction TB
+        s1["Turn N:<br/>[Earlier messages truncated]"]
+        s2["Turn N+1:<br/>[Earlier messages truncated]"]
+        s1 --> s2
+        s2 --> sok["Prefix stays byte-identical,<br/>so the cache holds"]
+    end
+    subgraph RECAP["Regenerated recap — re-inserted each turn"]
+        direction TB
+        r1["Turn N:<br/>## Conversation Summary (v1)"]
+        r2["Turn N+1:<br/>## Conversation Summary (v2)"]
+        r1 --> r2
+        r2 --> rbad["Bytes differ from the recap<br/>position onward, so the cache<br/>misses — re-prefill every turn"]
+    end
+```
+
 This is why a production harness, under its default cache-frozen layout, **disables** summary
 re-insertion and lets the static `[Earlier messages truncated]` marker win: a marker that never
 changes keeps the prefix byte-identical and the cache intact. The summary still has a place — but

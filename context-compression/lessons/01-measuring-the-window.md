@@ -64,7 +64,25 @@ first and reaches for the second only when a choice depends on it.
 ## Where the budget goes
 
 A single total tells you the window is filling. It does not tell you *what to cut*. For that,
-attribute the tokens to their source — and the sources are exactly the parts Unit 0 listed:
+attribute the tokens to their source — and the sources are exactly the parts Unit 0 listed. Two
+of them are mostly fixed each turn; two grow without limit, which is where the meter earns its
+keep:
+
+```mermaid
+flowchart LR
+    subgraph FIXED["Mostly fixed each turn"]
+        SP["System prompt — small"]
+        TD["Tool definitions (§23)"]
+        RC["Retrieved context (§20)"]
+    end
+    subgraph GROWS["Grows without limit"]
+        H["Conversation history (§13)"]
+        TO["Tool outputs — grow fastest;<br/>one file read can be larger<br/>than the whole conversation"]
+    end
+    FIXED --> BUD["The context budget<br/>(one window, resent every turn)"]
+    GROWS --> BUD
+    BUD --> METER["Context meter: attribute tokens to<br/>each source, to see what to cut first"]
+```
 
 ```python
 breakdown = {
