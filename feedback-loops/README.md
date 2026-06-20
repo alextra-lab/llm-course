@@ -110,8 +110,8 @@ The arc is 13 standalone units (0–12). *(Authoring in progress — links appea
 1. **[Joinable Signal: Trace & Session IDs by Hand](lessons/01-joinable-signal.md)** — build the correlation primitive by hand; garbage signal → garbage control; the joinable JSONL line (§10). ✅
 2. **[An Event Vocabulary, Not Log Lines](lessons/02-event-vocabulary.md)** — semantic events vs ad-hoc logs; designing your event catalog; separating organic from background (system) traces. ✅
 3. **[Spans & the Latency Breakdown](lessons/03-spans-and-latency.md)** — time each phase of a turn; per-operation spans; where the turn actually spends its time. ✅
-4. **[The First Closed Loop: a Runtime Gate](lessons/04-runtime-gate.md)** — a finite-state gate that blocks a repeating tool call; oscillation damping; the gate emits its own verdict.
-5. **[Budget as Feedforward Control](lessons/05-budget-feedforward.md)** — reserve / commit / refund; deny *before* you overspend; acting on projected cost, not measured overspend.
+4. **[The First Closed Loop: a Runtime Gate](lessons/04-runtime-gate.md)** — a finite-state gate that blocks a repeating tool call; oscillation damping; the gate emits its own verdict. ✅
+5. **[Budget as Feedforward Control](lessons/05-budget-feedforward.md)** — reserve / commit / refund; deny *before* you overspend; acting on projected cost, not measured overspend. ✅
 6. **[Reflection: Self-Critique from Traces](lessons/06-reflection.md)** — read your own trace and critique the turn; Reflexion / Self-Refine / the evaluator-optimizer loop.
 7. **[Closing the Reflective Loop](lessons/07-closing-the-loop.md)** — feed the deduplicated reflection back into the next prompt; the cleanest output → future-behavior loop.
 8. **[Hysteresis: Dedup & Promotion](lessons/08-hysteresis-dedup.md)** — don't act on one noisy reading; fingerprint and count; promote a proposal only after it recurs.
