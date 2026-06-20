@@ -83,6 +83,14 @@ This keeps the window small in the common case — most turns never touch most b
 token cost only for the blob a turn truly reads. It is the gist/page-in split: the cheap summary
 lives in context always; the expensive bytes live there only on the turn that dereferences them.
 
+```mermaid
+flowchart LR
+    BIG["Giant tool output<br/>in the window"] -->|"offload(): sha256"| STORE["Blob store<br/>handle.txt — exact bytes"]
+    BIG -.->|"replaced by a short"| REF["Reference in the window<br/>(shape + handle)"]
+    REF -->|"page_in(handle) when a turn needs it"| OUT["Exact bytes back in the window<br/>(re-hash verifies — lossless)"]
+    STORE --> OUT
+```
+
 ## Lossless is the whole point
 
 Here is what separates offloading from every earlier mechanism. `page_in` returns the **exact

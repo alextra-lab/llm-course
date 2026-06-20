@@ -42,6 +42,22 @@ those did not fit; the cache-aware reset runs on the hard path, and the coarse b
 dormant last resort. (The numbered tree above is the conceptual escalation by *severity*; the
 dispatcher orders the same mechanisms by *cost and loss*.)
 
+```mermaid
+flowchart TD
+    T["Each turn"] --> D0{"One message larger<br/>than the whole budget?"}
+    D0 -->|Yes| DEC["DECOMPOSE the task<br/>(no compaction fits)"]
+    D0 -->|No| D1{"Under budget?"}
+    D1 -->|Yes| SKIP["Do nothing"]
+    D1 -->|"No — soft band"| B["<b>B</b>: cheapest-first —<br/>pre-pass, offload, head/tail"]
+    D1 -->|"No — hard band"| DR["<b>D</b>: cache-aware frozen reset"]
+    B -->|"still over?"| A["<b>A</b>: coarse drop<br/>(dormant last-resort — an alert)"]
+    DR -->|"still over?"| A
+    SKIP --> MET["Session meter:<br/>window % | B | D | A | quality"]
+    B --> MET
+    DR --> MET
+    A --> MET
+```
+
 ## The four mechanisms, and what the user sees
 
 Underneath the tree, a production agent runs four distinct compaction mechanisms — and the useful
