@@ -5,11 +5,11 @@ weight: 10
 ---
 
 **Goal:** build the loop that watches the other loops. You have feedback loops at every tier now —
-but each one trusts the signal beneath it, and that signal can rot silently (Unit 1's cost ledger
-with 4,077 NULL `trace_id`s did exactly that). The **meta** tier closes a loop around the apparatus
-itself: a monitor that periodically checks the observability is still intact — that a run is still
-joinable across every store — and that the gates and background loops still run. The observer,
-observed.
+but each one trusts the signal beneath it, and that signal can become invalid without any alert
+(Unit 1's cost ledger with 4,077 NULL `trace_id`s did exactly that). The **meta** tier closes a loop
+around the apparatus itself: a monitor that periodically checks the observability is still intact —
+that a run is still joinable across every store — and that the gates and background loops still run.
+The monitor is itself monitored.
 
 **Where this fits:** the **meta** tier — above every loop you have built. It consumes nothing new;
 it audits the substrate the whole course rests on. It is also where the by-hand approach starts to
@@ -71,7 +71,7 @@ that regulates itself, the software version of homeostasis. Watching the gates a
 same idea (ADR-0053, *Proposed*): the gateway makes several deterministic decisions per request,
 and a monitor turns those decisions into a signal a higher loop can act on.
 
-> **Security:** the meta-monitor is a tamper tripwire. If a run suddenly stops being joinable, the
+> **Security:** the meta-monitor is a tampering warning. If a run suddenly stops being joinable, the
 > benign explanation is a bug — but the hostile one is an attacker severing the links to cover
 > their tracks. Loud degradation is what denies them a silent path: a monitor that went green when
 > it could not actually check would let tampering pass unnoticed. Make the monitor's *own* failure

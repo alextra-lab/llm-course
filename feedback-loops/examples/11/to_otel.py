@@ -38,6 +38,7 @@ def to_otel_span(trace: Trace, name: str, gen_ai: dict) -> dict:
         "parent_span_id": None,
         "attributes": {
             # OTel GenAI semantic conventions — the standard names every backend indexes.
+            "gen_ai.operation.name": "chat",
             "gen_ai.system": gen_ai["system"],
             "gen_ai.request.model": gen_ai["model"],
             "gen_ai.usage.input_tokens": gen_ai["input_tokens"],

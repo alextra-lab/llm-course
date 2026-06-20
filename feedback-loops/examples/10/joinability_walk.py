@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from common_loops import Trace, log_event  # noqa: E402
 
 SESSION = "sess-42"
+EXPECTED_TRACES = {"t-1", "t-2"}  # the traces this session should join to, everywhere
 
 # Three substrates, each storing records for the session. In the harness these are Postgres,
 # Elasticsearch, Neo4j, Redis; here they are dicts. A record must carry the session's trace_id
@@ -44,8 +45,10 @@ def walk(substrates: dict[str, list | None]) -> tuple[str, list[str]]:
             continue
         checks.append("ok")
         for i, rec in enumerate(records):
-            if not rec.get("trace_id"):  # missing the join key (the 4,077-NULL bug, Unit 1)
-                orphans.append(f"{name}[{i}] missing trace_id")
+            tid = rec.get("trace_id")
+            # The join key must EXIST and MATCH a known trace — present-but-wrong is still an orphan.
+            if not tid or tid not in EXPECTED_TRACES:
+                orphans.append(f"{name}[{i}] trace_id {tid!r} missing or unknown")
 
     # aggregate_outcome: worst-of. orphans -> red; any substrate down -> yellow; else green.
     if orphans:

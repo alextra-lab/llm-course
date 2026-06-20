@@ -45,7 +45,7 @@ particular answer.*
 
 And eval traffic is **isolated** — tagged `system:eval` with an `eval_mode` flag — so it never
 pollutes the production telemetry the learning loops feed on. A feedback loop that learned from its
-own test runs would be measuring its own echo.
+own test runs would be measuring test traffic, not real use.
 
 ## The measured default: the autonomy gradient as a decision
 
@@ -74,7 +74,7 @@ a standard at the boundary, and measure the loops as hypotheses. The further an 
 narrow-deterministic-reversible, the more observation and supervision it must earn before it runs
 alone.
 
-## What ships, and the honest edge
+## What ships, and the current limit
 
 The honest summary the course has kept returning to: the reflex and reflective loops are **closed
 and shipped** — they act on their own today. The deliberative loop is **human-closed by design**, and
@@ -85,13 +85,15 @@ one tier at a time, by being able to see the loop well enough to trust it.
 
 > **Security:** evals are also your **safety regression net** — the cheapest place to catch a change
 > that quietly weakened a guardrail (a gate that stopped firing, a budget that stopped denying).
-> Keep a few adversarial cases in the set and treat a *newly* failing safety case as the one finding
-> that *should* feel like a gate. And keep eval isolation strict: eval traffic that leaks into the
-> learning loop is a path to poison the agent through its own test set.
+> Keep a few adversarial cases in the set: a *newly* failing safety case should not silently pass as
+> a finding — route it to human review and hold the release, even though the harness itself still
+> exits non-zero only for an observability failure. And keep eval isolation strict: eval traffic that
+> leaks into the learning loop is a path to poison the agent through its own test set.
 
 > **Observe:** the capstone is observability turned on itself — the eval's one hard gate is whether
-> the run was *observable*. Wire it for real: the final loop emits instrument-health telemetry and a
-> match-rate baseline, and refuses to pass a run it could not see. Everything else in the course was
+> the run was *observable*. Implement it in the real system: the final loop emits instrument-health
+> telemetry and a match-rate baseline, and refuses to pass a run it could not see. Everything else in
+> the course was
 > practice for this: a loop you cannot observe is a loop you cannot trust, and trust is the entire
 > point of letting an agent act on its own.
 

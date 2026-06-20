@@ -54,7 +54,7 @@ def main() -> None:
             instrument_failures += 1  # the only thing that can fail the run
 
         verdict = "MATCH" if actual == case["expected_route"] else "MISMATCH"
-        findings.append(f"{verdict:8} {case['input'][:34]!r} -> {actual} (expected {case['expected_route']})")
+        findings.append(f"{verdict:8} {case['input']!r} -> {actual} (expected {case['expected_route']})")
 
     print("findings (hypotheses, never gates):")
     for f in findings:
