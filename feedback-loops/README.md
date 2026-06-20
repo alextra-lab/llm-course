@@ -112,8 +112,8 @@ The arc is 13 standalone units (0–12). *(Authoring in progress — links appea
 3. **[Spans & the Latency Breakdown](lessons/03-spans-and-latency.md)** — time each phase of a turn; per-operation spans; where the turn actually spends its time. ✅
 4. **[The First Closed Loop: a Runtime Gate](lessons/04-runtime-gate.md)** — a finite-state gate that blocks a repeating tool call; oscillation damping; the gate emits its own verdict. ✅
 5. **[Budget as Feedforward Control](lessons/05-budget-feedforward.md)** — reserve / commit / refund; deny *before* you overspend; acting on projected cost, not measured overspend. ✅
-6. **[Reflection: Self-Critique from Traces](lessons/06-reflection.md)** — read your own trace and critique the turn; Reflexion / Self-Refine / the evaluator-optimizer loop.
-7. **[Closing the Reflective Loop](lessons/07-closing-the-loop.md)** — feed the deduplicated reflection back into the next prompt; the cleanest output → future-behavior loop.
+6. **[Reflection: Self-Critique from Traces](lessons/06-reflection.md)** — read your own trace and critique the turn; Reflexion / Self-Refine / the evaluator-optimizer loop. ✅
+7. **[Closing the Reflective Loop](lessons/07-closing-the-loop.md)** — feed the deduplicated reflection back into the next prompt; the cleanest output → future-behavior loop. ✅
 8. **[Hysteresis: Dedup & Promotion](lessons/08-hysteresis-dedup.md)** — don't act on one noisy reading; fingerprint and count; promote a proposal only after it recurs.
 9. **[Human in the Loop, Async](lessons/09-human-in-the-loop.md)** — a ticket queue as the approval channel; the human's verdict becomes signal; closed vs human-closed; shipped vs aspirational.
 10. **[Watching the Apparatus](lessons/10-watching-the-apparatus.md)** — meta-monitoring; the observer that checks the observers (joinability); MAPE-K and homeostasis.
