@@ -32,7 +32,7 @@ Four courses. Do the Foundations course first; **Agent Memory**, **Context Compr
 **Do Foundations first.** A sibling of Agent Memory: keeping *one* long session inside the token budget without losing what matters — measuring the window, dropping and windowing, structured summarization, head/middle/tail preservation, a deterministic pre-pass, and a measured default the instrumentation earns.
 {{< /course-card >}}
 
-{{< course-card number="04" title="Feedback Loops: Earning Autonomy by Being Observable" url="/feedback-loops/" cta="Read the course →" badges="13 units|in progress|Assumes Foundations" >}}
+{{< course-card number="04" title="Feedback Loops: Earning Autonomy by Being Observable" url="/feedback-loops/" cta="Read the course →" badges="13 units|complete|Assumes Foundations" >}}
 **Do Foundations first.** Observability *is* the subject here: bubble up the telemetry that makes every harness and model decision visible, then climb the autonomy gradient — runtime gates, self-reflection, human-in-the-loop, meta-monitoring — to feedback loops you can trust. Don't ship a black box.
 {{< /course-card >}}
 
