@@ -4,7 +4,7 @@ Unit 6 - Cheap Before Smart: the deterministic pre-pass.
 Unit 5 isolated the middle to compress. But the middle is usually mostly ONE thing: a giant
 tool output (a file read, a search dump). Before paying an LLM summarizer (Unit 4) to compress
 it, run a free, deterministic pre-pass that replaces each large tool output with a one-line
-SHAPE DESCRIPTOR. No model call, no latency, no cost -- and it often shrinks the middle enough
+SHAPE DESCRIPTOR. No model call, no model latency, no model cost -- and it often shrinks the middle enough
 that the summarizer is never needed at all.
 
 What this shows:
@@ -14,9 +14,9 @@ What this shows:
   - errors are kept VERBATIM, even when large -- the model needs the real error text to recover.
   - the replacement is ALL-OR-NOTHING per output: never head/tail-truncate the middle of a tool
     output (that corrupts the file the model is reading -- the course's signature "when NOT to
-    compress" case, picked up in Unit 8).
+    compress" case, continued in Unit 8).
   - a compaction record (strategy=prepass) and the cheap-before-smart loop: did the free pre-pass
-    alone get us under budget, so the paid summarizer can be skipped?
+    alone bring the prompt under budget, so the paid summarizer can be skipped?
 
 Runs fully offline -- no endpoint needed.
 
