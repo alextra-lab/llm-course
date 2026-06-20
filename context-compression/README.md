@@ -107,8 +107,7 @@ from foundations §10. Unit 11 consolidates it into a quality-and-feedback harne
 start measuring in Unit 1. (Observability and evaluation are deep enough to deserve their own
 course one day; this one keeps them welded to the compression they watch.)
 
-The arc is 13 standalone units (0–12). *(Authoring in progress — links appear as units
-land.)*
+The arc is 13 standalone units (0–12) — all drafted.
 
 0. **[The Context Problem](lessons/00-the-context-problem.md)** — the window as a budget; context rot, lost-in-the-middle, primacy/recency; compression vs. memory; the thesis stated. ✅
 1. **[Measuring the Window](lessons/01-measuring-the-window.md)** — token accounting without `tiktoken`; where the budget goes (system / tools / history / tool outputs); build a context meter. ✅
@@ -122,6 +121,6 @@ land.)*
 9. **[Cache-Aware Compaction](lessons/09-cache-aware-compaction.md)** — KV-cache & prefill economics; the byte-identity invariant; volatility-gradient layout; why compaction breaks the cache; cost-optimal scheduling. ✅
 10. **[Prompt-Level Compression](lessons/10-prompt-level-compression.md)** — semantic / perplexity-based compression (LLMLingua); system-prompt token trimming; the robustness caution for small models. ✅
 11. **[Measuring Compression Quality](lessons/11-measuring-compression-quality.md)** — consolidate the through-line into a harness: the feedback loop (did you drop something referenced later?), before/after token curves, did the *output* change, a no-regression gate. ✅
-12. **[The Measured Default](lessons/12-the-measured-default.md)** — the mechanism taxonomy; surfacing compaction to the user (meters, traces); wire it all together + the decision tree + when *not* to compress (decompose instead).
+12. **[The Measured Default](lessons/12-the-measured-default.md)** — the mechanism taxonomy; surfacing compaction to the user (meters, traces); wire it all together + the decision tree + when *not* to compress (decompose instead). ✅
 
 Start with [`lessons/00-the-context-problem.md`](lessons/00-the-context-problem.md).
