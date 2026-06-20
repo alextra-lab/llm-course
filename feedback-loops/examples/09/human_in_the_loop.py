@@ -32,11 +32,13 @@ class Ticket:
 TICKETS = [
     Ticket("a1b2", "Add a retry budget for Elasticsearch queries"),
     Ticket("c3d4", "Rewrite the orchestrator to be fully event-driven"),
+    Ticket("e5f6", "Tune the summarizer temperature"),
 ]
-HUMAN_VERDICTS = {"a1b2": "Approved", "c3d4": "Rejected"}  # arrives hours/days later
+HUMAN_VERDICTS = {"a1b2": "Approved", "c3d4": "Rejected", "e5f6": "Re-evaluate"}  # arrives later
 
 suppressed: set[str] = set()  # fingerprints a human has rejected — recorded as signal
 approved_for_action: list[str] = []
+needs_refinement: list[str] = []  # sent back for the agent to sharpen and resurface
 
 
 def poll_feedback(tickets: list[Ticket], trace: Trace) -> Trace:
@@ -52,6 +54,7 @@ def poll_feedback(tickets: list[Ticket], trace: Trace) -> Trace:
             suppressed.add(t.fingerprint)  # the rejection persists as signal (suppression)
             trace = log_event(trace, "feedback_polled", fingerprint=t.fingerprint, verdict="Rejected")
         elif t.verdict == "Re-evaluate":
+            needs_refinement.append(t.fingerprint)  # route back: refine and resurface
             trace = log_event(trace, "feedback_polled", fingerprint=t.fingerprint, verdict="Re-evaluate")
     return trace
 
@@ -63,8 +66,9 @@ def main() -> None:
     for t in TICKETS:
         print(f"  [{t.fingerprint}] {t.verdict or 'awaiting human'}: {t.what}")
 
-    print(f"\napproved -> the harness may now act on: {approved_for_action}")
-    print(f"rejected -> suppressed fingerprints: {sorted(suppressed)}")
+    print(f"\napproved    -> the harness may now act on: {approved_for_action}")
+    print(f"rejected    -> suppressed fingerprints: {sorted(suppressed)}")
+    print(f"re-evaluate -> sent back for refinement: {needs_refinement}")
 
     # The verdict is signal: a rejected idea, when it recurs, is suppressed — not re-promoted.
     recurring = "c3d4"

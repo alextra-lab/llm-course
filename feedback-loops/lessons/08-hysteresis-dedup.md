@@ -77,10 +77,12 @@ both bars:
 
 ```
 7 incoming reflections -> 4 distinct proposals after dedup
-  PROMOTED  Add a retry budget for Elasticsearch queries   (seen 3x, 9d old)
-  too new   Add a progress bar for long tool calls          (seen 2x, 3d old)
-  too few   Lower the summarizer temperature                (seen 1x)
-  too few   Parallelize the health probe                    (seen 1x, 10d old)
+  ...
+promote if seen_count >= 2 AND age >= 7d:
+  PROMOTED  (seen 3x, 9d)  Add a retry budget for Elasticsearch queries
+  too new   (seen 2x, 3d)  Add a progress bar for long tool calls
+  too few   (seen 1x, 1d)  Lower the summarizer temperature
+  too few   (seen 1x, 10d) Parallelize the health probe
 ```
 
 The two rejections are the whole point. *"Too new"* recurred but has not persisted; *"too few"* is

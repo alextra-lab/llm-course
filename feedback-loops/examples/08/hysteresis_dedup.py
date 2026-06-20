@@ -3,7 +3,8 @@
 What this shows:
 - a deterministic proposal fingerprint (the shape of personal_agent's dedup.py): normalize the
   text (lowercase, drop stopwords, SORT tokens for order-independence), then hash
-  category:scope:normalized — so "add a retry budget" and "budget the retries" collapse to one;
+  category:scope:normalized — so "add a retry budget" and "budget the retry" collapse to one
+  (reorderings/stopwords, NOT synonyms: "retry" != "retries");
 - merging duplicates into a single proposal with an incrementing seen_count;
 - promotion as hysteresis: only act on a proposal once it has RECURRED (seen_count) and MATURED
   (age) — don't change behaviour on a single fresh observation.
@@ -87,7 +88,7 @@ def main() -> None:
         if promote:
             trace = log_event(trace, "proposal_promoted", fingerprint=fp, seen_count=p.seen_count)
         reason = "PROMOTED" if promote else ("too few" if p.seen_count < MIN_SEEN_COUNT else "too new")
-        print(f"  {reason:9} {p.what}")
+        print(f"  {reason:9} (seen {p.seen_count}x, {p.age_days}d) {p.what}")
 
     print("\nhysteresis: the recurring, matured pattern promotes; a single fresh idea waits.")
 
