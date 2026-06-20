@@ -120,8 +120,8 @@ land.)*
 7. **[When to Fire: Triggers & Async Compression](lessons/07-triggers-and-async.md)** — threshold triggers (soft async / hard sync), the re-fire cursor, non-blocking background compression, latency. ✅
 8. **[Offloading & Paging: Gist Memory](lessons/08-offloading-and-paging.md)** — store full bytes externally, keep a short reference, page back on demand; the read→edit dependency hazard. ✅
 9. **[Cache-Aware Compaction](lessons/09-cache-aware-compaction.md)** — KV-cache & prefill economics; the byte-identity invariant; volatility-gradient layout; why compaction breaks the cache; cost-optimal scheduling. ✅
-10. **[Prompt-Level Compression](lessons/10-prompt-level-compression.md)** — semantic / perplexity-based compression (LLMLingua); system-prompt token trimming; the robustness caution for small models.
-11. **[Measuring Compression Quality](lessons/11-measuring-compression-quality.md)** — consolidate the through-line into a harness: the feedback loop (did you drop something referenced later?), before/after token curves, did the *output* change, a no-regression gate.
+10. **[Prompt-Level Compression](lessons/10-prompt-level-compression.md)** — semantic / perplexity-based compression (LLMLingua); system-prompt token trimming; the robustness caution for small models. ✅
+11. **[Measuring Compression Quality](lessons/11-measuring-compression-quality.md)** — consolidate the through-line into a harness: the feedback loop (did you drop something referenced later?), before/after token curves, did the *output* change, a no-regression gate. ✅
 12. **[The Measured Default](lessons/12-the-measured-default.md)** — the mechanism taxonomy; surfacing compaction to the user (meters, traces); wire it all together + the decision tree + when *not* to compress (decompose instead).
 
 Start with [`lessons/00-the-context-problem.md`](lessons/00-the-context-problem.md).
