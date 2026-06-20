@@ -114,8 +114,8 @@ The arc is 13 standalone units (0–12). *(Authoring in progress — links appea
 5. **[Budget as Feedforward Control](lessons/05-budget-feedforward.md)** — reserve / commit / refund; deny *before* you overspend; acting on projected cost, not measured overspend. ✅
 6. **[Reflection: Self-Critique from Traces](lessons/06-reflection.md)** — read your own trace and critique the turn; Reflexion / Self-Refine / the evaluator-optimizer loop. ✅
 7. **[Closing the Reflective Loop](lessons/07-closing-the-loop.md)** — feed the deduplicated reflection back into the next prompt; the cleanest output → future-behavior loop. ✅
-8. **[Hysteresis: Dedup & Promotion](lessons/08-hysteresis-dedup.md)** — don't act on one noisy reading; fingerprint and count; promote a proposal only after it recurs.
-9. **[Human in the Loop, Async](lessons/09-human-in-the-loop.md)** — a ticket queue as the approval channel; the human's verdict becomes signal; closed vs human-closed; shipped vs aspirational.
+8. **[Hysteresis: Dedup & Promotion](lessons/08-hysteresis-dedup.md)** — don't act on one noisy reading; fingerprint and count; promote a proposal only after it recurs. ✅
+9. **[Human in the Loop, Async](lessons/09-human-in-the-loop.md)** — a ticket queue as the approval channel; the human's verdict becomes signal; closed vs human-closed; shipped vs aspirational. ✅
 10. **[Watching the Apparatus](lessons/10-watching-the-apparatus.md)** — meta-monitoring; the observer that checks the observers (joinability); MAPE-K and homeostasis.
 11. **[Meeting the Standard: OpenTelemetry at the Boundary](lessons/11-opentelemetry.md)** — map your hand-rolled trace onto OTel + the GenAI semantic conventions; the adopt-vs-roll-your-own decision at the cross-substrate boundary.
 12. **[The Measured Default](lessons/12-the-measured-default.md)** — the autonomy-gradient decision tree; evals as hypothesis, not gate; which loops to auto-close and which to keep human-closed.
