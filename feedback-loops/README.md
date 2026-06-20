@@ -104,7 +104,7 @@ repo's [Observability Standard](../OBSERVABILITY.md): a per-lesson `Observe` not
 `session_id`/`trace_id`/`step` line from foundations §10. A loop you can't see is a loop you can't
 trust, so you start measuring in Unit 1.
 
-The arc is 13 standalone units (0–12). *(Authoring in progress — links appear as units land.)*
+The arc is 13 standalone units (0–12), and the course is complete.
 
 0. **[The Loop You Can't See](lessons/00-the-loop-you-cant-see.md)** — the black-box temptation; the SRE stance; sense → decide → act; the autonomy gradient; the thesis stated; a runaway-loop war story. ✅
 1. **[Joinable Signal: Trace & Session IDs by Hand](lessons/01-joinable-signal.md)** — build the correlation primitive by hand; garbage signal → garbage control; the joinable JSONL line (§10). ✅
@@ -116,8 +116,8 @@ The arc is 13 standalone units (0–12). *(Authoring in progress — links appea
 7. **[Closing the Reflective Loop](lessons/07-closing-the-loop.md)** — feed the deduplicated reflection back into the next prompt; the cleanest output → future-behavior loop. ✅
 8. **[Hysteresis: Dedup & Promotion](lessons/08-hysteresis-dedup.md)** — don't act on one noisy reading; fingerprint and count; promote a proposal only after it recurs. ✅
 9. **[Human in the Loop, Async](lessons/09-human-in-the-loop.md)** — a ticket queue as the approval channel; the human's verdict becomes signal; closed vs human-closed; shipped vs aspirational. ✅
-10. **[Watching the Apparatus](lessons/10-watching-the-apparatus.md)** — meta-monitoring; the observer that checks the observers (joinability); MAPE-K and homeostasis.
-11. **[Meeting the Standard: OpenTelemetry at the Boundary](lessons/11-opentelemetry.md)** — map your hand-rolled trace onto OTel + the GenAI semantic conventions; the adopt-vs-roll-your-own decision at the cross-substrate boundary.
-12. **[The Measured Default](lessons/12-the-measured-default.md)** — the autonomy-gradient decision tree; evals as hypothesis, not gate; which loops to auto-close and which to keep human-closed.
+10. **[Watching the Apparatus](lessons/10-watching-the-apparatus.md)** — meta-monitoring; the observer that checks the observers (joinability); MAPE-K and homeostasis. ✅
+11. **[Meeting the Standard: OpenTelemetry at the Boundary](lessons/11-opentelemetry.md)** — map your hand-rolled trace onto OTel + the GenAI semantic conventions; the adopt-vs-roll-your-own decision at the cross-substrate boundary. ✅
+12. **[The Measured Default](lessons/12-the-measured-default.md)** — the autonomy-gradient decision tree; evals as hypothesis, not gate; which loops to auto-close and which to keep human-closed. ✅
 
 Start with [`lessons/00-the-loop-you-cant-see.md`](lessons/00-the-loop-you-cant-see.md).
