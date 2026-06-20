@@ -43,6 +43,17 @@ like every threshold in this course they are dials, not constants (Unit 2). What
 shape: one line where compaction *may* happen without anyone noticing, and a higher line where
 it *must* happen even if someone does.
 
+```mermaid
+flowchart TD
+    U["Usage this turn (Unit 1 meter)"] --> Q1{"Under the soft<br/>line (~0.65)?"}
+    Q1 -->|Yes| SKIP["Do nothing"]
+    Q1 -->|No| Q2{"At/over the hard<br/>line (~0.85)?"}
+    Q2 -->|"No — soft band"| Q3{"Fired within the<br/>last ~4 messages?"}
+    Q3 -->|Yes| RF["skip-refire<br/>(the cursor suppresses it)"]
+    Q3 -->|No| SOFT["<b>Soft trigger</b>: compact in a background<br/>thread — the turn continues"]
+    Q2 -->|Yes| HARD["<b>Hard trigger</b>: ask 'stop vs compress',<br/>then compact synchronously — the turn blocks"]
+```
+
 ## The soft trigger: fire and forget
 
 The reason to split the triggers is **latency**. Compaction is not free time: the deterministic

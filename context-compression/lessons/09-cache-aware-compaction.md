@@ -103,6 +103,18 @@ window), then an **anti-thrash floor** (never reset more often than a minimum ru
 turns locally, **4** on a cloud endpoint), and only then the cost optimum below. Ceiling first so
 you never overflow; floor next so you never thrash; optimum last to tune the rest.
 
+```mermaid
+flowchart TD
+    subgraph FROZEN["Frozen append-only layout (cache-friendly)"]
+        H["Stable head: system + tools + first user<br/>(never edited)"]
+        M["Frozen middle (untouched between resets)"]
+        T["Newest turns — appended at the end<br/>(the only new tokens)"]
+        H --> M --> T
+    end
+    FROZEN -->|"usage hits the ceiling, or<br/>scheduled at L* = sqrt(2R/c)"| RESET["Scheduled reset: rebuild ONCE into<br/>head + assistant recap + K verbatim tail,<br/>then freeze again"]
+    RESET -.->|"refreeze and keep appending"| FROZEN
+```
+
 ## How often? The cost-optimal run length
 
 Between those guard rails sits a real optimization. A reset costs **R** — you re-prefill the whole

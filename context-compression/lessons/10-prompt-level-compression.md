@@ -84,6 +84,15 @@ asked for is not a 2.5× win; it is a regression with a good-looking headline.
 | **Compression ratio** | Looks like pure win | Half the story |
 | **Retained capability** | Usually omitted | The half that decides if the ratio was worth it |
 
+```mermaid
+flowchart LR
+    P["Full prompt"] -->|"trim: drop filler tokens"| S["Shorter prompt"]
+    S --> R["Compression ratio (measured)"]
+    S --> C{"Capability check:<br/>did the answer survive?"}
+    C -->|Yes| WIN["A real win — report<br/>ratio AND capability"]
+    C -->|No| REG["A regression with a<br/>good-looking ratio"]
+```
+
 ## Where it pays, and where it does not
 
 Prompt-level compression is not free, and it is not always right.

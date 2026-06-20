@@ -106,6 +106,17 @@ Now a pull request that "improves" the compressor and quietly raises the referen
 fails the build instead of shipping, while the under-budget waste count rides along as a warning to
 watch. The through-line that started as a single meter in Unit 1 ends as a guardrail.
 
+```mermaid
+flowchart TD
+    REC["Joinable records from Units 1–10<br/>(meter / compaction / decision / page_in)"] -->|"join on trace_id, order by step"| H["Quality harness"]
+    H --> M1["referenced_later misses<br/>(dropped vs later referenced)"]
+    H --> M2["token curve + under-budget waste"]
+    M1 --> GATE{"No-regression gate"}
+    GATE -->|"a miss = fail"| CI["CI blocks the change"]
+    GATE -->|"clean = pass"| OK["merge"]
+    M2 -->|"reported, not gated"| WARN["Warning: watch the trend<br/>(does not fail the build)"]
+```
+
 > **Security:** the quality log is itself sensitive, in two ways. First, redaction (Unit 1, §10
 > R5): the harness joins on *identifiers*, and an identifier can be a secret (a token, an internal
 > hostname) — so log the *shape* and hashed or scoped ids, never raw content, or the quality log
