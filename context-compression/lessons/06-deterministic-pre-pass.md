@@ -121,6 +121,17 @@ each step run only if the cheaper one before it did not already fit the window. 
 which steps were needed, so you can see the cheap step replace work the expensive step would
 otherwise be billed for.
 
+```mermaid
+flowchart TD
+    M["The middle to compress (Unit 5)"] --> PRE["<b>Pre-pass (free)</b><br/>collapse big tool outputs<br/>to one-line descriptors"]
+    PRE --> Q1{"Fits the window now?"}
+    Q1 -->|Yes| DONE["Stop — no model call"]
+    Q1 -->|No| SUM["<b>Summarize (paid)</b><br/>LLM recap of what is left (Unit 4)"]
+    SUM --> Q2{"Fits now?"}
+    Q2 -->|Yes| DONE
+    Q2 -->|No| OFF["<b>Offload</b> the giant bytes;<br/>page back on demand (Unit 8)"]
+```
+
 > **Security:** the shape descriptor is attacker-readable surface. An output whose *shape* you
 > advertise ("json object: 12 keys") tells anyone who can see the transcript what your tools return,
 > and a crafted tool result could try to make its descriptor misleading — looking small and benign
