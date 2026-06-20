@@ -54,6 +54,8 @@ class CostGate:
     def commit(self, rid: str, actual: float) -> None:
         """Settle the difference between estimate and actual; usually refunds the over-estimate."""
         r = self.reservations[rid]
+        if r.status != "active":
+            raise ValueError(f"reservation {rid} is {r.status}, not active — cannot commit twice")
         self.reserved_usd += actual - r.estimate
         r.status = "committed"
 
@@ -78,6 +80,7 @@ def main() -> None:
             trace = log_event(trace, "budget_denied", call=i, reason=str(e))
             print(f"call {i}: DENIED before spending — {e}")
             break
+        trace = log_event(trace, "budget_reserved", call=i, estimate=ESTIMATE)
 
         # The call happens here; the real cost comes back smaller than the estimate.
         actual = 0.02 if i != 3 else 0.0  # pretend call 3 fails and is refunded

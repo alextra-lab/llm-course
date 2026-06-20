@@ -10,7 +10,7 @@ finite-state **gate** that watches an agent's tool calls and **blocks** a runawa
 reflex-tier loop that, in Unit 0's war story, was the one thing that worked. Sense → decide → act
 → emit a verdict, in milliseconds, with no human and no model in the loop.
 
-**Where this fits:** the first **reflex** unit (the bottom rung of the autonomy gradient above
+**Where this fits:** the first **reflex** unit (the first level of the autonomy gradient above
 pure sensing). It consumes Unit 1's `trace` and Unit 2's vocabulary (it emits a `gate_blocked`
 event). It is the safest possible loop to close automatically — narrow, deterministic, in-turn,
 reversible — which is exactly *why* it is first: you earn the higher, riskier tiers later.
@@ -38,7 +38,7 @@ The gate watches for three distinct kinds of stuck, and treats them differently
 
 | Signal | What it catches | Response |
 |---|---|---|
-| **Call identity** | same `(tool, args)` called many times | advisory, then **terminal** past a hard ceiling |
+| **Call identity** | same `(tool, args)` called many times | allowed up to a ceiling, then **terminal** |
 | **Consecutiveness** | same tool N times in a row | **advisory** — execute, but inject a hint |
 | **Output identity** | the *same output* seen ≥2 times | **terminal** — block immediately |
 
@@ -88,7 +88,7 @@ stopped after 2 iterations (hard limit was 10).
 ```
 
 Two iterations instead of fifty. The hard iteration limit still exists as a last resort, but the
-gate makes it almost never the thing that fires.
+gate makes it almost never the safeguard that triggers.
 
 ## Why this loop is safe to automate
 
@@ -96,7 +96,7 @@ This is the bottom of the autonomy gradient for a reason. The gate's action is *
 blocks one tool), **deterministic** (same inputs, same verdict — no model judgment), **in-turn**
 (it acts in milliseconds, with full context), and **reversible** (the block lasts one turn). Those
 four properties are what *earn* it full autonomy: you do not need a human to approve a loop-block,
-because you can see exactly what it did and undo it trivially. Hold onto that test — the loops in
+because you can see exactly what it did and undo it trivially. Keep this test — the loops in
 later units give up one property at a time, and each thing they give up is why they need more
 supervision.
 

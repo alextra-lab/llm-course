@@ -87,7 +87,7 @@ spent.
 
 Feedforward has one failure mode pure accounting does not: what if the agent reserves, then crashes
 *before* it can commit or refund? The reservation is stranded — budget held for a call that will
-never settle, slowly starving the cap. So the lifecycle needs a sweeper. The harness runs a
+never settle, slowly using up all available budget. So the lifecycle needs a sweeper. The harness runs a
 **reaper** on a 30-second cadence that *"sweeps stale `active` rows past their TTL … refunding them
 — catches caller crashes between reserve and commit."* That is why `refund` is **idempotent**: the
 reaper and the caller might both try to return the same reservation, and that must be safe. A
@@ -101,8 +101,8 @@ is exactly why it acts *before*, not after. That is the gradient's logic in mini
 can undo an action, the earlier in the loop you must decide about it.
 
 > **Security:** a budget cap is a denial-of-service control — an uncapped agent (or a prompt that
-> goads it into a retry storm) is a way to run up someone's bill, so the cap is a security boundary,
-> not just a cost one. Two cautions: reservation ids must be unguessable (use UUIDs, as here) so a
+> causes repeated retries) is a way to increase the cost to whoever pays, so the cap is a security
+> boundary, not just a cost one. Two cautions: reservation ids must be unguessable (use UUIDs, as here) so a
 > caller cannot commit or refund someone else's reservation; and watch for *estimate inflation* —
 > if an attacker can drive up the per-call estimate, they can deny service by exhausting the cap
 > with reservations that never spend.
