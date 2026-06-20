@@ -50,8 +50,13 @@ class Trace:
         """The next step in the same trace (a new frozen Trace; nothing is mutated)."""
         return replace(self, step=self.step + 1)
 
-    def child(self) -> "Trace":
-        """A new trace_id under the same session — a nested operation (e.g. a sub-task)."""
+    def new_operation(self) -> "Trace":
+        """A fresh trace_id under the same session — a sibling operation (e.g. a sub-task).
+
+        This is a new *trace*, not a child *span*: it shares the session but starts its own
+        run. Span hierarchy (span_id / parent_span_id) is what OpenTelemetry adds on top —
+        you meet it in Unit 11; here, one trace per logical operation is enough.
+        """
         return Trace(session_id=self.session_id, trace_id=str(uuid.uuid4()), kind=self.kind)
 
     @property

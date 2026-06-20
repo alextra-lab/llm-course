@@ -104,11 +104,13 @@ loop you build (`gate_blocked` in Unit 4, `budget_denied` in Unit 5). Add the fi
 *when* you write the query, and put it in `REQUIRED_FIELDS` so it is never optional again. The
 catalog grows with your questions, not ahead of them.
 
-> **Security:** an event name is a low-cardinality label and safe; the fields can leak. `error`
-> strings love to embed stack traces, file paths, and tokens; `args` can contain a password. Keep
-> the **name and metadata** rich and the **content** redacted (R5). A second, quieter risk:
-> `kind` is a trust boundary — never let an external input set `kind="system:…"`, or an attacker
-> can disguise their traffic as the agent's own privileged background activity.
+> **Security:** an event name is a *low-cardinality* label — it takes only a few distinct values
+> (`tool_call_failed`, `reply_ready`, …) — so it is safe to log. The fields can leak: `error`
+> strings often embed stack traces, file paths, and tokens; `args` can contain a password. Keep
+> the **name and metadata** rich and the **content** redacted — the Observability Standard calls
+> this redact-at-the-boundary (rule R5). A second, quieter risk: `kind` is a trust boundary —
+> never let an external input set `kind="system:…"`, or an attacker can disguise their traffic as
+> the agent's own privileged background activity.
 
 > **Observe:** this unit emits **named, shaped, kind-tagged** events on top of Unit 1's tuple. The
 > loop it closes is *"can I ask a precise question of my telemetry?"* — count `tool_call_failed`

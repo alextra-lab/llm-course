@@ -82,6 +82,13 @@ class RequestTimer:
         rows.append({"name": "TOTAL", "phase": "total", "offset_ms": 0.0, "duration_ms": self.total_ms()})
         return rows
 
+    def phase_totals(self) -> dict[str, float]:
+        """Sum duration per phase — the signal a latency budget loop acts on."""
+        totals: dict[str, float] = {}
+        for s in self._spans:
+            totals[s.phase] = round(totals.get(s.phase, 0.0) + s.duration_ms, 1)
+        return totals
+
 
 def main() -> None:
     timer = RequestTimer()
@@ -105,9 +112,7 @@ def main() -> None:
         print(f"{row['name']:22} {row['phase']:16} {row['offset_ms']:>10} {row['duration_ms']:>12}")
 
     # Where did the time go? Sum by phase — the signal a latency budget loop acts on.
-    by_phase: dict[str, float] = {}
-    for s in timer._spans:
-        by_phase[s.phase] = by_phase.get(s.phase, 0.0) + s.duration_ms
+    by_phase = timer.phase_totals()
     worst = max(by_phase, key=by_phase.get)
     print(f"\nslowest phase: {worst} ({by_phase[worst]} ms of {timer.total_ms()} ms)")
 

@@ -95,9 +95,11 @@ TOTAL                  total                   0.0        148.1
 slowest phase: llm_inference (86.4 ms of 148.2 ms)
 ```
 
-The shape is the same one production turns show: **inference dominates**, tools are second,
-everything else is noise. Now the signal is actionable — a latency budget loop watches the phase
-breakdown, not the bare total, and knows that shaving context assembly would be wasted effort here:
+In this sample, **inference dominates** and tools are second — a common shape, but not a law: a
+retrieval-heavy or tool-heavy turn can put the time somewhere else entirely, which is exactly why
+you measure per turn instead of assuming. Now the signal is actionable — a latency budget loop
+watches the phase breakdown, not the bare total, and here it knows that shaving context assembly
+would be wasted effort:
 
 ```mermaid
 flowchart LR
@@ -118,9 +120,9 @@ The breakdown is only useful if it joins back to the run, so emit it as one `req
 log_event(trace, "request_timing", total_ms=timer.total_ms(), phases=by_phase)
 ```
 
-Now the three sensing units compose: a turn has a `trace_id` (Unit 1), its phases are named events
-(Unit 2), and its timing is a joinable breakdown (Unit 3). That is the full lens. Everything after
-this *acts* on it.
+Now the three sensing units compose: a turn has a `trace_id` (Unit 1), its operations are named
+events (Unit 2), and its timing is emitted as a named `request_timing` event whose payload carries
+the per-phase totals (Unit 3). That is the full lens. Everything after this *acts* on it.
 
 > **Security:** span **names and durations** are safe, low-cardinality signal; resist the urge to
 > attach raw inputs to them. A timing breakdown is also a side channel — durations can leak whether

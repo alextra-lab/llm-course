@@ -32,14 +32,14 @@ behavior.
 It never answered. On one path it called the same telemetry tool **24 times in a row**; on
 another it called a different query tool **50 times**. Each call returned something it could not
 turn into an answer, so it tried again, and again. It did not stop on its own. A separate
-safeguard — a **loop gate** — finally cut it off at a hard iteration limit. The user received a
-wall of raw tool-call JSON instead of a reply. (This is a real incident; in the harness this
+safeguard — a **loop gate** — finally stopped it at a hard iteration limit. The user received a
+long block of raw tool-call JSON instead of a reply. (This is a real incident; in the harness this
 course draws on, it became ADR-0068.)
 
 Read that twice, because it is two failures, not one:
 
 1. **It could not see its own state.** Asked to look at its telemetry, it had no reliable way to
-   query it, so it flailed.
+   query it, so it retried the same call without making progress.
 2. **It could not see its own behavior.** It repeated the same move dozens of times and never
    noticed it was stuck. Something *else* had to notice for it.
 
@@ -99,11 +99,11 @@ of observability.**
 ## Observability is the core, not a chapter
 
 It is tempting, in an age of AI-assisted and AI-*driven* development, to let the model, the
-harness, and the memory do their magic and treat the result as a black box that mostly works. This
-course refuses that posture. It teaches the instinct of a **site reliability engineer**: you do not
-get to call a system trustworthy because it usually behaves — you make its behavior *visible*, then
-you decide. The black box is precisely the thing you cannot debug when it fails at 3am, and an
-autonomous agent *will* fail in ways you did not script.
+harness, and the memory do their work and treat the result as a black box that usually behaves.
+This course refuses that posture. It teaches the instinct of a **site reliability engineer**: you
+do not get to call a system trustworthy because it usually behaves — you make its behavior
+*visible*, then you decide. The black box is precisely the thing you cannot debug when it fails in
+production, and an autonomous agent *will* fail in ways you did not plan for.
 
 So observability here is not a final unit you bolt on. It is the first thing you build (Unit 1) and
 the spine of everything after. Every loop in this course ships with the instrumentation that makes

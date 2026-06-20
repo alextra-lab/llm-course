@@ -120,12 +120,16 @@ flowchart TD
 
 ## The standard, foreshadowed
 
-You have just hand-built `trace_id` and a parent/child relationship — which is precisely what
-OpenTelemetry calls a *trace* and *spans*, with context propagation. The harness kept this
-hand-rolled layer on purpose (thin dependencies) and stayed *compatible* with the standard rather
-than adopting its SDK. Keep that in mind: in Unit 11, once the signal has to cross process and
-service boundaries, the hand-rolled tuple starts to strain, and meeting OpenTelemetry becomes the
-relief. For now, by hand is exactly right — you understand every field.
+You have just hand-built a `trace_id` that correlates the records of one run — which is what
+OpenTelemetry calls a *trace*, with context propagation. OpenTelemetry goes one step further:
+within a trace it nests *spans*, each with its own `span_id` and a `parent_span_id`, so you can
+see which operation contained which. You add timing spans in Unit 3, and `personal_agent`'s
+`TraceContext` already carries a `parent_span_id` and a `new_span()` — *"OpenTelemetry-compatible
+without the full OTel SDK."* The harness kept this hand-rolled layer on purpose (thin
+dependencies) and stayed *compatible* with the standard rather than adopting its SDK. Keep that in
+mind: in Unit 11, once the signal has to cross process and service boundaries, the hand-rolled
+shape starts to strain, and meeting OpenTelemetry becomes the relief. For now, by hand is exactly
+right — you understand every field.
 
 > **Security:** the joining tuple is metadata and safe to log freely; the **fields** you attach
 > are not. Tool arguments, prompts, and results carry secrets and personal data — redact them at
@@ -159,8 +163,9 @@ relief. For now, by hand is exactly right — you understand every field.
   none of it attributable — because the join key was *optional* (ADR-0074).
 - The fix is a small, mandatory tuple — `session_id` / `trace_id` / `step` — stamped on every
   record and carried as a **frozen** value, the shape of `personal_agent`'s `TraceContext`.
-- You hand-built `trace_id` + parent/child spans: an **OpenTelemetry-shaped** context without the
-  SDK. Unit 11 meets the standard when the signal must cross boundaries.
+- You hand-built `trace_id` correlation: an **OpenTelemetry-shaped** trace without the SDK. OTel
+  adds `span_id`/`parent_span_id` hierarchy on top; Unit 11 meets the standard when the signal must
+  cross boundaries.
 
 ## Next
 

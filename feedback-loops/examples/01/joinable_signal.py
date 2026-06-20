@@ -10,7 +10,10 @@ What this shows:
 
 Run (pure Python, no endpoint needed):
     python examples/01/joinable_signal.py
-    python examples/01/joinable_signal.py 2>run.jsonl   # capture the telemetry
+
+Telemetry here is collected into an in-memory sink so the script can show the *join* in one
+place. In a real service you would write each record to a log file or index instead — see
+common_loops.log_event, which writes JSONL to stderr by default.
 """
 
 import io
