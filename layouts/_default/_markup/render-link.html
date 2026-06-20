@@ -11,6 +11,7 @@
     - Foundations lessons come from        lessons/                     (target content/docs/)
     - Agent Memory lessons come from       agent-memory/lessons/        (target content/agent-memory/)
     - Context Compression lessons from     context-compression/lessons/ (target content/context-compression/)
+    - Feedback Loops lessons come from     feedback-loops/lessons/      (target content/feedback-loops/)
   We resolve the link against the right source dir with path.Join (which cleans "..").
 */ -}}
 {{- $dest := .Destination -}}
@@ -20,6 +21,7 @@
   {{- with .Page.File -}}
     {{- if hasPrefix .Path "agent-memory/" -}}{{- $srcdir = "agent-memory/lessons" -}}{{- end -}}
     {{- if hasPrefix .Path "context-compression/" -}}{{- $srcdir = "context-compression/lessons" -}}{{- end -}}
+    {{- if hasPrefix .Path "feedback-loops/" -}}{{- $srcdir = "feedback-loops/lessons" -}}{{- end -}}
   {{- end -}}
   {{- $repopath := path.Join $srcdir $dest -}}
   {{- $ghbase := printf "%s/blob/%s/" .Page.Site.Params.github_repo .Page.Site.Params.github_branch -}}

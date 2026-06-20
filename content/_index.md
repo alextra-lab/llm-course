@@ -3,7 +3,7 @@ title: FrenchForet
 ---
 
 {{< blocks/cover title="FrenchForet — LLM Engineering" image_anchor="top" height="med" >}}
-<p class="lead mt-5">Three hands-on, foundations-first courses for building with large language models — from your first raw HTTP call to an agent with a knowledge-graph memory that stays inside its context window.</p>
+<p class="lead mt-5">Four hands-on, foundations-first courses for building with large language models — from your first raw HTTP call to an agent with a knowledge-graph memory that stays inside its context window and watches itself with feedback loops you can trust.</p>
 <a class="btn btn-lg btn-primary me-3 mb-4" href="/docs/">
   Start with Foundations <i class="fas fa-arrow-alt-circle-right ms-2"></i>
 </a>
@@ -13,8 +13,8 @@ title: FrenchForet
 {{< /blocks/cover >}}
 
 {{% blocks/lead color="primary" %}}
-Three courses. Do the Foundations course first; **Agent Memory** and **Context Compression** are
-siblings that each assume it and build on top — read those two in either order.
+Four courses. Do the Foundations course first; **Agent Memory**, **Context Compression**, and
+**Feedback Loops** are siblings that each assume it and build on top — read those in any order.
 {{% /blocks/lead %}}
 
 <section class="course-cards-section">
@@ -30,6 +30,10 @@ siblings that each assume it and build on top — read those two in either order
 
 {{< course-card number="03" title="Context Compression: Keeping a Long Agent Inside the Window" url="/context-compression/" cta="Read the course →" badges="13 units|in progress|Assumes Foundations" >}}
 **Do Foundations first.** A sibling of Agent Memory: keeping *one* long session inside the token budget without losing what matters — measuring the window, dropping and windowing, structured summarization, head/middle/tail preservation, a deterministic pre-pass, and a measured default the instrumentation earns.
+{{< /course-card >}}
+
+{{< course-card number="04" title="Feedback Loops: Earning Autonomy by Being Observable" url="/feedback-loops/" cta="Read the course →" badges="13 units|in progress|Assumes Foundations" >}}
+**Do Foundations first.** Observability *is* the subject here: bubble up the telemetry that makes every harness and model decision visible, then climb the autonomy gradient — runtime gates, self-reflection, human-in-the-loop, meta-monitoring — to feedback loops you can trust. Don't ship a black box.
 {{< /course-card >}}
 
 </div>
