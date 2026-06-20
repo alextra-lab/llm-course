@@ -42,7 +42,12 @@ gave up. This mirrors `personal_agent`'s `_extract_failure_excerpt`
 for i, ev in enumerate(events):
     if ev.get("operation") == "tool_call_failed":
         nxt = events[i + 1] if i + 1 < len(events) else {}
-        recovery = "retry" if nxt.get("tool") == ev.get("tool") else "gave up"
+        if nxt.get("operation") == "tool_call_started" and nxt.get("tool") == ev.get("tool"):
+            recovery = "retry"
+        elif nxt.get("operation") == "reply_ready":
+            recovery = "gave up"
+        else:
+            recovery = "other"
         failed.append({"tool": ev["tool"], "error": ev["error"], "recovery": recovery})
 ```
 
@@ -62,9 +67,11 @@ free prose. The harness asks for exactly this shape — a `rationale`, a `propos
 ```
 
 Structure is the point. A free-text "the agent should be better at Elasticsearch" cannot be
-deduplicated, counted, or promoted; a typed `proposed_change` with a `category` and `scope` can be
-(Unit 8). `personal_agent` generates this with DSPy ChainOfThought *"(E-008: 0% parse failures)"*
-and falls back to manual JSON parsing if that is unavailable — because a reflection you cannot parse
+deduplicated, counted, or promoted; a typed `proposed_change` can be (Unit 8). The course example
+keeps the shape minimal (`what` / `why` / `how`); the harness's `ProposedChange` adds a `category`
+and a `scope`, which become the namespace Unit 8's dedup keys on. `personal_agent` generates this
+with DSPy ChainOfThought *"(E-008: 0% parse failures)"* and falls back to manual JSON parsing if
+that is unavailable — because a reflection you cannot parse
 is a reflection you cannot use.
 
 ```mermaid

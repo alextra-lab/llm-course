@@ -25,6 +25,7 @@ from common_loops import Trace, log_event  # noqa: E402
 
 # A turn that struggled: the same tool failed twice, then the agent gave up. (Events are the
 # joinable records from Units 1–2 — one trace, ordered steps.)
+CRITIQUED_TRACE_ID = "turn-3d3c505e"  # the trace_id of the turn this reflection is about
 TRACE_EVENTS = [
     {"step": 0, "operation": "request_received"},
     {"step": 1, "operation": "tool_call_started", "tool": "query_elasticsearch"},
@@ -33,6 +34,8 @@ TRACE_EVENTS = [
     {"step": 4, "operation": "tool_call_failed", "tool": "query_elasticsearch", "error": "connection timeout"},
     {"step": 5, "operation": "reply_ready", "ok": False},
 ]
+for _ev in TRACE_EVENTS:  # all events of one turn share its trace_id (Unit 1)
+    _ev["trace_id"] = CRITIQUED_TRACE_ID
 
 FAILURE_OPS = {"tool_call_failed"}
 
@@ -64,8 +67,8 @@ def extract_failure_excerpt(events: list[dict]) -> dict | None:
 
 def generate_reflection(events: list[dict], excerpt: dict | None) -> dict | None:
     """Ask the model to critique the turn and propose a change. Opt-in; skips with no endpoint."""
-    if not os.environ.get("OPENAI_BASE_URL"):
-        print("(no OPENAI_BASE_URL — skipping the model critique; the excerpt above is what feeds it)")
+    if not (os.environ.get("OPENAI_BASE_URL") and os.environ.get("OPENAI_API_KEY")):
+        print("(no OPENAI_BASE_URL/OPENAI_API_KEY — skipping the model critique; the excerpt above is what feeds it)")
         return None
     from common import MODEL, get_client  # noqa: E402
 
@@ -101,7 +104,7 @@ def main() -> None:
     log_event(
         trace,
         "reflection_created",
-        about_trace=TRACE_EVENTS[0].get("trace_id", "demo-turn"),
+        about_trace=CRITIQUED_TRACE_ID,  # the TelemetryRef back to the critiqued turn
         has_proposal=bool(reflection and reflection.get("proposed_change")),
         failures=len(excerpt["failed_tool_calls"]) if excerpt else 0,
     )

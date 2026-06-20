@@ -21,11 +21,12 @@ from common_loops import Trace, log_event  # noqa: E402
 # A small corpus of past reflections (each already deduplicated, with a seen_count). In the
 # harness these live in Elasticsearch; here they are inline so the selection logic is the point.
 REFLECTIONS = [
-    {"what": "Add a retry budget for Elasticsearch queries", "seen": 4, "age_days": 3, "resolved": False},
-    {"what": "Cache the Elasticsearch index schema between calls", "seen": 1, "age_days": 1, "resolved": False},
-    {"what": "Tune the summarizer temperature", "seen": 5, "age_days": 40, "resolved": False},
-    {"what": "Parallelize the Elasticsearch health probe", "seen": 3, "age_days": 2, "resolved": True},
-    {"what": "Shorten the Neo4j connection timeout", "seen": 6, "age_days": 5, "resolved": False},
+    {"rationale": "Elasticsearch queries time out under load", "what": "Add a retry budget for Elasticsearch queries", "seen": 4, "age_days": 3, "resolved": False},
+    {"rationale": "The Elasticsearch index schema is refetched every call", "what": "Cache the Elasticsearch index schema between calls", "seen": 1, "age_days": 1, "resolved": False},
+    {"rationale": "The summarizer is sometimes too verbose", "what": "Tune the summarizer temperature", "seen": 5, "age_days": 40, "resolved": False},
+    {"rationale": "The Elasticsearch health probe is slow", "what": "Parallelize the Elasticsearch health probe", "seen": 3, "age_days": 2, "resolved": True},
+    {"rationale": "Neo4j connections hang on startup", "what": "Shorten the Neo4j connection timeout", "seen": 6, "age_days": 5, "resolved": False},
+    {"rationale": "Elasticsearch feels slow sometimes, but no clear cause yet", "what": "", "seen": 3, "age_days": 4, "resolved": False},
 ]
 
 RECENCY_DAYS = 14
@@ -51,7 +52,8 @@ def select_reflections(corpus: list[dict], message: str) -> list[dict]:
         if r["age_days"] <= RECENCY_DAYS  # recency
         and r["seen"] >= MIN_SEEN  # persistence signal
         and not r["resolved"]  # not already handled
-        and any(h.lower() in r["what"].lower() for h in hints)  # relevance to this turn
+        and r["what"]  # actionable: has a proposed change (pure rationale is too granular)
+        and any(h.lower() in (r["rationale"] + " " + r["what"]).lower() for h in hints)  # relevance
     ]
     kept.sort(key=lambda r: (r["seen"], -r["age_days"]), reverse=True)
     return kept[:CAP]
@@ -83,6 +85,7 @@ def main() -> None:
     print("  - 'Tune the summarizer temperature' (40 days old + unrelated to this turn)")
     print("  - 'Parallelize the ES health probe' (already resolved)")
     print("  - 'Shorten the Neo4j timeout' (recurring, but not relevant to this question)")
+    print("  - 'Elasticsearch feels slow…' (relevant + recurring, but no proposal: not actionable)")
 
     log_event(trace, "reflection_recalled", surfaced=len(selected), candidates=len(REFLECTIONS))
     print("\nthe loop is closed: the agent's own past output flows back into its next prompt.")
