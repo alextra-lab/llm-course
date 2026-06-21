@@ -1,7 +1,7 @@
 ---
 title: "The Loop You Can't See"
-linkTitle: "0. The Loop You Can't See"
-weight: 0
+linkTitle: "Introduction"
+weight: -1
 ---
 
 **Goal:** understand the problem this course solves, and why it is harder than "add some

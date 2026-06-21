@@ -1,7 +1,7 @@
 ---
 title: 'The Context Problem'
-linkTitle: '0. The Context Problem'
-weight: 0
+linkTitle: 'Introduction'
+weight: -1
 ---
 
 **Goal:** understand the problem this course solves, and why it is harder than "the window
