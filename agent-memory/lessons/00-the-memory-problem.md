@@ -1,7 +1,7 @@
 ---
 title: 'The Memory Problem'
-linkTitle: '0. The Memory Problem'
-weight: 0
+linkTitle: 'Introduction'
+weight: -1
 ---
 
 **Goal:** understand that two different things are both called "memory," and that this
