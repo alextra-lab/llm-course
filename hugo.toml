@@ -47,6 +47,12 @@ defaultContentLanguage = "en"
   [[module.mounts]]
     source = "feedback-loops/lessons"
     target = "content/feedback-loops"
+  # The Observability Standard: a cross-course reference (not a course), published in place
+  # from the repo-root OBSERVABILITY.md. The render-link hook special-cases this page so its
+  # repo-relative links resolve (lesson links on-site, example/source links to GitHub).
+  [[module.mounts]]
+    source = "OBSERVABILITY.md"
+    target = "content/observability-standard.md"
   [[module.mounts]]
     source = "assets"
     target = "assets"
@@ -92,6 +98,10 @@ defaultContentLanguage = "en"
     name = "Feedback Loops"
     weight = 40
     url = "/feedback-loops/"
+  [[menu.main]]
+    name = "Observability Standard"
+    weight = 45
+    url = "/observability-standard/"
   [[menu.main]]
     name = "GitHub"
     weight = 50

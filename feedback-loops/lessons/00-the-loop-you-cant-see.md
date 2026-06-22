@@ -15,11 +15,11 @@ is *earned*, and what earns it is the telemetry that makes every decision visibl
 **Where this fits:** this is the start of the **fourth** course, a sibling of the
 [Agent Memory](../../agent-memory/README.md) and
 [Context Compression](../../context-compression/README.md) courses — read them in any order. It
-assumes the foundations course: §10 (observability and logging — the joinable
-`session_id`/`trace_id`/`step` line you reuse here), §13 (conversation state), and §23 (agents and
-the tool-use loop). The other courses make observability a *through-line beside* the topic; this
+assumes the foundations course: [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md)
+(the joinable `session_id`/`trace_id`/`step` line you reuse here), [Lesson 13 — Conversation State](../../lessons/13-conversation-state-and-memory.md),
+and [Lesson 23 — Agents](../../lessons/23-agents.md) (the tool-use loop). The other courses make observability a *through-line beside* the topic; this
 one makes it the *subject*. It is the "Course 4 (Observability & Feedback)" the repo's
-[Observability Standard](../../OBSERVABILITY.md) anticipates.
+[Observability Standard](../../OBSERVABILITY.md) defines.
 
 ---
 
@@ -62,7 +62,7 @@ acts blindly an **open loop**. Military strategy calls the same cycle **OODA** (
 decide, act). The names differ; the shape is identical, and your agent is full of them whether you
 designed them or not.
 
-There is a fourth thing a good controller does, and it is the one this course will not let you
+There is a fourth thing a good controller does, and it is the one this course insists you not
 skip: **the loop emits its own telemetry.** The gate that blocked the runaway does not just block —
 it records *why*. Without that, you have a controller you cannot inspect, which is how you get a
 24-call loop nobody saw coming. So the real shape is **sense → decide → act → and report what you
@@ -89,12 +89,23 @@ flowchart TD
     META -.->|"crossing system boundaries?<br/>adopt the standard (Unit 11)"| STD["OpenTelemetry"]
 ```
 
-Every arrow upward is **gated by observability**. You earn the right to let a loop run on its own
+Every advancing arrow is **gated by observability**. You earn the right to let a loop run on its own
 only once you can see it well enough to trust it. A narrow, deterministic gate (reflex) is safe to
 close automatically because it is fully observed and easy to undo. "Rewrite my own instructions"
 (deliberative) is not — so a human stays in that loop until the telemetry is good enough to prove
 it should not. That is the whole argument of the course in one sentence: **autonomy is a function
 of observability.**
+
+The four tiers this course climbs, each named once here so you can place every later unit on the
+gradient:
+
+- **Reflex** — close the loop inside the turn: a deterministic gate that blocks or denies (Units 4–5).
+- **Reflective** — critique the turn after it runs and feed the lesson back (Units 6–7).
+- **Deliberative** — a human approves a high-stakes, hard-to-undo change before it lands (Units 8–9).
+- **Meta** — watch the loops themselves; the observer is observed (Unit 10).
+
+Below them sits **Sense** (Units 1–3): not a tier but the prerequisite — you cannot run a loop on
+its own until you can see it.
 
 ## Observability is the core, not a chapter
 
@@ -112,8 +123,8 @@ entire point of letting an agent act on its own.
 
 ## The thesis
 
-This course is **measured, not authoritative**. I am a student of this material, not an expert in
-it. Rather than assert that agents should be autonomous, it argues that autonomy is *earned*, and
+This course is **measured, not authoritative** — written from the perspective of a student of this
+material, not an authority on it. Rather than assert that agents should be autonomous, it argues that autonomy is *earned*, and
 it walks there down a decision tree — the autonomy gradient, read as questions:
 
 1. **Can you see the decision at all?** No → you have no business automating it. Instrument first.
@@ -145,15 +156,15 @@ decide for itself" reflex as a tradeoff to be earned with telemetry, not assumed
 > **Observe:** this course makes observability the subject, the way the others make it a
 > through-line. Every later unit carries an `Observe` note: it states the signal the loop emits and
 > the decision that signal closes, using the joinable `session_id`/`trace_id`/`step` line from
-> foundations §10. You start measuring in Unit 1, not at the end. This follows the repo's
+> [Foundations Lesson 10](../../lessons/10-observability-and-logging.md). You start measuring in Unit 1, not at the end. This follows the repo's
 > [Observability Standard](../../OBSERVABILITY.md).
 
 ## Challenges
 
 These are thinking-and-experiment tasks; the building starts in Unit 1.
 
-1. **Find a loop you did not design.** Take any §23 agent script and let it run on a task that
-   makes it retry (a flaky tool, a file that does not exist). *Success:* you can name the sense →
+1. **Find a loop you did not design.** Take any agent script from [Foundations Lesson 23 — Agents](../../lessons/23-agents.md)
+   and let it run on a task that makes it retry (a flaky tool, a file that does not exist). *Success:* you can name the sense →
    decide → act loop it fell into, and say what — if anything — would have stopped it.
 2. **Place a loop on the gradient.** Pick three things an agent might do on its own: retry a failed
    call, summarize old turns, edit its own system prompt. *Success:* you can order them reflex →
@@ -177,7 +188,7 @@ These are thinking-and-experiment tasks; the building starts in Unit 1.
 
 ## Next
 
-**Unit 1 — Joinable Signal: Trace & Session IDs by Hand:** before a loop can act on a signal, the
+**[Unit 1 — Joinable Signal: Trace & Session IDs by Hand](01-joinable-signal.md):** before a loop can act on a signal, the
 signal has to be trustworthy and joinable. You will build the correlation primitive by hand — a
 `session_id`, a `trace_id`, a `step` — and emit the first joinable telemetry line this whole course
 is built on. Garbage signal, garbage control; so we start with the signal.
