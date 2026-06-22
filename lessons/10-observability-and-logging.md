@@ -210,6 +210,6 @@ Once every call emits a record like that, you can:
 
 ## Next
 
-**Section 11 — Cost, Pricing & Prompt Caching:** you'll turn the token counts you've been
+**[Section 11 — Cost, Pricing & Prompt Caching](11-cost-pricing-and-prompt-caching.md):** you'll turn the token counts you've been
 logging into money, then exploit **prompt caching** to make repeated prefixes cheaper and
 faster — the capstone of the foundations arc.

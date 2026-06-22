@@ -162,7 +162,7 @@ async fixes *latency*; it does not fix *cache invalidation*.
 > compaction. Treat a sudden climb toward the hard line — visible in Unit 1's meter — as a
 > signal worth alerting on, not just a number.
 
-> **Observe:** this unit extends the `compaction` record with the *timing* fields, all on the §10
+> **Observe:** this unit extends the `compaction` record with the *timing* fields, all on the [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md)
 > joining tuple. A record that **fired** carries `trigger` (soft/hard), `fired=true`, `latency_ms`
 > (what the compaction work cost), and `blocking` (did that cost fall on the turn, or off it?); a
 > record the cursor **suppressed** carries `fired=false` with `reason="refire-gap"`. The loop it
@@ -202,7 +202,7 @@ async fixes *latency*; it does not fix *cache invalidation*.
 
 ## Next
 
-**Unit 8 — Offloading & Paging: Gist Memory:** triggers decide when to shrink the window, but a
+**[Unit 8 — Offloading & Paging: Gist Memory](08-offloading-and-paging.md):** triggers decide when to shrink the window, but a
 single giant artifact can be too valuable to summarize and too big to keep. Unit 8 stores the
 full bytes outside the window, keeps a short reference inside it, and pages the bytes back on
 demand — and meets the read→edit dependency hazard that makes naive offloading dangerous.

@@ -179,6 +179,6 @@ Keep the `assistant` turn's `content`; drop its `reasoning_content`.
 
 ## Next
 
-**Section 7 — Handling & Validating Responses:** text you can read is not data you can
+**[Section 7 — Handling & Validating Responses](07-handling-and-validating-responses.md):** text you can read is not data you can
 trust. You'll make the model return structured JSON, constrain it to a schema, and
 validate it with Pydantic before your code relies on it.

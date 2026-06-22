@@ -143,7 +143,7 @@ therefore leak — them.
 
 ## Next
 
-**Section 22 — Skills / Skill Injection:** before we hand the keys to an agent, we look at
+**[Section 22 — Skills / Skill Injection](22-skills-and-skill-injection.md):** before we hand the keys to an agent, we look at
 *skills* — packaged instructions and code, disclosed into context on demand. Skills make
 capabilities composable, but skill-provided instructions and code are untrusted input too,
 so the sandboxing (Sections 16–17) and guardrails from this section apply directly.

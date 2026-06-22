@@ -174,6 +174,6 @@ Caching keys on the **prefix matching exactly**, from the start. Structure promp
 
 That completes Sections 1–11. You can now talk to the server, understand and control its
 output, structure and stream responses, survive failures, observe what's happening, and
-account for cost — and you *wrote every bit of it yourself*. The **Advanced arc
-(Sections 12–25)** builds on all of it: prompt engineering, conversation state, tool
+account for cost — and you *wrote every bit of it yourself*. The **[Advanced arc
+(Sections 12–25)](12-prompt-engineering-fundamentals.md)** builds on all of it: prompt engineering, conversation state, tool
 calling, retrieval (embeddings + RAG), security, agents, evaluation, and a capstone.

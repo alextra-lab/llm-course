@@ -124,7 +124,7 @@ to keep the loop trustworthy.
 
 ## Next
 
-**Unit 12 — The Measured Default:** the final unit gathers the whole arc into a decision — which
+**[Unit 12 — The Measured Default](12-the-measured-default.md):** the final unit gathers the whole arc into a decision — which
 loops to close automatically, which to keep human-closed — and treats evals the way this course
 treats everything: as a hypothesis to measure, not a gate to pass. The measured default the
 instrumentation earned.

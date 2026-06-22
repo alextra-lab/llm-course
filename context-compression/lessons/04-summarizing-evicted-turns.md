@@ -184,7 +184,7 @@ is a real way to break your cache.
 
 > **Observe:** this unit emits a `compaction` record with `strategy="summarize"`,
 > `tokens_before`/`tokens_after`, `evicted` (turns replaced), a `fallback` flag (did the
-> compressor fail and the marker win?), and the `kept_ids`/`lost_ids` it extracted — using the §10
+> compressor fail and the marker win?), and the `kept_ids`/`lost_ids` it extracted — using the [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md)
 > joining tuple. The loop it closes is the one that justifies the whole mechanism: the example's
 > tail literally asks for the host and the ticket that live in the evicted middle, so the log can
 > answer *did the summary keep the identifiers a later turn needs?* A `fallback=true` line with a
@@ -225,7 +225,7 @@ is a real way to break your cache.
 
 ## Next
 
-**Unit 5 — Head, Middle, Tail:** so far we anchor the head and summarize from the front, but the
+**[Unit 5 — Head, Middle, Tail](05-head-middle-tail.md):** so far we anchor the head and summarize from the front, but the
 *recent* tail matters as much as the task at the head. Unit 5 makes the invariant explicit — keep
 the head **and** the tail verbatim, and only ever compress the middle — so summarization never
 touches the turns the model is actively using.

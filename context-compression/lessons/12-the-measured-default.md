@@ -140,7 +140,7 @@ never builds.
 
 > **Observe:** this is the observability payoff the course was built toward. The capstone actually
 > *emits* the joinable record for every mechanism it runs (`strategy` ∈ drop / head-tail / prepass /
-> offload / frozen-reset / decompose, on the §10 tuple) **and** renders the session meter **and** carries the
+> offload / frozen-reset / decompose, on the [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md) tuple) **and** renders the session meter **and** carries the
 > Unit 11 quality gate — the standard's "the capstone wires it for real" rule. The loop it closes is
 > the entire course's: you can replay any session, see every compaction it made, prove what it kept
 > and dropped, and show the user a single honest line about the health of their context.

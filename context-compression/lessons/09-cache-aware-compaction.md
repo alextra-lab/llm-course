@@ -14,7 +14,7 @@ course's production reference — and, tellingly, it is not "compress harder," i
 the prefix."
 
 **Where this fits:** this is the sixth branch of the decision tree (Unit 0): "do latency and cost
-matter? be cache-aware." It builds directly on §11 (prompt caching) and Unit 2 (the cache cost of
+matter? be cache-aware." It builds directly on [Foundations Lesson 11 — Cost, Pricing & Prompt Caching](../../lessons/11-cost-pricing-and-prompt-caching.md) and Unit 2 (the cache cost of
 compacting), pays off Unit 4's promise (the recap belongs at a scheduled reset, not re-inserted
 every turn) and Unit 5's (the head/tail split is what makes a frozen layout possible), and uses
 Unit 7's trigger vocabulary. It points to Unit 11, which can *measure* the one term this unit's
@@ -24,7 +24,7 @@ schedule leaves switched off.
 
 ## The cache is the cost
 
-Recall prompt caching (§11, Unit 2). The server caches the key/value tensors for a prefix of your
+Recall prompt caching ([Lesson 11 — Cost, Pricing & Prompt Caching](../../lessons/11-cost-pricing-and-prompt-caching.md), Unit 2). The server caches the key/value tensors for a prefix of your
 prompt; if the next call's prefix is **byte-for-byte identical**, it reuses that work instead of
 recomputing it. The prices are lopsided: a cache **read** costs on the order of **0.1×** a fresh
 input token, while writing a new cache entry costs **~1.25×** (and about **2×** for a longer cache
@@ -45,7 +45,7 @@ One distinction to keep straight, because the names collide:
 | Term | What it shrinks | Frees window space? |
 |---|---|---|
 | **Context / prompt compression** (this course) | The **input tokens** the model reads | Yes |
-| **Prompt caching** (§11) | The **cost** of an unchanged prefix (KV reuse) | No — it's what compaction *breaks* |
+| **Prompt caching** ([Lesson 11](../../lessons/11-cost-pricing-and-prompt-caching.md)) | The **cost** of an unchanged prefix (KV reuse) | No — it's what compaction *breaks* |
 | **KV-cache compression** (StreamingLLM, H2O, SnapKV) | **Runtime activations** during generation | No — frees no context positions |
 
 This unit is about the middle column: not shrinking the window, but not needlessly discarding the
@@ -160,7 +160,7 @@ is often to *stop disturbing what was already paid for*.
 > rebuilds — paying `R` again and again on their schedule. The anti-thrash floor is part of the
 > defense; the meter that watches the reset rate (below) is the rest.
 
-> **Observe:** this unit emits `compaction` records with `strategy="frozen-reset"`, on the §10
+> **Observe:** this unit emits `compaction` records with `strategy="frozen-reset"`, on the [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md)
 > joining tuple. The example logs two kinds: a *layout* record carrying `layout`
 > (`append-only` / `compact-every-turn`) and the cross-turn `prefix_reused` tokens, and a *schedule*
 > record carrying `trigger="L*"`, the `R` and `c` that went into the formula, and the computed
@@ -204,7 +204,7 @@ is often to *stop disturbing what was already paid for*.
 
 ## Next
 
-**Unit 10 — Prompt-Level Compression:** so far every mechanism has worked on whole messages —
+**[Unit 10 — Prompt-Level Compression](10-prompt-level-compression.md):** so far every mechanism has worked on whole messages —
 keep, drop, summarize, offload. Unit 10 goes inside the text itself: perplexity-based token
 dropping (LLMLingua) and system-prompt trimming, the compression-ratio-versus-capability tradeoff,
 and the robustness caution that makes it risky on small models.

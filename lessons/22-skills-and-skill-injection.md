@@ -255,6 +255,6 @@ and capabilities reinforcing each other.
 
 ## Next
 
-**Section 23 — Agents:** now we compose everything — the tool loop (Section 15), sandboxed
+**[Section 23 — Agents](23-agents.md):** now we compose everything — the tool loop (Section 15), sandboxed
 execution (15–16), retrieval (18–19), guardrails (20), and skills — into an agent that plans
 and takes multiple steps toward a goal.

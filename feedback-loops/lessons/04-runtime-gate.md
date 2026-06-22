@@ -140,7 +140,7 @@ supervision.
 
 ## Next
 
-**Unit 5 — Budget as Feedforward Control:** the loop gate reacts to what already happened. Next you
+**[Unit 5 — Budget as Feedforward Control](05-budget-feedforward.md):** the loop gate reacts to what already happened. Next you
 build a gate that acts on what is *about* to happen — reserving against a projected cost *before*
 the call, and denying it if it would breach the budget. That is feedforward control, and it is how
 you stop an overspend you cannot take back.

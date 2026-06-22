@@ -171,6 +171,6 @@ for *you* to validate (Section 24).
 
 ## Next
 
-**Section 13 — Conversation State & Memory:** the API is stateless — it remembers
+**[Section 13 — Conversation State & Memory](13-conversation-state-and-memory.md):** the API is stateless — it remembers
 nothing between calls. You'll build a multi-turn chat loop yourself and learn to keep its
 history inside the token budget.

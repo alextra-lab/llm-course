@@ -144,7 +144,7 @@ catalog grows with your questions, not ahead of them.
 
 ## Next
 
-**Unit 3 — Spans & the Latency Breakdown:** you can now name *what* happened and join it to a run.
+**[Unit 3 — Spans & the Latency Breakdown](03-spans-and-latency.md):** you can now name *what* happened and join it to a run.
 Next you measure *how long* each part took. You will build a small span timer that breaks a turn
 into phases — setup, context, routing, inference, tools — so you can see where the time goes, which
 is the signal a latency or cost loop acts on.

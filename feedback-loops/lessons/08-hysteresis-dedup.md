@@ -134,7 +134,7 @@ loop in front of it is slow and conservative on purpose.
 
 ## Next
 
-**Unit 9 — Human in the Loop, Async:** a promoted proposal is a candidate change to the agent
+**[Unit 9 — Human in the Loop, Async](09-human-in-the-loop.md):** a promoted proposal is a candidate change to the agent
 itself — too high-stakes to apply automatically. Next you send it to a human over an asynchronous
 channel, read the verdict back, and let it flow into the system: approve, reject (and suppress), or
 re-evaluate. The human's judgment becomes the loop's closing signal.

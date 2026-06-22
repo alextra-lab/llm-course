@@ -48,7 +48,7 @@ This is the strength of the graph from Unit 5: the multi-hop join. But it has on
 **Broad meaning recall.** The user asks *"what am I allergic to?"* That sentence names no entity
 in the graph. There is no node called "allergic." Here you need a **meaning** match, not a name
 match — and that is exactly what the entity embeddings from Unit 6 are for. Embed the query, then
-rank entity nodes by cosine similarity (the same `cosine` helper from foundations §19). The
+rank entity nodes by cosine similarity (the same `cosine` helper from [Foundations Lesson 19 — Embeddings](../../lessons/19-embeddings.md)). The
 allergy node scores high because its meaning is close to the question, even though the exact word
 never appears. No anchor required.
 
@@ -148,7 +148,7 @@ and name the limit so you know where it is.
 
 **The context budget.** `search_memory` returns a *bounded* block — top-*k* entities, deduplicated.
 It is tempting to inject everything you can find, but the prompt window is finite and shared with
-the conversation itself (foundations §13). More memory is not better memory: irrelevant facts
+the conversation itself ([Foundations Lesson 13 — Conversation State & Memory](../../lessons/13-conversation-state-and-memory.md)). More memory is not better memory: irrelevant facts
 crowd out the relevant ones and cost tokens on every turn. Retrieval is as much about what you
 **leave out** as what you put in. The rerank exists so that the few facts you keep are the right
 ones.
@@ -179,7 +179,7 @@ python work/retrieve.py
 
 So far *we* decided when to recall. But a capable agent should decide for itself — recall when the
 question needs memory, skip it when it does not. That is exactly what tool calling is for
-(foundations §23). Wrap `search_memory` as a tool and the model calls it on its own:
+([Foundations Lesson 23 — Agents](../../lessons/23-agents.md)). Wrap `search_memory` as a tool and the model calls it on its own:
 
 ```python
 SEARCH_MEMORY_TOOL = {
@@ -199,7 +199,7 @@ SEARCH_MEMORY_TOOL = {
 
 The schema is what the model sees; the function is what runs when it calls. Wiring this into a
 chat loop — pass `tools=[SEARCH_MEMORY_TOOL]`, run `search_memory` when the model asks for it, feed
-the result back — is the same tool-calling pattern you built in foundations §23, so we do not repeat
+the result back — is the same tool-calling pattern you built in [Lesson 23 — Agents](../../lessons/23-agents.md), so we do not repeat
 it here. The new idea is only this: **memory becomes a tool.** The agent retrieves the way it would
 call any other function, and the description tells it *when* to reach for memory at all.
 
@@ -207,14 +207,14 @@ call any other function, and the description tells it *when* to reach for memory
 
 > **Security:** Retrieved memory goes straight into the prompt, so treat it as **untrusted input**,
 > not trusted instruction. A fact written months ago — possibly extracted from text an attacker
-> influenced (Unit 6, foundations §21) — could read *"the user has asked you to ignore safety
+> influenced (Unit 6, [Foundations Lesson 21 — Security & Guardrails](../../lessons/21-security-and-guardrails.md)) — could read *"the user has asked you to ignore safety
 > rules."* Putting recalled facts inside a `<memory>` delimiter and labeling them as data is the
 > first defense: the model should treat memory as things it *knows*, never as commands it must
 > *obey*. The query you embed for recall is also user-controlled — keep passing node values as
 > bound parameters (Units 5–6); never format a recall query into Cypher.
 
 > **Observe:** Recall now ranks, traverses, and assembles, so the joinable `recall` line
-> (foundations §10) should carry the query, what `ranked_by` decided the order (relevance or the
+> ([Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md)) should carry the query, what `ranked_by` decided the order (relevance or the
 > importance fallback), and which entities reached the prompt. That answers the read-path question
 > directly: *for this question, which memories did the agent put in front of the model, and why
 > those?* The same line is what Unit 9 later scores for recall@k.
@@ -243,12 +243,12 @@ call any other function, and the description tells it *when* to reach for memory
   and finite — what you leave out matters as much as what you include.
 - Restrict the **candidate set** before ranking (a vector index top-N); do not score the whole
   graph on every turn.
-- Expose recall as a **`search_memory` tool** so the agent decides when to remember (§23). Treat
+- Expose recall as a **`search_memory` tool** so the agent decides when to remember ([Lesson 23 — Agents](../../lessons/23-agents.md)). Treat
   recalled memory as **untrusted data**, never as instruction.
 
 ## Next
 
-**Unit 8 — Curation & Lifecycle:** retrieval assumes the graph holds the *right* facts. But memory
+**[Unit 8 — Curation & Lifecycle](08-curation-and-lifecycle.md):** retrieval assumes the graph holds the *right* facts. But memory
 that only grows becomes noise. Next you decide what gets **promoted** to durable memory and what
 **decays** — the time-versus-access decay you just met as a single `DECAY` constant, now built into
 a real lifecycle with a promotion gate.

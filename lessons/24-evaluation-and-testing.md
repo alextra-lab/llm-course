@@ -162,6 +162,6 @@ whole dataset through this and you have an automated quality score for open-ende
 
 ## Next
 
-**Section 25 — Capstone:** you'll combine everything — retrieval, tools, an agent loop,
+**[Section 25 — Capstone](25-capstone.md):** you'll combine everything — retrieval, tools, an agent loop,
 structured output, observability, cost tracking, and an eval — into one small end-to-end
 application.

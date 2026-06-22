@@ -14,7 +14,7 @@ run in CI.
 
 **Where this fits:** this is the consolidation the course promised in Unit 0, where the `Observe`
 note was announced beside the `Security` note. It does not add a compaction mechanism; it reads the
-telemetry that Units 1–10 already emit (the §10 joining tuple) and closes the loop. It feeds back
+telemetry that Units 1–10 already emit (the [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md) joining tuple) and closes the loop. It feeds back
 into Unit 9 (the quality slope its schedule leaves switched off) and forward into Unit 12, where the
 capstone surfaces these signals to the user.
 
@@ -22,7 +22,7 @@ capstone surfaces these signals to the user.
 
 ## The records were always for this
 
-Recall what each unit logged, all with the same `session_id`/`trace_id`/`step` tuple (§10):
+Recall what each unit logged, all with the same `session_id`/`trace_id`/`step` tuple ([Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md)):
 
 | Unit | Record | The question it lets you answer later |
 |---|---|---|
@@ -117,7 +117,7 @@ flowchart TD
     M2 -->|"reported, not gated"| WARN["Warning: watch the trend<br/>(does not fail the build)"]
 ```
 
-> **Security:** the quality log is itself sensitive, in two ways. First, redaction (Unit 1, §10
+> **Security:** the quality log is itself sensitive, in two ways. First, redaction (Unit 1, [Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md)
 > R5): the harness joins on *identifiers*, and an identifier can be a secret (a token, an internal
 > hostname) — so log the *shape* and hashed or scoped ids, never raw content, or the quality log
 > becomes a leak. Second, a gate is a target: an attacker who can influence what counts as a "miss"
@@ -147,7 +147,7 @@ flowchart TD
 
 ## Recap
 
-- Every unit's record was **for this**: joined on the §10 tuple and ordered by `step`, the pile of
+- Every unit's record was **for this**: joined on the [Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md) tuple and ordered by `step`, the pile of
   log lines becomes a timeline you can measure.
 - The **headline loop** is `referenced_later`: join the identifiers a compaction **dropped** against
   the ones a later turn **referenced**. A miss is a measured quality failure the compression ratio
@@ -162,7 +162,7 @@ flowchart TD
 
 ## Next
 
-**Unit 12 — The Measured Default:** the capstone. Wire the whole arc into one agent — the decision
+**[Unit 12 — The Measured Default](12-the-measured-default.md):** the capstone. Wire the whole arc into one agent — the decision
 tree from "do nothing" to cache-aware, the four-mechanism taxonomy, the session meter that surfaces
 all of this to the user — and the honest closing move: when the cheapest tokens are the ones you
 never generate, *decompose the task* instead of compressing the giant.

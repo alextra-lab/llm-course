@@ -26,14 +26,14 @@ section composes them into something you'd actually ship a v0 of.
 An "Acme support assistant" that answers customer questions about a (made-up) company:
 
 ```
-question ─▶ agent loop ─▶ [ search_kb tool ]  (retrieval, §19/20)
-                         [ calculate tool ]   (tools, §14/15)
+question ─▶ agent loop ─▶ [ search_kb tool ]  (retrieval, Sections 19–20)
+                         [ calculate tool ]   (tools, Sections 14–15)
                               │
-                         every model call is logged (§10) and costed (§11)
+                         every model call is logged (Section 10) and costed (Section 11)
                               │
-                         final answer (grounded; "I don't know" if unknown, §20/21)
+                         final answer (grounded; "I don't know" if unknown, Sections 20–21)
 
-then: a tiny eval suite scores it (§24)
+then: a tiny eval suite scores it (Section 24)
 ```
 
 Every arrow is something you already built. The capstone is wiring them together.
@@ -45,7 +45,7 @@ Every arrow is something you already built. The capstone is wiring them together
 Create **`work/capstone.py`**. Bring in each capability in turn — this is a tour of the
 course in one file.
 
-**1. Cost + observability (§10, §11)** — wrap the chat call so every call is logged and
+**1. Cost + observability ([Section 10](10-observability-and-logging.md), [Section 11](11-cost-pricing-and-prompt-caching.md))** — wrap the chat call so every call is logged and
 its cost accumulated:
 
 ```python
@@ -67,7 +67,7 @@ def chat(**kwargs):
     return r
 ```
 
-**2. Retrieval tool (§19, §20)** — search the knowledge base. Use embeddings if
+**2. Retrieval tool ([Section 19](19-embeddings.md), [Section 20](20-retrieval-augmented-generation.md))** — search the knowledge base. Use embeddings if
 `EMBED_MODEL` is set, otherwise fall back to keyword search so it always runs:
 
 ```python
@@ -96,7 +96,7 @@ else:
         return "\n".join(hits[:2]) if hits else "no results"
 ```
 
-**3. A safe tool + registry (§14, §21)** — the calculator, with the no-`eval` parser, and
+**3. A safe tool + registry ([Section 14](14-tool-and-function-calling.md), [Section 21](21-security-and-guardrails.md))** — the calculator, with the no-`eval` parser, and
 a registry so only known tools run:
 
 ```python
@@ -113,7 +113,7 @@ def calculate(expression):
 TOOLS = {"search_kb": search_kb, "calculate": calculate}
 ```
 
-**4. The agent loop (§15, §23)** — the same engine, now using `chat()` so every step is
+**4. The agent loop ([Section 15](15-the-tool-use-loop.md), [Section 23](23-agents.md))** — the same engine, now using `chat()` so every step is
 logged and costed, with a `max_steps` guard:
 
 ```python
@@ -148,7 +148,7 @@ def agent(question, max_steps=6):
     return "(stopped: reached max_steps)"
 ```
 
-**5. Run it, then evaluate it (§24)**:
+**5. Run it, then evaluate it ([Section 24](24-evaluation-and-testing.md))**:
 
 ```python
 for q in ["What's the return window, and how many weeks is that?", "Who founded Acme and where?"]:
@@ -196,14 +196,14 @@ This v0 is deliberately minimal. Pick a few:
 Across twenty-four sections you built, from primitives, the ability to:
 
 - **Talk to a model** over raw HTTP and the SDK, and understand the messages↔template
-  layer (§1–2).
+  layer (Sections 1–2).
 - **Control and understand output** — tokens, the context window, sampling, reasoning
-  (§4–6).
+  (Sections 4–6).
 - **Make output trustworthy** — structured output with validation, streaming, robustness
-  (§7–9).
-- **Run it responsibly** — observability and cost/caching (§10–11).
+  (Sections 7–9).
+- **Run it responsibly** — observability and cost/caching (Sections 10–11).
 - **Build real applications** — prompt engineering, conversation memory, tools, the tool
-  loop, embeddings, RAG, security, agents, and evaluation (§12–24).
+  loop, embeddings, RAG, security, agents, and evaluation (Sections 12–24).
 - **Compose it all** into a working app — and you wrote every line yourself.
 
 From here, the same primitives scale: swap the toy knowledge base for a vector database,

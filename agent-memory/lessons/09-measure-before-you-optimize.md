@@ -147,7 +147,7 @@ including this course's.
 > win one by sacrificing the other). The goal is a memory the user trusts, not a leaderboard.
 
 > **Observe:** The metrics here are not a separate machinery — recall@k, MRR, and nDCG are
-> computed *from* the recalls you have been logging since Unit 2 (foundations §10), scored against
+> computed *from* the recalls you have been logging since Unit 2 ([Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md)), scored against
 > your labeled ids. The joinable line is the raw data; the metric is the summary. That closes the
 > loop the whole course turns on: *did this change to recall actually raise the number, or did it
 > only feel better?*
@@ -177,6 +177,6 @@ including this course's.
 
 ## Next
 
-**Unit 10 — Observability & Privacy:** measurement tells you *how well* memory works; observability
+**[Unit 10 — Observability & Privacy](10-observability-and-privacy.md):** measurement tells you *how well* memory works; observability
 tells you *what it did and for whom*. Next you make memory access **joinable** in your telemetry,
 add **visibility scopes** and PII handling, and close the **Cypher injection** door for good.

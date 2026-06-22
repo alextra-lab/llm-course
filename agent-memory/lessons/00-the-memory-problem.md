@@ -15,14 +15,14 @@ to be its own course.
 The foundations course ended Section 13 with a hint: *"Persisting facts across sessions is a
 database problem, not a model one — store the facts, then retrieve and inject the relevant
 ones."* That one sentence contains many design decisions. This course develops it. You will
-build on §13 (history), §19 (embeddings), §20 (RAG), and §23 (agents), and will not teach
+build on [Foundations Lesson 13 — Conversation State & Memory](../../lessons/13-conversation-state-and-memory.md), [Foundations Lesson 19 — Embeddings](../../lessons/19-embeddings.md), [Foundations Lesson 20 — Retrieval-Augmented Generation (RAG)](../../lessons/20-retrieval-augmented-generation.md), and [Foundations Lesson 23 — Agents](../../lessons/23-agents.md), and will not teach
 them again.
 
 ---
 
 ## Two different problems, one word
 
-In §13 you made a stateless API hold a conversation by resending the whole `messages` list
+In [Lesson 13 — Conversation State & Memory](../../lessons/13-conversation-state-and-memory.md) you made a stateless API hold a conversation by resending the whole `messages` list
 every turn. You kept it within the budget with a sliding window and summarization. That is
 **context management**: everything serves *this* conversation, *right now*. When the session
 ends, all of it disappears — and that is on purpose.
@@ -32,7 +32,7 @@ new session, that you are allergic to shellfish, that you already rejected the b
 and that "the migration" means the Postgres one and not the Python 2 one. None of that is in
 the current `messages` list. It must be *stored* when learned and *retrieved* when relevant.
 
-| | Context management (§13) | Memory (this course) |
+| | Context management ([Lesson 13](../../lessons/13-conversation-state-and-memory.md)) | Memory (this course) |
 |---|---|---|
 | **Scope** | One conversation | Across sessions, indefinitely |
 | **Lives in** | The `messages` list you resend | A datastore you write to and query |
@@ -62,7 +62,7 @@ lossy copy of *one conversation*, and it has three properties that make it not r
 That third point is the main reason this course later uses a graph. Remember it; it returns
 in Unit 4.
 
-You can see the gap with the foundations code. Run a §13 chat, then start the script again
+You can see the gap with the foundations code. Run a [Lesson 13](../../lessons/13-conversation-state-and-memory.md) chat, then start the script again
 as a second, separate session:
 
 ```python
@@ -85,9 +85,9 @@ it will tell you to stop early if a graph is more than you need:
 > **The thesis, as a decision tree** *(you will build every branch; the full version is
 > Unit 11):*
 >
-> 1. **Do you need memory across sessions at all?** No → window/summarize (§13). Stop. You're done.
+> 1. **Do you need memory across sessions at all?** No → window/summarize ([Lesson 13](../../lessons/13-conversation-state-and-memory.md)). Stop. You're done.
 > 2. **Are the facts mostly independent lookups?** Yes → a vector store / plain RAG
->    (§19–20) is enough. Do not build a graph.
+>    (Foundations Lessons 19–20) is enough. Do not build a graph.
 > 3. **Do you need to *correlate* facts — multi-hop, "who/what/when across history"?**
 >    Yes → now a graph is worth its extra complexity.
 > 4. **Is the memory shaped by ongoing conversation** (not a fixed corpus)? → prefer
@@ -125,7 +125,7 @@ something the `messages` list gives you for free.**
 
 > **Observe:** A memory you cannot see is a memory you cannot debug. Every later unit also
 > carries an `Observe` note: it instruments what the unit builds — a joinable
-> `session_id`/`trace_id`/`step` log line, reused from foundations §10 — and names the
+> `session_id`/`trace_id`/`step` log line, reused from [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md) — and names the
 > question that telemetry answers ("what did the agent remember, and for whom?", "did recall
 > improve over the baseline?"). Units 9 and 10 are dedicated to measurement and joinable
 > telemetry, but you instrument from the first node you write, not at the end. This is the
@@ -135,7 +135,7 @@ something the `messages` list gives you for free.**
 
 These are thinking-and-experiment tasks; the building starts in Unit 2.
 
-1. **Make the gap concrete.** Run any §13 chat script, teach it a fact, then run it again
+1. **Make the gap concrete.** Run any [Lesson 13](../../lessons/13-conversation-state-and-memory.md) chat script, teach it a fact, then run it again
    from the start and ask for that fact. *Success:* you can say, in one sentence, exactly
    what was lost and why — and which row of the table above describes it.
 2. **Classify your own agent.** Pick a real assistant you would like to build. Follow the
@@ -150,17 +150,17 @@ These are thinking-and-experiment tasks; the building starts in Unit 2.
 ## Recap
 
 - "Memory" names two unrelated problems: **context management** (keep one conversation
-  consistent — §13) and **memory** (know things across sessions — this course).
+  consistent — [Lesson 13](../../lessons/13-conversation-state-and-memory.md)) and **memory** (know things across sessions — this course).
 - Windowing and summarization are context management: lossy, limited to one session, without
   structure, and unable to **correlate** facts learned at different times.
 - Real memory is a **store-then-retrieve** problem over a datastore — the development of
-  §13's final sentence.
+  [Lesson 13](../../lessons/13-conversation-state-and-memory.md)'s final sentence.
 - The course argues for a graph **through a decision tree**, and stays honest: graphs are
   better at multi-hop/relational recall and worse at simple lookup, latency, and cost.
 - Memory is persistent *and* reachable by attackers — what you store, you trust again later.
 
 ## Next
 
-**Unit 1 — A Taxonomy of Memory:** before building, we map the kinds of memory (working,
+**[Unit 1 — A Taxonomy of Memory](01-a-taxonomy-of-memory.md):** before building, we map the kinds of memory (working,
 episodic, semantic, procedural, profile, derived) onto the CoALA frame and decide *which ones
 your agent actually needs* — so you build only what your problem requires.

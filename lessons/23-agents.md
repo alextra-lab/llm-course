@@ -257,6 +257,6 @@ mistake compounds. The habits that keep them sane are ones you've already met:
 
 ## Next
 
-**Section 24 — Evaluation & Testing:** an agent that *sometimes* works isn't done. We'll
+**[Section 24 — Evaluation & Testing](24-evaluation-and-testing.md):** an agent that *sometimes* works isn't done. We'll
 measure quality with golden tests and an LLM-as-judge so you can tell whether changes
 help or hurt.

@@ -159,6 +159,6 @@ vectors so you embed each document only once.
 
 ## Next
 
-**Section 20 — Retrieval-Augmented Generation (RAG):** combine embeddings with the chat
+**[Section 20 — Retrieval-Augmented Generation (RAG)](20-retrieval-augmented-generation.md):** combine embeddings with the chat
 model — retrieve the most relevant text for a question and feed it in, so the model
 answers from *your* documents instead of guessing.

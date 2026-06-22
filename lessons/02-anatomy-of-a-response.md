@@ -290,6 +290,6 @@ Write these in `work/` (extend or copy `work/inspect_response.py`).
 
 ## Next
 
-**Section 3 — Chat Templates & Harmony:** before we count tokens, we'll look at the step
+**[Section 3 — Chat Templates & Harmony](03-chat-templates-and-harmony.md):** before we count tokens, we'll look at the step
 that turns your `messages` into the string the model actually reads — the chat template —
 and see why even an empty message costs tokens.

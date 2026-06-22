@@ -203,6 +203,6 @@ size. That error is a feature: it's the most reliable way to learn a model's lim
 
 ## Next
 
-**Section 5 — Sampling Parameters:** now that you can measure what goes in and out, you'll
+**[Section 5 — Sampling Parameters](05-sampling-parameters.md):** now that you can measure what goes in and out, you'll
 turn the knobs that control *how the model chooses its words* — and run experiments that
 let you watch the output change.

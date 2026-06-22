@@ -173,6 +173,6 @@ invalid**, and your parse will raise. When you depend on structured output, leav
 
 ## Next
 
-**Section 8 — Blocking vs Streaming:** every call so far waited for the complete answer.
+**[Section 8 — Blocking vs Streaming](08-blocking-vs-streaming.md):** every call so far waited for the complete answer.
 You'll build the other mode — streaming tokens as they're generated — first as raw
 server-sent events, then via the SDK.

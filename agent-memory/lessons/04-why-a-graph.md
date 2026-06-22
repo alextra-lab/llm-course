@@ -72,8 +72,8 @@ a *different tool for a different question*, not a direct replacement for fact l
 
 The decision tree from Unit 0, now with the evidence behind step 3:
 
-1. **No cross-session memory needed?** → window/summarize (§13). Stop.
-2. **Facts mostly independent lookups?** → vector store / RAG (Unit 3, §20). **Stop here — the
+1. **No cross-session memory needed?** → window/summarize ([Foundations Lesson 13 — Conversation State & Memory](../../lessons/13-conversation-state-and-memory.md)). Stop.
+2. **Facts mostly independent lookups?** → vector store / RAG (Unit 3, [Foundations Lesson 20 — Retrieval-Augmented Generation (RAG)](../../lessons/20-retrieval-augmented-generation.md)). **Stop here — the
    evidence says a graph would cost more for no benefit.**
 3. **Need to *correlate* — multi-hop, "who/what/when across history," relational questions?**
    → *now* a graph is worth its complexity. This is the only branch where it is.
@@ -102,7 +102,7 @@ course can give is: *do not build the rest of it.*
 
 > **Observe:** This is a decide unit — you build no graph here — so the note points forward.
 > When you do traverse, the signal to watch is the *hops* and *token cost* of each recall on the
-> joinable line (foundations §10). That turns Unit 4's argument into measurement: did the join
+> joinable line ([Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md)). That turns Unit 4's argument into measurement: did the join
 > surface a fact vector recall missed, and what did the traversal cost? Without that record, "a
 > graph helps here" stays an opinion.
 
@@ -133,6 +133,6 @@ course can give is: *do not build the rest of it.*
 
 ## Next
 
-**Unit 5 — Modeling Memory as a Graph:** the decision is made. You will start Neo4j, model
+**[Unit 5 — Modeling Memory as a Graph](05-modeling-memory-as-a-graph.md):** the decision is made. You will start Neo4j, model
 sessions, entities, and relationships, and run the multi-hop query this unit argued for —
 answering "what city is my employer in?" across facts that were never stated together.

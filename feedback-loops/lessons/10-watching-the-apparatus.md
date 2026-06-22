@@ -107,7 +107,7 @@ and a monitor turns those decisions into a signal a higher loop can act on.
 
 ## Next
 
-**Unit 11 — Meeting the Standard: OpenTelemetry at the Boundary:** walking one run across four
+**[Unit 11 — Meeting the Standard: OpenTelemetry at the Boundary](11-opentelemetry.md):** walking one run across four
 different stores by hand is where the hand-rolled approach finally strains. Next you meet the
 standard that solves exactly this — OpenTelemetry — and learn to map your own trace onto it, and to
 decide *whether* to adopt it rather than assuming you should.

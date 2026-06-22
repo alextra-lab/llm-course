@@ -184,6 +184,6 @@ Section 17 (which removes the files and network entirely).
 
 ## Next
 
-**Section 17 — Sandboxing II:** we climb the ladder. Containers add the filesystem and
+**[Section 17 — Sandboxing II](17-sandboxing-containers-and-postgres.md):** we climb the ladder. Containers add the filesystem and
 network isolation process limits can't, we lock SQL down against a real Postgres, and we
 audit every execution — with pointers to gVisor and Firecracker for when you need more.

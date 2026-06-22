@@ -13,7 +13,7 @@ so an attacker cannot rewrite it.
 
 **Where this fits:** Unit 9 measured *how well* memory recalls. This unit is about *what it did and
 for whom* — the difference between a demo and something you can run for real users. It reuses the
-foundations observability and cost work (§10–§11) and the audit-log pattern (§17), now applied to
+foundations observability and cost work ([Foundations Lessons 10–11](../../lessons/10-observability-and-logging.md)) and the audit-log pattern ([Foundations Lesson 17 — Sandboxing II: Containers & Postgres](../../lessons/17-sandboxing-containers-and-postgres.md)), now applied to
 the graph.
 
 > **Half of this needs no database.** The telemetry and redaction helpers are pure Python and
@@ -38,7 +38,7 @@ def log_event(actor, operation, **fields):
 
 One structured line per operation — `write`, `recall`, `read_node` — each carrying `trace_id`
 (which request), `actor` (who), and `operation` (what). In production you ship these to your log
-store; the join key is `trace_id`. This is the §10–§11 logging discipline, now covering the memory
+store; the join key is `trace_id`. This is the [Lessons 10–11](../../lessons/10-observability-and-logging.md) logging discipline, now covering the memory
 layer specifically, because memory is the part of the system that *remembers* across requests and
 therefore is the hardest to debug after the fact without a trail.
 
@@ -153,7 +153,7 @@ python work/observe.py
 ## Recap
 
 - Emit **joinable telemetry**: one structured line per memory operation, carrying the request's
-  `trace_id`, so memory access can be tied back to the conversation that caused it (§10–§11, §17).
+  `trace_id`, so memory access can be tied back to the conversation that caused it ([Lessons 10–11](../../lessons/10-observability-and-logging.md), [Lesson 17](../../lessons/17-sandboxing-containers-and-postgres.md)).
 - **Redact PII at the boundary** — before a value reaches a log or external system — and apply it
   uniformly so no call site can forget.
 - **Scope memory to an owner** and enforce visibility **inside the query**, not by filtering after
@@ -163,7 +163,7 @@ python work/observe.py
 
 ## Next
 
-**Unit 11 — The Opinionated Default:** the last unit assembles everything — ingestion, the graph,
+**[Unit 11 — The Opinionated Default](11-the-opinionated-default.md):** the last unit assembles everything — ingestion, the graph,
 hybrid retrieval, lifecycle, measurement, and these controls — into a single memory-backed agent,
 and delivers the course's decision tree: when this whole machine is worth building, and when you
 should *not* build it at all.
