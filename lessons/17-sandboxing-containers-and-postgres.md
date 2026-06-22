@@ -97,6 +97,33 @@ You rarely build these yourself — you reach for a host or runtime that provide
 point for this course: know the names and the trade-off (stronger isolation, more
 moving parts) so you can choose deliberately.
 
+## When the sandbox *does* need the network (safely)
+
+`--network none` is the right default, but some tasks genuinely need to reach out — fetch a live
+page, call a company API, query a database, or talk to another internal service. The rule is not
+"network on or off"; it is **open the smallest hole that does the job, and watch it.**
+
+Work outward from deny:
+
+- **Scope the destination, not just "the internet."** Don't trade `--network none` for full
+  egress. Put the sandbox on a network that can reach *only* what it needs — an **egress
+  allowlist** enforced by a proxy (the sandbox's one route out permits a fixed set of hosts), or
+  a private Docker network wired to a single internal service. One API, one host — not the whole web.
+- **Least-privilege credentials.** The sandbox gets a **scoped, short-lived, revocable** token —
+  read-only where possible, rate-limited, and never your master key. This is the network version
+  of the Postgres `sandbox` role below.
+- **Outbound only.** Let it *call out* to known endpoints; never expose it to inbound connections.
+- **Treat every response as untrusted input.** A fetched page or API result flows back into the
+  model — a prime injection vector (Section 21). Bound it (size cap, timeout) like any tool result.
+- **Log every request.** Egress is where exfiltration happens, so record *where* the sandbox
+  connected, the method, and the decision — with payload **size and a redacted summary**, never
+  raw bodies (those carry the secrets). An allowlist you can't audit is a hope, not a control.
+
+So: allow the network when the task's value needs live data or a remote system **and** you can
+scope the destination, scope the credential, and log the traffic. If you can't do all three, stay
+at `--network none`. The locked-down Postgres below is this same principle applied to one specific
+system — least privilege, read-only, bounded, logged.
+
 ## Untrusted SQL: a locked-down Postgres (opt-in)
 
 The team runs Postgres, so here's the database version of the sandbox: let SQL run without
@@ -192,6 +219,6 @@ pointed at security events. The full emitter is
 
 ## Next
 
-**Section 18 — Model Context Protocol (MCP):** with tools defined (13–14) and their execution
+**[Section 18 — Model Context Protocol (MCP)](18-model-context-protocol.md):** with tools defined (13–14) and their execution
 isolated (15–16), the next question is how to *expose and consume* tools as a standard — so a
 server of tools can be shared across apps. That's MCP.

@@ -1,4 +1,8 @@
-# The Observability Standard
+---
+title: "The Observability Standard"
+linkTitle: "Observability Standard"
+type: docs
+---
 
 A shared, cross-course convention for these courses. **Observability is a first-class
 citizen — built *with* the principal code, not bolted on afterward.** A compression you
@@ -35,7 +39,7 @@ never omitted. Same discipline as security.
 
 ### 2. The canonical joinable telemetry artifact (reused, not reinvented)
 
-Every course reuses the foundations telemetry shape from **§10 (Observability & Logging)** —
+Every course reuses the foundations telemetry shape from **[Foundations Lesson 10 — Observability & Logging](lessons/10-observability-and-logging.md)** —
 do **not** invent a new one per course. One structured **JSONL record per operation**,
 stamped with the joining tuple:
 
@@ -47,13 +51,13 @@ stamped with the joining tuple:
 - **`trace_id`** — one logical operation (an agent run, a turn).
 - **`step`** — integer ordering within the trace.
 - Server ids (`response.id`, `x-request-id`) identify *one* call; the tuple above is what
-  ties a whole run together — the "missing-foreign-key" point from §10.
+  ties a whole run together — the "missing-foreign-key" point from [Foundations Lesson 10](lessons/10-observability-and-logging.md).
 
 The reference implementations to copy from:
 
-- **Foundations §10** — `logged_chat(session_id, trace_id, step, **kwargs)` and the
+- **[Foundations Lesson 10 — Observability & Logging](lessons/10-observability-and-logging.md)** — `logged_chat(session_id, trace_id, step, **kwargs)` and the
   joinable-logs section. Source: [`examples/10/log_calls.py`](examples/10/log_calls.py).
-- **Agent Memory §10** — `log_event(actor, operation, **fields)` extends the same line
+- **[Agent Memory Unit 10 — Observability & Privacy](agent-memory/lessons/10-observability-and-privacy.md)** — `log_event(actor, operation, **fields)` extends the same line
   with an `actor`, an `operation`, and **PII redaction at the boundary**. Source:
   [`agent-memory/examples/10/observe.py`](agent-memory/examples/10/observe.py).
 
@@ -90,9 +94,10 @@ small `log_event` helper in its `common_*.py`. Domain records seen in the wild:
 
 ## Per-course application
 
-- **Foundations** — already *implies* observability and meets the bar: a dedicated §10 plus
-  deliberate callbacks in §2, §9, §11, §17, §23 ("make degradation loud"), §24, and §25,
-  with the same JSONL+trace artifact recurring across §10/§17/§23. It is grandfathered: it
+- **Foundations** — already *implies* observability and meets the bar: a dedicated
+  [Foundations Lesson 10 — Observability & Logging](lessons/10-observability-and-logging.md) plus
+  deliberate callbacks in Lessons 2, 9, 11, 17, 23 ("make degradation loud"), 24, and 25,
+  with the same JSONL+trace artifact recurring across Lessons 10/17/23. It is grandfathered: it
   is not required to add the structural `Observe` note retroactively, though it may.
 - **Agent Memory** — **retrofit to first-class.** Today observability is a two-unit
   destination (Unit 9 metrics, Unit 10 telemetry/privacy) and the capstone claims controls
@@ -103,6 +108,10 @@ small `log_event` helper in its `common_*.py`. Domain records seen in the wild:
 - **Context Compression** — **native.** Observability is a stated through-line from the
   start; every unit ships its meter/record alongside the mechanism, Unit 11 consolidates the
   quality-and-feedback harness, and Unit 12 surfaces compaction to the user.
+- **Feedback Loops** — **the subject.** This course makes observability the topic itself: every
+  unit emits the joinable line and closes a loop with it, climbing the autonomy gradient
+  (reflex → reflective → deliberative → meta), with OpenTelemetry at the boundary in Unit 11.
 
-A dedicated **Course 4 (Observability & Feedback)** may later make this theme the subject
-rather than a through-line; these courses keep it welded to the code it watches.
+**Feedback Loops (Course 4)** now makes this theme the *subject* rather than a through-line — the
+loop, not just the log. The other three keep observability welded to the code it watches; this
+standard is the shared contract all four follow.
