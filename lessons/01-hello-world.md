@@ -34,9 +34,10 @@ Throughout this course you'll talk to a **hosted, OpenAI-compatible inference se
 Two phrases there matter:
 
 - **Inference server** — a program that has a model loaded and answers requests. Ours is
-  hosted for you and serves `gpt-oss-120b`. We don't assume *which* server software it
-  runs — only that it speaks the OpenAI API. You don't run it; you just send it HTTP
-  requests.
+  hosted for you and serves **`gpt-oss-120b`** (you set its full id — `openai/gpt-oss-120b` —
+  in the `MODEL` variable below; point it at another OpenAI-compatible model if you prefer).
+  We don't assume *which* server software it runs — only that it speaks the OpenAI API. You
+  don't run it; you just send it HTTP requests.
 - **OpenAI-compatible** — it speaks the same HTTP API that OpenAI popularized:
   `POST /v1/chat/completions`, `GET /v1/models`, and so on. Learn this protocol once and
   the same code talks to OpenAI, vLLM, llama.cpp, and dozens of others.
@@ -243,7 +244,7 @@ For now: **system, user, assistant** is enough to hold a conversation.
 This is the most important concept in the lesson. There are **two representations of the
 same conversation**:
 
-1. **What you write** — a tidy JSON list of `{role, content}` messages.
+1. **What you write** — a clean JSON list of `{role, content}` messages.
 2. **What the model receives** — a single, flat **string of tokens**. The model has no
    concept of "roles" or "a list." It only ever sees text.
 
@@ -342,6 +343,6 @@ Write these from scratch (new files in `work/`). References are listed, but try 
 
 ## Next
 
-**Section 2 — Anatomy of a Response:** you'll dig into the envelope your call returned —
+**[Section 2 — Anatomy of a Response](02-anatomy-of-a-response.md):** you'll dig into the envelope your call returned —
 `choices`, `finish_reason`, and the `usage` block — and learn exactly where each field
 lives before we start changing the model's behavior.

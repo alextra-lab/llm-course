@@ -126,6 +126,6 @@ worth trusting.
 
 ## Next
 
-**Unit 10 — Watching the Apparatus:** you have built loops at every tier. Next you build the loop
+**[Unit 10 — Watching the Apparatus](10-watching-the-apparatus.md):** you have built loops at every tier. Next you build the loop
 that watches *them* — meta-monitoring that checks the observability itself is intact (is the signal
 still joinable?), the gates still fire, and the background loops still run. The observer, observed.

@@ -4,7 +4,7 @@ linkTitle: '3. Chat Templates & Harmony'
 weight: 3
 ---
 
-**Goal:** make the **chat template** concrete — the per-model step that turns your tidy
+**Goal:** make the **chat template** concrete — the per-model step that turns your clean
 `messages` list into the single string of tokens the model actually reads. Once you see it,
 three things that look like magic become obvious: why even an empty message costs tokens,
 why the same text counts differently on different models, and why a "thinking" model can
@@ -212,6 +212,6 @@ count. Either way it's a peek behind the curtain, not something the course depen
 
 ## Next
 
-**Section 4 — Tokens & the Context Window:** now that you know *why* token counts have a
+**[Section 4 — Tokens & the Context Window](04-tokens-and-the-context-window.md):** now that you know *why* token counts have a
 floor and vary by model, you'll measure them in earnest and turn `usage` into a budget:
 input + output must fit in the model's context window.

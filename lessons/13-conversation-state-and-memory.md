@@ -163,5 +163,5 @@ python work/trim.py
 
 ## Next
 
-**Section 14 — Tool / Function Calling:** you'll let the model call *your* code — defining
+**[Section 14 — Tool / Function Calling](14-tool-and-function-calling.md):** you'll let the model call *your* code — defining
 a tool, watching the model ask to use it, running it, and feeding the result back.

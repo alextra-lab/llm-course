@@ -139,7 +139,7 @@ the per-phase totals (Unit 3). That is the full lens. Everything after this *act
 1. **Catch the wall-clock bug.** Build the timer twice — once with `time.time()`, once with
    `time.monotonic_ns()`. *Success:* you can explain a scenario (a clock adjustment) where the
    wall-clock version reports a negative duration and the monotonic one cannot.
-2. **Find the dominant phase.** Instrument a real §23 agent turn (or the example) and print the
+2. **Find the dominant phase.** Instrument a real agent turn from [Foundations Lesson 23 — Agents](../../lessons/23-agents.md) (or the example) and print the
    per-phase totals. *Success:* you can name the phase that dominates and one change that would —
    and one that would *not* — reduce total latency.
 3. **Summarize for a dashboard.** Add a `to_trace_summary()` that returns per-phase
@@ -159,7 +159,7 @@ the per-phase totals (Unit 3). That is the full lens. Everything after this *act
 
 ## Next
 
-**Unit 4 — The First Closed Loop: a Runtime Gate:** you have the lens; now close a loop. You will
+**[Unit 4 — The First Closed Loop: a Runtime Gate](04-runtime-gate.md):** you have the lens; now close a loop. You will
 build a finite-state gate that watches an agent's tool calls and **blocks** a runaway — the
 reflex-tier loop that, in Unit 0's war story, was the one thing that worked. Sense → decide → act,
 in a single turn, emitting its own verdict.

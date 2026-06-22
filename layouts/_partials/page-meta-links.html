@@ -1,0 +1,18 @@
+{{/*
+  Project override of Docsy's page-meta-links.html.
+  Keep the reader-useful links (View Markdown, Print entire section); drop the GitHub
+  contributor cluster (Edit this page / Create child page / New issue / View source),
+  which is maintainer chrome, not for learners.
+*/ -}}
+{{ if .File -}}
+<div class="td-page-meta ms-2 pb-1 pt-2 mb-0">
+{{ with .AlternativeOutputFormats.Get "markdown" -}}
+<a href="{{ .RelPermalink }}" class="td-page-meta__markdown"> {{/**/ -}}
+  <i class="fa-brands fa-markdown fa-fw"></i> {{ T "post_view_markdown" -}}
+</a>
+{{ end -}}
+{{ with .CurrentSection.AlternativeOutputFormats.Get "print" -}}
+  <a id="print" href="{{ .RelPermalink }}"><i class="fa-solid fa-print fa-fw"></i> {{ T "print_entire_section" }}</a>
+{{ end }}
+</div>
+{{ end -}}

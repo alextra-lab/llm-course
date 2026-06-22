@@ -162,6 +162,6 @@ because retrying them is pointless.
 
 ## Next
 
-**Section 10 — Observability & Logging:** now that calls can fail and recover, you'll make
+**[Section 10 — Observability & Logging](10-observability-and-logging.md):** now that calls can fail and recover, you'll make
 the system *visible* — logging the telemetry the API already gives you (usage,
 `finish_reason`, latency, request ids).

@@ -136,7 +136,7 @@ def promotion_gate(client, fact):
     return Verdict.model_validate_json(r.choices[0].message.content)
 ```
 
-The model returns a structured verdict (validated with Pydantic, foundations §7), and — this is
+The model returns a structured verdict (validated with Pydantic, [Foundations Lesson 7 — Handling & Validating Responses](../../lessons/07-handling-and-validating-responses.md)), and — this is
 the part that matters in practice — the agent **narrates** the decision before acting on it:
 
 ```
@@ -179,7 +179,7 @@ coherent over months.
 > surviving bad fact can do. Never let extracted text set its own importance without a gate.
 
 > **Observe:** Curation is an automated editor, so log what it changed: a joinable line
-> (foundations §10) per gate decision (`kept`/`dropped` with importance) and per forget or
+> ([Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md)) per gate decision (`kept`/`dropped` with importance) and per forget or
 > consolidate pass (which nodes decayed, faded, or merged). That answers the question that makes
 > an automated editor safe to run: *what did the gate let in, and what did the lifecycle quietly
 > remove?* — so a forgotten safety fact is visible, not noticed missing later.
@@ -212,7 +212,7 @@ coherent over months.
 
 ## Next
 
-**Unit 9 — Measure Before You Optimize:** every knob in this unit (decay rate, thresholds, gate
+**[Unit 9 — Measure Before You Optimize](09-measure-before-you-optimize.md):** every knob in this unit (decay rate, thresholds, gate
 strictness) changes recall — for better or worse. You cannot tune what you cannot measure. Next
 you build an evaluation harness — recall@k, precision@k, MRR, nDCG — over your memory, so the
 choices in this unit become measured, not guessed.

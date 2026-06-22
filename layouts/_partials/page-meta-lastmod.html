@@ -1,0 +1,11 @@
+{{/*
+  Project override of Docsy's page-meta-lastmod.html.
+  Docsy renders "Last modified <date>: <linked commit subject> (<hash>)".
+  We want the footer to show only the date — drop the commit subject and hash link.
+  .Lastmod comes from git (enableGitInfo = true); no front-matter changes needed.
+*/ -}}
+{{ if and .GitInfo .Site.Params.github_repo -}}
+<div class="td-page-meta__lastmod">
+  {{ T "post_last_mod" }} {{ .Lastmod.Format .Site.Params.time_format_default -}}
+</div>
+{{ end -}}

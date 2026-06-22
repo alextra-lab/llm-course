@@ -175,5 +175,5 @@ the full text, then parse/validate the assembled result.
 
 ## Next
 
-**Section 9 — Robustness:** real networks and servers fail. You'll handle errors, rate
+**[Section 9 — Robustness](09-robustness.md):** real networks and servers fail. You'll handle errors, rate
 limits, timeouts, and retries so a script survives a bad day.

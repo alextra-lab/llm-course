@@ -176,5 +176,5 @@ Two rules people trip on:
 
 ## Next
 
-**Section 15 — The Tool-Use Loop:** one round trip becomes a loop — call, run tools,
+**[Section 15 — The Tool-Use Loop](15-the-tool-use-loop.md):** one round trip becomes a loop — call, run tools,
 feed results, repeat until the model is done. That loop is a mini-agent.

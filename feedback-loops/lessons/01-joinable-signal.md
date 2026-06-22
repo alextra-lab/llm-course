@@ -12,8 +12,8 @@ all belong to *the same run*. You will build a tiny correlation primitive by han
 is an OpenTelemetry-shaped context, built without the SDK; Unit 11 meets the standard.
 
 **Where this fits:** this is the first build of the course and the bottom of the autonomy
-gradient (Unit 0) — pure *sensing*, no loop closed yet. It reuses the foundations §10 telemetry
-line (the joinable tuple) and the agent loop from §23. Units 2 and 3 add a vocabulary and timing
+gradient (Unit 0) — pure *sensing*, no loop closed yet. It reuses the [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md) telemetry
+line (the joinable tuple) and the agent loop from [Foundations Lesson 23 — Agents](../../lessons/23-agents.md). Units 2 and 3 add a vocabulary and timing
 on top of this same tuple; every later loop reads the signal you stamp here.
 
 ---
@@ -39,7 +39,7 @@ exactly when you need it.
 
 ## The tuple: session, trace, step
 
-The fix is a small, mandatory tuple stamped on every record (foundations §10):
+The fix is a small, mandatory tuple stamped on every record ([Foundations Lesson 10](../../lessons/10-observability-and-logging.md)):
 
 | Field | Scope | Answers |
 |---|---|---|
@@ -169,7 +169,7 @@ right — you understand every field.
 
 ## Next
 
-**Unit 2 — An Event Vocabulary, Not Log Lines:** a joinable record is only useful if you can ask
+**[Unit 2 — An Event Vocabulary, Not Log Lines](02-event-vocabulary.md):** a joinable record is only useful if you can ask
 questions of it. You will replace ad-hoc log strings with a small catalog of **semantic events**,
 give each event one fixed shape, and separate the agent's own background traffic from real user
 activity — so the signal is not just joinable, but *queryable*.

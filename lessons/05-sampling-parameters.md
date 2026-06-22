@@ -176,6 +176,6 @@ Same `seed` *(int)* + same inputs → same output. Change the seed → different
 
 ## Next
 
-**Section 6 — Reasoning / "Thinking" Models:** we open up what `gpt-oss-120b` has been
+**[Section 6 — Reasoning / "Thinking" Models](06-reasoning-and-thinking-models.md):** we open up what `gpt-oss-120b` has been
 doing all along — thinking before it answers — and look at reasoning tokens, the
 `reasoning_effort` dial, and what it costs.

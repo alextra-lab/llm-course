@@ -165,6 +165,6 @@ decline." *(Reference: [`examples/20/rag.py`](../examples/20/rag.py).)*
 
 ## Next
 
-**Section 21 — Security & Guardrails:** now that tools (Section 14) and retrieved content
+**[Section 21 — Security & Guardrails](21-security-and-guardrails.md):** now that tools (Section 14) and retrieved content
 (Section 20) put outside text into your prompts, we look at **prompt injection** and how
 to defend against it.

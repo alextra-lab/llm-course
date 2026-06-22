@@ -15,7 +15,7 @@ use the paid, intelligent one if you still need it.
 **Where this fits:** this is the decision tree's fourth branch (Unit 0): "compressing the middle?
 → run a cheap deterministic pre-pass before you pay an LLM summarizer." It sits *inside* Unit 5's
 middle, *before* Unit 4's summarizer in the pipeline. It uses Unit 1's meter to size the saving
-and leans on §4 (tokens) and §23 (tool outputs are the biggest, most resendable thing an agent
+and leans on [Foundations Lesson 4 — Tokens & the Context Window](../../lessons/04-tokens-and-the-context-window.md) (tokens) and [Foundations Lesson 23 — Agents](../../lessons/23-agents.md) (tool outputs are the biggest, most resendable thing an agent
 produces). It points forward to Unit 7 (when this fires) and Unit 8 (when a giant output should be
 *offloaded* and paged back, not just collapsed).
 
@@ -142,7 +142,7 @@ flowchart TD
 
 > **Observe:** this unit emits a `compaction` record with `strategy="prepass"`,
 > `tokens_before`/`tokens_after`, `collapsed` (how many outputs), `tokens_saved`, and a
-> `summarizer_needed` flag — using the §10 joining tuple. The loop it closes is the cheap-before-smart
+> `summarizer_needed` flag — using the [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md) joining tuple. The loop it closes is the cheap-before-smart
 > claim itself: `summarizer_needed=false` is a turn where the free pass fit the window and the paid
 > LLM call was skipped, so over a run you can measure how much of your compaction was handled without
 > model cost — and how often you avoided the summarizer's token, latency, and cache cost entirely.
@@ -177,7 +177,7 @@ flowchart TD
 
 ## Next
 
-**Unit 7 — When to Fire: Triggers & Async Compression:** we have built the *what* (drop, summarize,
+**[Unit 7 — When to Fire: Triggers & Async Compression](07-triggers-and-async.md):** we have built the *what* (drop, summarize,
 head/tail, pre-pass) but left the timing open. Unit 7 builds the triggers — a soft threshold that
 fires compaction in the background and a hard one that blocks — the re-fire cursor that stops it
 repeating too often, and the latency argument for doing it off the critical path.

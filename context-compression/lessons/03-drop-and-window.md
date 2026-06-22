@@ -12,7 +12,7 @@ the prompt fits again, and records every drop — the safe baseline that every s
 later in the course has to beat.
 
 **Where this fits:** this is the second branch of the decision tree (Unit 0). It builds directly
-on §13 (the sliding-window history you already wrote) and on Unit 1's meter and Unit 2's
+on [Foundations Lesson 13 — Conversation State & Memory](../../lessons/13-conversation-state-and-memory.md) (the sliding-window history you already wrote) and on Unit 1's meter and Unit 2's
 threshold — you drop *because* the meter crossed the line. It points forward to Unit 4 (summarize
 what you are about to drop, instead of losing it), Unit 5 (keep a head *and* a tail, so only the
 middle is ever dropped), and Unit 8 (offload a giant artifact instead of deleting it). Think of
@@ -25,7 +25,7 @@ this as the floor: simple, fast, lossy, and the thing to reach for before anythi
 Compression that does not remove tokens is not compression. Once Unit 2's threshold trips, you
 need an action that genuinely shrinks the prompt, and the cheapest one is to **delete the oldest
 messages**. It costs no model call, no extra latency, and — by the recency logic from Unit 0 — it
-removes the turns least likely to matter to the next answer. This is the sliding window from §13,
+removes the turns least likely to matter to the next answer. This is the sliding window from [Lesson 13 — Conversation State & Memory](../../lessons/13-conversation-state-and-memory.md),
 now used on purpose as a compaction step rather than a passive cap.
 
 Why oldest-first, and not (say) the largest message? Because order and structure carry meaning.
@@ -181,7 +181,7 @@ artifact instead of dropping it (Unit 8).
 > meter for the `tool_outputs` spike that signals someone is steering your window.
 
 > **Observe:** this unit emits a `compaction` record — `strategy="drop"`, `trigger`,
-> `tokens_before`, `tokens_after`, and `dropped` (how many messages) — using the §10 joining tuple,
+> `tokens_before`, `tokens_after`, and `dropped` (how many messages) — using the [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md) joining tuple,
 > the first real compaction in the course's through-line. The loop it closes: a drop is a silent
 > deletion unless you record it, so the record turns "the window got smaller somehow" into "we
 > dropped 2 messages at step N, from 9,674 to 221 tokens." The quality half — *was a dropped
@@ -203,7 +203,7 @@ artifact instead of dropping it (Unit 8).
 ## Recap
 
 - The cheapest compaction that actually frees tokens is **drop the oldest turns** — no model
-  call, and by recency the coldest content goes first. This is §13's sliding window used on
+  call, and by recency the coldest content goes first. This is [Lesson 13 — Conversation State & Memory](../../lessons/13-conversation-state-and-memory.md)'s sliding window used on
   purpose.
 - **Anchor the head** (system messages + first user message). A naive window evicts the oldest
   messages, which are the rules and the task; anchoring is what keeps drop-oldest safe.
@@ -216,7 +216,7 @@ artifact instead of dropping it (Unit 8).
 
 ## Next
 
-**Unit 4 — Summarizing Evicted Turns:** dropping throws the old turns away; summarizing keeps a
+**[Unit 4 — Summarizing Evicted Turns](04-summarizing-evicted-turns.md):** dropping throws the old turns away; summarizing keeps a
 lossy trace of them for a fraction of the tokens. You will build a structured compressor — a
 four-section schema (Decisions / Entities / Facts / Open Items), a cheap model, run async with a
 graceful fallback — so the window shrinks without the memory going blank.

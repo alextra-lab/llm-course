@@ -7,7 +7,7 @@ weight: 3
 **Goal:** fix the biggest problem in the Unit 2 baseline. Embed each remembered fact as a
 vector and recall by **meaning** — using cosine similarity — so a user's question retrieves
 the right fact even when the question uses very different words than the stored text. This is
-the same method as foundations §19–20, now applied to *memory* instead of documents.
+the same method as [Foundations Lesson 19 — Embeddings](../../lessons/19-embeddings.md) and [Lesson 20 — Retrieval-Augmented Generation (RAG)](../../lessons/20-retrieval-augmented-generation.md), now applied to *memory* instead of documents.
 
 **Where this fits:** Unit 2's keyword recall failed on "where do I live?" and "what seafood am
 I allergic to?" because it matched strings, not meaning. Embeddings fix exactly that gap. But
@@ -19,7 +19,7 @@ and you can still read along.
 
 ## Recall by meaning, not by string
 
-You built this in §19: an embedding maps text to a vector so that *similar meaning → nearby
+You built this in [Lesson 19 — Embeddings](../../lessons/19-embeddings.md): an embedding maps text to a vector so that *similar meaning → nearby
 vectors*, and cosine similarity measures how near they are. We reuse the same two helpers
 exactly — the point of the foundations course is that you already have this code:
 
@@ -69,7 +69,7 @@ stored fact. This is the whole value of semantic recall: users can ask in their 
 
 > **This is the step-2 branch of the decision tree.** If your agent's memory is a set of
 > mostly independent facts and you only need to fetch the relevant ones, **you are done
-> here** — semantic recall over a vector store is plain RAG (§20), and it is the right tool.
+> here** — semantic recall over a vector store is plain RAG ([Lesson 20 — Retrieval-Augmented Generation (RAG)](../../lessons/20-retrieval-augmented-generation.md)), and it is the right tool.
 > Do not build a graph for this. The rest of the course is for when this is *not* enough.
 
 ## Where embeddings stop
@@ -107,7 +107,7 @@ of the retrieval.
 > embed, you make findable. Control what enters memory (Unit 8) and limit what a given query
 > may retrieve (Unit 10); semantic reach makes both more important, not less.
 
-> **Observe:** Recall now ranks by similarity, so log the same joinable line (foundations §10)
+> **Observe:** Recall now ranks by similarity, so log the same joinable line ([Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md))
 > with `operation="recall"`, the query, and the cosine score of each hit. Beside Unit 2's keyword
 > log, that record answers the one question this unit exists to settle: *on the same questions,
 > did semantic recall beat the keyword baseline, and by how much?* The scores are also how you
@@ -129,7 +129,7 @@ of the retrieval.
 
 - Embedding facts and recalling by **cosine similarity** fixes Unit 2's main weakness: users
   can ask in **their own words**, not the stored words.
-- For a set of **independent** facts, this *is* the answer — vector-store RAG (§20). Do not
+- For a set of **independent** facts, this *is* the answer — vector-store RAG ([Lesson 20](../../lessons/20-retrieval-augmented-generation.md)). Do not
   build more than this.
 - Embeddings do not fix **correlation**: each fact is a separate point, so **multi-hop**
   questions ("employer → its city") cannot be answered by ranking individual facts.
@@ -139,6 +139,6 @@ of the retrieval.
 
 ## Next
 
-**Unit 4 — Why a Graph:** before we use heavier tools, the honest case. When does a graph
+**[Unit 4 — Why a Graph](04-why-a-graph.md):** before we use heavier tools, the honest case. When does a graph
 actually beat strong vector recall — and when does it only cost you more tokens and latency for
 no benefit? We will look at the real benchmark numbers and decide carefully.

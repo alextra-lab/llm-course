@@ -134,7 +134,7 @@ for the risky ones.
 
 ## Next
 
-**Unit 7 — Closing the Reflective Loop:** a reflection nobody reads changes nothing. Next you close
+**[Unit 7 — Closing the Reflective Loop](07-closing-the-loop.md):** a reflection nobody reads changes nothing. Next you close
 the loop — feeding a small, relevant slice of past reflections back into the next turn's context, so
 the agent actually re-reads its own observations. It is the cleanest example in the course of an
 agent's output becoming its future behavior.

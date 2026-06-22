@@ -14,7 +14,7 @@ on demand. Unlike every mechanism so far, this one is **lossless** — and that 
 **Where this fits:** this is the fifth branch of the decision tree (Unit 0): "a single tool
 output or artifact is enormous." It builds on Unit 6 (the one-line descriptor — now backed by
 real bytes you can retrieve) and Unit 5's middle, uses Unit 1's meter to size the win, and leans
-on §13 (history) and §23 (an agent paging bytes back with a tool call). It is the **safe**
+on [Foundations Lesson 13 — Conversation State & Memory](../../lessons/13-conversation-state-and-memory.md) (history) and [Foundations Lesson 23 — Agents](../../lessons/23-agents.md) (an agent paging bytes back with a tool call). It is the **safe**
 counterpart to Unit 6's parked tool-result digest, and it points to Unit 9 (the cache) and Unit
 12 (when the honest fix is to *decompose* the task, not store harder).
 
@@ -70,7 +70,7 @@ lives in [`examples/common_context.py`](../examples/common_context.py).)*
 ## Paging back on demand
 
 A gist is only useful if the full bytes can return when the task actually needs them. In an agent
-(§23) that is a tool call: give the model a `read_blob(handle)` tool, and when a step needs the
+([Lesson 23 — Agents](../../lessons/23-agents.md)) that is a tool call: give the model a `read_blob(handle)` tool, and when a step needs the
 content behind a reference, it calls it and the bytes page back into the window for that turn.
 
 ```python
@@ -142,7 +142,7 @@ picks up: the cheapest bytes are the ones you never bring into the window at all
 > **Observe:** this unit emits a `compaction` record with `strategy="offload"` —
 > `tokens_before`/`tokens_after` (the window reclaimed), `bytes_offloaded`, and the `handle` — plus
 > a separate `page_in` event carrying the `handle`, `bytes_returned`, and an `integrity_ok` flag,
-> all on the §10 joining tuple. The loop it closes is paging *churn*: by joining offload and
+> all on the [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md) joining tuple. The loop it closes is paging *churn*: by joining offload and
 > page_in records on `trace_id` you can see whether you offloaded something and then paged it
 > right back in next turn — a sign the blob belonged in the window, not the store — and you can
 > confirm every page-in passed its integrity check, which is the lossless guarantee made visible.
@@ -178,7 +178,7 @@ picks up: the cheapest bytes are the ones you never bring into the window at all
 
 ## Next
 
-**Unit 9 — Cache-Aware Compaction:** every mechanism so far has treated the prompt cache as a
+**[Unit 9 — Cache-Aware Compaction](09-cache-aware-compaction.md):** every mechanism so far has treated the prompt cache as a
 side note; Unit 9 makes it the subject. KV-cache and prefill economics, the byte-identity
 invariant, why compaction breaks the cache, and the cost-optimal schedule that decides *how often*
 to pay for a rebuild — the central, best-measured win of the whole course.

@@ -14,7 +14,7 @@ honesty rule, because aggressive token-dropping can quietly cost you the answer.
 **Where this fits:** this sits beside the decision tree rather than on one branch — it is a
 *token-level* tool you can apply to any message you keep, especially the fixed parts (the system
 prompt and tool definitions from Unit 1's meter) that ride along every single turn. It uses Unit
-1's meter to measure the ratio and §11's caching as a caution (rewriting a stable system prompt
+1's meter to measure the ratio and [Foundations Lesson 11 — Cost, Pricing & Prompt Caching](../../lessons/11-cost-pricing-and-prompt-caching.md)'s caching as a caution (rewriting a stable system prompt
 breaks its cache, Unit 9). It points to Unit 11, which gives you the capability measurement this
 unit insists you pair with every ratio.
 
@@ -38,7 +38,7 @@ arXiv:2403.12968), reports a more typical **2–5×** on general tasks. A survey
 ## We cannot run the real thing here — so measure the principle
 
 There is a constraint worth naming directly: real LLMLingua needs a small Hugging Face model to
-score perplexity, and this course takes **no Hugging Face downloads and no `tiktoken`** (§4). So we
+score perplexity, and this course takes **no Hugging Face downloads and no `tiktoken`** ([Foundations Lesson 4 — Tokens & the Context Window](../../lessons/04-tokens-and-the-context-window.md)). So we
 do not run LLMLingua; we demonstrate the *principle* with a deterministic trimmer — collapse
 whitespace and drop a fixed filler/stopword list — and measure the same two numbers any
 compression must report together:
@@ -120,7 +120,7 @@ Trim the stable parts statically, once, not on every turn.
 
 > **Observe:** this unit emits a `prompt_compress` record — `tokens_before`/`tokens_after`, the
 > `ratio`, and (when an endpoint is set) a `capability_ok` flag from the full-versus-trimmed answer
-> check — on the §10 joining tuple. The loop it closes is the rule of the unit made measurable: a
+> check — on the [Foundations Lesson 10 — Observability & Logging](../../lessons/10-observability-and-logging.md) joining tuple. The loop it closes is the rule of the unit made measurable: a
 > ratio logged *without* a capability result is the exact gap this unit warns about, so the
 > record carries both, and a run that logs `capability_ok=false` is a compression you can prove hurt
 > the answer rather than helped the bill. Unit 11 turns this pairing into a no-regression gate.
@@ -142,7 +142,7 @@ Trim the stable parts statically, once, not on every turn.
 - Prompt-level compression works **inside** a message: drop the least-informative tokens and keep
   the load-bearing ones. The real method is perplexity-based (**LLMLingua**, up to 20× best-case;
   **LLMLingua-2**, an honest 2–5×); this course shows the *principle* with a deterministic trimmer
-  because it runs no Hugging Face models (§4).
+  because it runs no Hugging Face models ([Lesson 4 — Tokens & the Context Window](../../lessons/04-tokens-and-the-context-window.md)).
 - **Always report ratio and retained capability together.** A ratio alone is meaningless — you can
   always delete more; the question is whether the answer survived ("500xCompressor": 62–73%
   capability at extreme ratios).
@@ -155,7 +155,7 @@ Trim the stable parts statically, once, not on every turn.
 
 ## Next
 
-**Unit 11 — Measuring Compression Quality:** every unit has emitted a record; this one consolidates
+**[Unit 11 — Measuring Compression Quality](11-measuring-compression-quality.md):** every unit has emitted a record; this one consolidates
 them into a harness. The feedback loop (did you drop something referenced later?), before/after
 token curves, whether the *output* changed, and a no-regression gate you can run in CI — the
 through-line becomes a tool.

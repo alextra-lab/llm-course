@@ -142,9 +142,12 @@ Watch the `[step N]` lines: the model calls `calculate`, sees the result, calls
 - **Feed tool errors back, don't crash.** When a tool raises, return the error *as the
   tool result*. The model can read "error: …" and try a different approach — that's the
   loop's superpower.
-- **Parallel tool calls.** One assistant turn can request several tools at once;
-  `msg.tool_calls` is a list, so the `for tc in msg.tool_calls` loop already handles it.
-  You append one `tool` message per call.
+- **Parallel (batched) tool calls — the efficiency lever.** One assistant turn can request
+  several tools at once, when the model and server support it; `msg.tool_calls` is a list, so
+  the `for tc in msg.tool_calls` loop already handles it (append one `tool` message per call).
+  The payoff is efficiency: when those calls are independent, run them **concurrently** (a
+  thread pool or `asyncio`) instead of one after another, and the model gets every result in a
+  **single round-trip** rather than one slow turn per tool.
 
 > **This is already an agent.** "Agent" mostly means *this loop* plus good tools, a
 > guiding system prompt, and stop conditions. Section 23 adds planning and composes it
@@ -177,7 +180,7 @@ Watch the `[step N]` lines: the model calls `calculate`, sees the result, calls
 
 ## Next
 
-**Section 16 — Sandboxing I:** the loop just ran model-chosen tools. The moment a tool
+**[Section 16 — Sandboxing I](16-sandboxing-isolation-and-limits.md):** the loop just ran model-chosen tools. The moment a tool
 does something real — runs code, a shell, SQL — validating arguments isn't enough; you
 need *isolation*. We build a portable sandbox (timeouts, resource limits, an allow-listed
 shell tool) so executing untrusted actions stops being dangerous.

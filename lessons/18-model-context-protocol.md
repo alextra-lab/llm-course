@@ -383,6 +383,6 @@ SDK — so you know what the library is doing for you.
 
 ## Next
 
-**Section 19 — Embeddings:** we switch from *acting* to *meaning* — turning text into
+**[Section 19 — Embeddings](19-embeddings.md):** we switch from *acting* to *meaning* — turning text into
 vectors with the embeddings endpoint and measuring similarity by hand, the foundation for
 retrieval.

@@ -139,7 +139,7 @@ can undo an action, the earlier in the loop you must decide about it.
 
 ## Next
 
-**Unit 6 — Reflection: Self-Critique from Traces:** the reflex loops act in the moment on simple
+**[Unit 6 — Reflection: Self-Critique from Traces](06-reflection.md):** the reflex loops act in the moment on simple
 rules. Next you climb to the **reflective** tier: after a turn finishes, the agent reads its own
 trace and *critiques* it — a slower, judgment-based loop that produces a proposed improvement
 rather than an instant block.

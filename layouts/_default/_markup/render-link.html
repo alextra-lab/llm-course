@@ -1,31 +1,66 @@
 {{- /*
   Link render hook.
 
-  Lessons link to repo files with paths relative to the lesson's own directory,
-  e.g. [common.py](../examples/common.py) or [README](../README.md). Those resolve
-  correctly when reading the markdown in a clone or on GitHub, but would 404 on the
-  built site. Here we rewrite any "../" link to the file's source on GitHub, leaving
-  the source markdown untouched.
+  Lessons use relative links that must work in two places: when reading the markdown
+  in a clone or on GitHub, AND on the built Hugo site. We resolve each relative link
+  against the right source dir with path.Join (which cleans ".."), then rewrite it:
 
-  Courses live at different depths, so "../" resolves to different repo paths:
-    - Foundations lessons come from        lessons/                     (target content/docs/)
-    - Agent Memory lessons come from       agent-memory/lessons/        (target content/agent-memory/)
-    - Context Compression lessons from     context-compression/lessons/ (target content/context-compression/)
-    - Feedback Loops lessons come from     feedback-loops/lessons/      (target content/feedback-loops/)
-  We resolve the link against the right source dir with path.Join (which cleans "..").
+  1. Lesson -> lesson links (a sibling "02-foo.md", or "../../lessons/23-foo.md" across
+     courses) become the *on-site* page URL, so "Next" links and cross-references
+     navigate within the site instead of 404ing. Source dir -> site section base:
+       - lessons/                      -> /docs/
+       - agent-memory/lessons/         -> /agent-memory/
+       - context-compression/lessons/  -> /context-compression/
+       - feedback-loops/lessons/       -> /feedback-loops/
+
+  2. Any other "../" link (examples/*.py, READMEs, OBSERVABILITY.md) keeps pointing at
+     the file's source on GitHub, since those have no on-site page.
+
+  The source markdown is untouched in both cases; only the built HTML href changes.
 */ -}}
 {{- $dest := .Destination -}}
 {{- $external := or (hasPrefix $dest "http://") (hasPrefix $dest "https://") -}}
-{{- if and (not $external) (hasPrefix $dest "../") -}}
-  {{- $srcdir := "lessons" -}}
-  {{- with .Page.File -}}
-    {{- if hasPrefix .Path "agent-memory/" -}}{{- $srcdir = "agent-memory/lessons" -}}{{- end -}}
-    {{- if hasPrefix .Path "context-compression/" -}}{{- $srcdir = "context-compression/lessons" -}}{{- end -}}
-    {{- if hasPrefix .Path "feedback-loops/" -}}{{- $srcdir = "feedback-loops/lessons" -}}{{- end -}}
+
+{{- /* The current page's course source dir. */ -}}
+{{- $srcdir := "lessons" -}}
+{{- $reporoot := false -}}
+{{- with .Page.File -}}
+  {{- if hasPrefix .Path "agent-memory/" -}}{{- $srcdir = "agent-memory/lessons" -}}{{- end -}}
+  {{- if hasPrefix .Path "context-compression/" -}}{{- $srcdir = "context-compression/lessons" -}}{{- end -}}
+  {{- if hasPrefix .Path "feedback-loops/" -}}{{- $srcdir = "feedback-loops/lessons" -}}{{- end -}}
+  {{- /* The Observability Standard is published from repo root: its links are repo-relative. */ -}}
+  {{- if eq .Path "observability-standard.md" -}}{{- $srcdir = "" -}}{{- $reporoot = true -}}{{- end -}}
+{{- end -}}
+
+{{- /* Split off any #fragment so the .md classification and rewrite still work. */ -}}
+{{- $path := $dest -}}
+{{- $frag := "" -}}
+{{- if strings.Contains $dest "#" -}}
+  {{- $parts := split $dest "#" -}}
+  {{- $path = index $parts 0 -}}
+  {{- $frag = printf "#%s" (delimit (after 1 $parts) "#") -}}
+{{- end -}}
+{{- $isDotDot := hasPrefix $path "../" -}}
+{{- $isSiblingMd := and (hasSuffix $path ".md") (not (hasPrefix $path "/")) -}}
+{{- $isRepoRel := and $reporoot (ne $path "") (not (hasPrefix $path "/")) -}}
+{{- if and (not $external) (or $isDotDot $isSiblingMd $isRepoRel) -}}
+  {{- $repopath := path.Join $srcdir $path -}}
+  {{- /* Map a known lesson dir to its on-site section base. */ -}}
+  {{- $siteBase := "" -}}
+  {{- $lessonDir := "" -}}
+  {{- if hasPrefix $repopath "lessons/" -}}{{- $siteBase = "/docs" -}}{{- $lessonDir = "lessons" -}}{{- end -}}
+  {{- if hasPrefix $repopath "agent-memory/lessons/" -}}{{- $siteBase = "/agent-memory" -}}{{- $lessonDir = "agent-memory/lessons" -}}{{- end -}}
+  {{- if hasPrefix $repopath "context-compression/lessons/" -}}{{- $siteBase = "/context-compression" -}}{{- $lessonDir = "context-compression/lessons" -}}{{- end -}}
+  {{- if hasPrefix $repopath "feedback-loops/lessons/" -}}{{- $siteBase = "/feedback-loops" -}}{{- $lessonDir = "feedback-loops/lessons" -}}{{- end -}}
+  {{- if and $siteBase (hasSuffix $repopath ".md") -}}
+    {{- /* Lesson -> lesson: rewrite to the rendered on-site URL (internal link). */ -}}
+    {{- $slug := strings.TrimSuffix ".md" (strings.TrimPrefix (printf "%s/" $lessonDir) $repopath) -}}
+    {{- $dest = printf "%s/%s/%s" $siteBase $slug $frag -}}
+  {{- else if (or $isDotDot $reporoot) -}}
+    {{- /* Non-lesson repo file: link to the source on GitHub. */ -}}
+    {{- $ghbase := printf "%s/blob/%s/" .Page.Site.Params.github_repo .Page.Site.Params.github_branch -}}
+    {{- $dest = printf "%s%s%s" $ghbase $repopath $frag -}}
+    {{- $external = true -}}
   {{- end -}}
-  {{- $repopath := path.Join $srcdir $dest -}}
-  {{- $ghbase := printf "%s/blob/%s/" .Page.Site.Params.github_repo .Page.Site.Params.github_branch -}}
-  {{- $dest = printf "%s%s" $ghbase $repopath -}}
-  {{- $external = true -}}
 {{- end -}}
 <a href="{{ $dest | safeURL }}"{{ with .Title }} title="{{ . }}"{{ end }}{{ if $external }} target="_blank" rel="noopener"{{ end }}>{{ .Text | safeHTML }}</a>

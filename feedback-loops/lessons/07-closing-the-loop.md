@@ -124,7 +124,7 @@ one.
 
 ## Next
 
-**Unit 8 — Hysteresis: Dedup & Promotion:** Unit 7 leaned on `seen_count >= 2` to avoid acting on a
+**[Unit 8 — Hysteresis: Dedup & Promotion](08-hysteresis-dedup.md):** Unit 7 leaned on `seen_count >= 2` to avoid acting on a
 single observation. Next you build the mechanism behind it — fingerprinting reflections to
 deduplicate them, counting recurrences, and promoting only the patterns that persist. It is
 hysteresis as a first-class control technique.
