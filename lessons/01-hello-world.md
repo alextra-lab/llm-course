@@ -30,14 +30,14 @@ abstraction will feel like a convenience, not magic.
 
 ## What you're talking to
 
-Throughout this course you'll talk to a **hosted, OpenAI-compatible inference server**.
-Two phrases there matter:
+Throughout this course you'll talk to an **OpenAI-compatible inference server** that you
+point the code at. Two phrases there matter:
 
-- **Inference server** — a program that has a model loaded and answers requests. Ours is
-  hosted for you and serves **`gpt-oss-120b`** (you set its full id — `openai/gpt-oss-120b` —
-  in the `MODEL` variable below; point it at another OpenAI-compatible model if you prefer).
-  We don't assume *which* server software it runs — only that it speaks the OpenAI API. You
-  don't run it; you just send it HTTP requests.
+- **Inference server** — a program that has a model loaded and answers requests. **You
+  provide it:** set `OPENAI_BASE_URL` to your server and `MODEL` to the model you chose — this
+  course assumes **`gpt-oss-120b`** (whose API id is `openai/gpt-oss-120b`). We don't assume
+  *which* server software it runs — only that it speaks the OpenAI API. You talk to it over
+  plain HTTP.
 - **OpenAI-compatible** — it speaks the same HTTP API that OpenAI popularized:
   `POST /v1/chat/completions`, `GET /v1/models`, and so on. Learn this protocol once and
   the same code talks to OpenAI, vLLM, llama.cpp, and dozens of others.
