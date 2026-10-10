@@ -86,9 +86,10 @@ def undefined_helpers(code):
     return sorted({u for u in used if u in HELPERS and u not in defined})
 
 
-def main():
+def main(patterns):
     problems = []
-    for md in sorted(glob.glob("lessons/*.md")):
+    files = sorted({md for pattern in patterns for md in glob.glob(pattern)})
+    for md in files:
         with open(md, encoding="utf-8") as fh:
             text = fh.read()
         for fn, code in blocks_by_file(text):
@@ -112,4 +113,6 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # Default: the Foundations lessons. A follow-on course can pass its own glob, e.g.
+    #   python scripts/check_lessons.py "creating-mcps/lessons/*.md"
+    sys.exit(main(sys.argv[1:] or ["lessons/*.md"]))

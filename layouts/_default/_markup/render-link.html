@@ -12,8 +12,9 @@
        - agent-memory/lessons/         -> /agent-memory/
        - context-compression/lessons/  -> /context-compression/
        - feedback-loops/lessons/       -> /feedback-loops/
+       - creating-mcps/lessons/        -> /creating-mcps/
 
-  2. Any other "../" link (examples/*.py, READMEs, OBSERVABILITY.md) keeps pointing at
+  2. Any other "../" link (examples/*.py, labs/*.py, READMEs, OBSERVABILITY.md) keeps pointing at
      the file's source on GitHub, since those have no on-site page.
 
   The source markdown is untouched in both cases; only the built HTML href changes.
@@ -28,6 +29,7 @@
   {{- if hasPrefix .Path "agent-memory/" -}}{{- $srcdir = "agent-memory/lessons" -}}{{- end -}}
   {{- if hasPrefix .Path "context-compression/" -}}{{- $srcdir = "context-compression/lessons" -}}{{- end -}}
   {{- if hasPrefix .Path "feedback-loops/" -}}{{- $srcdir = "feedback-loops/lessons" -}}{{- end -}}
+  {{- if hasPrefix .Path "creating-mcps/" -}}{{- $srcdir = "creating-mcps/lessons" -}}{{- end -}}
   {{- /* The Observability Standard is published from repo root: its links are repo-relative. */ -}}
   {{- if eq .Path "observability-standard.md" -}}{{- $srcdir = "" -}}{{- $reporoot = true -}}{{- end -}}
 {{- end -}}
@@ -52,6 +54,7 @@
   {{- if hasPrefix $repopath "agent-memory/lessons/" -}}{{- $siteBase = "/agent-memory" -}}{{- $lessonDir = "agent-memory/lessons" -}}{{- end -}}
   {{- if hasPrefix $repopath "context-compression/lessons/" -}}{{- $siteBase = "/context-compression" -}}{{- $lessonDir = "context-compression/lessons" -}}{{- end -}}
   {{- if hasPrefix $repopath "feedback-loops/lessons/" -}}{{- $siteBase = "/feedback-loops" -}}{{- $lessonDir = "feedback-loops/lessons" -}}{{- end -}}
+  {{- if hasPrefix $repopath "creating-mcps/lessons/" -}}{{- $siteBase = "/creating-mcps" -}}{{- $lessonDir = "creating-mcps/lessons" -}}{{- end -}}
   {{- if and $siteBase (hasSuffix $repopath ".md") -}}
     {{- /* Lesson -> lesson: rewrite to the rendered on-site URL (internal link). */ -}}
     {{- $slug := strings.TrimSuffix ".md" (strings.TrimPrefix (printf "%s/" $lessonDir) $repopath) -}}

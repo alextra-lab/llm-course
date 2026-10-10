@@ -1,0 +1,32 @@
+# The Creating MCPs course needs a newer Python and a few more libraries than the other
+# courses, so it carries its own project file. From the creating-mcps/ folder:
+#
+#     python3.13 -m venv .venv && source .venv/bin/activate
+#     pip install -e .
+#
+# (`uv sync` works too.) The other courses keep using the repo-root requirements.txt.
+[project]
+name = "creating-mcps"
+version = "0.1.0"
+description = "Creating MCPs: giving agents safe, fast, observable access to production systems"
+requires-python = ">=3.13,<4"
+dependencies = [
+    "mcp>=2,<3",              # the official MCP Python SDK, v2 (spec 2026-07-28)
+    "marimo>=0.25",           # the labs
+    "openai>=1.0",            # the model side, via Foundations' examples/common.py
+    "httpx",
+    "psycopg[binary]>=3.2",   # the CMDB (Postgres)
+    "opensearch-py>=3.0",     # the SIEM / log store (OpenSearch)
+]
+
+[project.optional-dependencies]
+dev = ["ruff"]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+# Nothing to package: the course is lessons, examples and labs. This only pins Python and
+# installs the dependencies.
+[tool.setuptools]
+packages = []
