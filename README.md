@@ -15,10 +15,10 @@ it.
 > authoritative — the field moves quickly, and some choices here will date or differ from
 > yours. Verify anything before relying on it in production.
 
-## Three courses in this repo
+## Four courses in this repo
 
-This repo hosts **three** related courses. The foundations course comes first; the other
-two are standalone follow-ons that assume it and can be read in either order:
+This repo hosts **four** related courses. The foundations course comes first; the other
+three are standalone follow-ons that assume it and can be read in any order:
 
 1. **AI Development — Foundations** *(this page)* — build from a raw HTTP request up through
    sampling, tools, sandboxing, embeddings, RAG, and agents. Start at
@@ -33,6 +33,11 @@ two are standalone follow-ons that assume it and can be read in either order:
    windowing, structured summarization, head/middle/tail preservation, offloading and
    paging, cache-aware compaction, and a measured default earned by instrumentation. See
    [`context-compression/README.md`](context-compression/README.md).
+4. **Feedback Loops: Earning Autonomy by Being Observable** — observability as the
+   *subject*, not a through-line: joinable trace signal, an event vocabulary, spans, then a
+   climb up the autonomy gradient — runtime gates, budget feedforward, self-reflection,
+   hysteresis, human-in-the-loop, meta-monitoring, and OpenTelemetry at the boundary. See
+   [`feedback-loops/README.md`](feedback-loops/README.md).
 
 The rest of this page is the foundations course.
 
