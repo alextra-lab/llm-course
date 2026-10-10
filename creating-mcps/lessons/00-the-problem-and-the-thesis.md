@@ -394,6 +394,6 @@ endpoint; the second needs the estate.
 
 ## Next
 
-**Unit 1 — The Current Protocol and a First Server** *(coming next):* you will put §18's
+**[Unit 1 — The Current Protocol and a First Server](01-the-current-protocol-and-a-first-server.md):** you will put §18's
 hand-rolled frames next to the 2026-07-28 protocol — no handshake, no sessions, capabilities on
 every request — and build your first CMDB server with the Python SDK v2.

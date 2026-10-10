@@ -59,6 +59,12 @@ jobs:
       - name: Lesson snippets are self-contained
         run: python scripts/check_lessons.py "creating-mcps/lessons/*.md"
 
+      - name: Unit 1 server and client (in-memory fixture, no estate needed)
+        run: python creating-mcps/examples/01/client.py --tap "$RUNNER_TEMP/frames.jsonl"
+
+      - name: Unit 1 lab runs end to end
+        run: marimo export html creating-mcps/labs/01_protocol_inspector.py -o "$RUNNER_TEMP/01_protocol_inspector.html"
+
   integration:
     runs-on: ubuntu-latest
     needs: static
