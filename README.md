@@ -15,10 +15,10 @@ it.
 > authoritative — the field moves quickly, and some choices here will date or differ from
 > yours. Verify anything before relying on it in production.
 
-## Four courses in this repo
+## Five courses in this repo
 
-This repo hosts **four** related courses. The foundations course comes first; the other
-three are standalone follow-ons that assume it and can be read in any order:
+This repo hosts **five** related courses. The foundations course comes first; the other
+four are standalone follow-ons that assume it and can be read in any order:
 
 1. **AI Development — Foundations** *(this page)* — build from a raw HTTP request up through
    sampling, tools, sandboxing, embeddings, RAG, and agents. Start at
@@ -38,6 +38,12 @@ three are standalone follow-ons that assume it and can be read in any order:
    climb up the autonomy gradient — runtime gates, budget feedforward, self-reflection,
    hysteresis, human-in-the-loop, meta-monitoring, and OpenTelemetry at the boundary. See
    [`feedback-loops/README.md`](feedback-loops/README.md).
+5. **Creating MCPs: Safe, Observable, Bounded Servers for the Enterprise** — building MCP
+   servers that give agents access to enterprise systems under enterprise rules: a CMDB in
+   Postgres and a SIEM in OpenSearch, catalogs and discovery, log and incident search,
+   restrictive vs permissive tools, identity and least privilege, per-caller resource limits,
+   performance, the OWASP MCP Top 10, and audit. Labs use marimo; needs Python 3.13+ and
+   Docker. See [`creating-mcps/README.md`](creating-mcps/README.md).
 
 The rest of this page is the foundations course.
 

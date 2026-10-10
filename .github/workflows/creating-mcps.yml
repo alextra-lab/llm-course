@@ -1,0 +1,102 @@
+name: Creating MCPs
+
+# The Creating MCPs course needs Python 3.13+ and its own dependencies (MCP SDK v2, marimo,
+# psycopg, opensearch-py), so it has its own workflow instead of joining the 3.9 matrix in
+# ci.yml. Two jobs:
+#   * static      -- lint, compile, marimo notebook checks, lesson snippets. No network
+#                    services, no secrets.
+#   * integration -- bring up the estate (Postgres + OpenSearch), seed the small data set and
+#                    run the course preflight against it, the same way a learner does.
+# Neither job calls the model endpoint, so no API key is needed.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "creating-mcps/**"
+      - "examples/18/**"
+      - "scripts/check_lessons.py"
+      - ".github/workflows/creating-mcps.yml"
+  pull_request:
+    paths:
+      - "creating-mcps/**"
+      - "examples/18/**"
+      - "scripts/check_lessons.py"
+      - ".github/workflows/creating-mcps.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install the course
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e "creating-mcps[dev]"
+
+      - name: Lint (Pyflakes rules)
+        run: ruff check --select F creating-mcps
+
+      - name: Compile every source
+        run: python -m py_compile creating-mcps/examples/*.py creating-mcps/examples/*/*.py creating-mcps/env/*.py creating-mcps/env/seed/*.py creating-mcps/labs/*.py
+
+      - name: marimo notebooks are well-formed
+        run: marimo check --strict creating-mcps/labs/*.py
+
+      - name: Lesson snippets are self-contained
+        run: python scripts/check_lessons.py "creating-mcps/lessons/*.md"
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: static
+    defaults:
+      run:
+        working-directory: creating-mcps
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install the course
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Configure the estate
+        # The example passwords are throwaway values for a disposable CI estate.
+        run: cp env/.env.example env/.env
+
+      - name: Start Postgres and OpenSearch
+        run: python env/env.py up
+
+      - name: Seed the small data set
+        run: python env/env.py seed --size small
+
+      - name: Preflight (the same check learners run)
+        run: python env/env.py check --no-llm
+
+      - name: Unit 0 reference solution
+        run: python examples/00/estate_tour.py
+
+      - name: Unit 0 lab runs end to end
+        run: marimo export html labs/00_raw_frames.py -o "$RUNNER_TEMP/00_raw_frames.html"
+
+      - name: Container logs on failure
+        if: failure()
+        run: docker compose --env-file env/.env -f env/compose.yaml logs --tail 200

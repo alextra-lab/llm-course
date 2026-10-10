@@ -47,6 +47,11 @@ defaultContentLanguage = "en"
   [[module.mounts]]
     source = "feedback-loops/lessons"
     target = "content/feedback-loops"
+  # Fifth course: Creating MCPs. Same pattern — its own docs section, with
+  # ../examples, ../labs and ../env links rewritten to GitHub by the render-link hook.
+  [[module.mounts]]
+    source = "creating-mcps/lessons"
+    target = "content/creating-mcps"
   # The Observability Standard: a cross-course reference (not a course), published in place
   # from the repo-root OBSERVABILITY.md. The render-link hook special-cases this page so its
   # repo-relative links resolve (lesson links on-site, example/source links to GitHub).
@@ -98,6 +103,10 @@ defaultContentLanguage = "en"
     name = "Feedback Loops"
     weight = 40
     url = "/feedback-loops/"
+  [[menu.main]]
+    name = "Creating MCPs"
+    weight = 42
+    url = "/creating-mcps/"
   [[menu.main]]
     name = "Observability Standard"
     weight = 45

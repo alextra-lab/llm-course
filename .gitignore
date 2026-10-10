@@ -23,3 +23,9 @@ node_modules/
 
 # Local Claude Code worktrees/state
 .claude/
+
+# Python packaging (pip install -e creating-mcps)
+*.egg-info/
+
+# marimo session caches (written next to notebooks when they run)
+__marimo__/

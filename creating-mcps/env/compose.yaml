@@ -1,0 +1,71 @@
+# The Creating MCPs test estate: the CMDB (Postgres) and the SIEM / log store (OpenSearch).
+#
+# Drive it with env.py rather than docker compose directly:
+#
+#     python env/env.py up      # start and wait until healthy
+#     python env/env.py seed    # schema, personas, and the deterministic data
+#     python env/env.py check   # preflight: what works, and which units each gap affects
+#
+# Everything is configured from env/.env (copy env/.env.example). Images are pinned so every
+# learner, the shared lab server, and CI run the same versions.
+name: ${COMPOSE_PROJECT_NAME:-creating-mcps}
+
+services:
+  postgres:
+    image: postgres:17.11
+    environment:
+      POSTGRES_USER: ${PG_ADMIN_USER:-postgres}
+      POSTGRES_PASSWORD: ${PG_ADMIN_PASSWORD:?set PG_ADMIN_PASSWORD in env/.env}
+      POSTGRES_DB: ${PG_DATABASE:-cmdb}
+    # max_connections is deliberately modest: Unit 8 (resource management) is about what
+    # happens when many agents share a finite pool. Raise it on a shared lab server.
+    command: ["postgres", "-c", "max_connections=${PG_MAX_CONNECTIONS:-100}"]
+    ports:
+      - "${PG_BIND:-127.0.0.1}:${PG_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_ADMIN_USER:-postgres} -d ${PG_DATABASE:-cmdb}"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+
+  opensearch:
+    image: opensearchproject/opensearch:3.9.0
+    environment:
+      discovery.type: single-node
+      # Pin the heap: OpenSearch takes half the machine otherwise. 1g is enough for the
+      # course's default data size; a shared lab server can give it more.
+      OPENSEARCH_JAVA_OPTS: "-Xms${OS_HEAP:-1g} -Xmx${OS_HEAP:-1g}"
+      # The security plugin stays ON: real users, roles, index permissions, and document-
+      # and field-level security are what Unit 7 is about. This password bootstraps the
+      # plugin's DEMO configuration (self-signed certificates) -- fine for a course,
+      # never for production.
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OS_ADMIN_PASSWORD:?set OS_ADMIN_PASSWORD in env/.env}
+    ports:
+      - "${OS_BIND:-127.0.0.1}:${OS_PORT:-9200}:9200"
+    volumes:
+      - osdata:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sk -u admin:$${OPENSEARCH_INITIAL_ADMIN_PASSWORD} https://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  # Optional UI for poking at the logs by hand:  python env/env.py up --ui
+  dashboards:
+    image: opensearchproject/opensearch-dashboards:3.9.0
+    profiles: ["ui"]
+    environment:
+      OPENSEARCH_HOSTS: '["https://opensearch:9200"]'
+      OPENSEARCH_USERNAME: admin
+      OPENSEARCH_PASSWORD: ${OS_ADMIN_PASSWORD}
+    ports:
+      - "${OS_BIND:-127.0.0.1}:${DASHBOARDS_PORT:-5601}:5601"
+    depends_on:
+      opensearch:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  osdata:
