@@ -17,6 +17,7 @@ dependencies = [
     "httpx",
     "psycopg[binary]>=3.2",   # the CMDB (Postgres)
     "opensearch-py>=3.0",     # the SIEM / log store (OpenSearch)
+    "sqlglot>=30",            # Unit 5's SQL guard parses queries before they run
 ]
 
 [project.optional-dependencies]
