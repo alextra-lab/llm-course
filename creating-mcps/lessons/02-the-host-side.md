@@ -603,7 +603,7 @@ the same, so you can do most of the lab without the model.
 
 ## Next
 
-**Unit 3: Catalogs and Discovery** *(coming next)*: the CMDB server moves onto Postgres, and you
+**[Unit 3: Catalogs and Discovery](03-catalogs-and-discovery.md)**: the CMDB server moves onto Postgres, and you
 measure what an agent needs to know about the data before it can ask good questions: a raw
 `information_schema` and `_mapping` dump, against a curated catalog with descriptions,
 sensitivity tags and a per-caller allowlist.

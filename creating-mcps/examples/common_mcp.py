@@ -90,7 +90,13 @@ def pg_connect(persona: str = "l1_analyst", **kwargs):
 def os_client(persona: str = "l1_analyst", **kwargs):
     """An OpenSearch client authenticated *as* a persona (index, field and document
     permissions are enforced by OpenSearch's security plugin)."""
+    import logging
+
     from opensearchpy import OpenSearch
+
+    # opensearch-py logs every request (and every 403) as plain text. On an MCP server that's
+    # stderr, the joinable log's channel, and errors reach the caller as exceptions anyway.
+    logging.getLogger("opensearch").setLevel(logging.CRITICAL)
 
     verify = os.environ.get("OS_VERIFY_CERTS", "0").lower() in ("1", "true", "yes")
     options = dict(

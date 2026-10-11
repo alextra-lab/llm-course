@@ -109,6 +109,41 @@ jobs:
       - name: Unit 0 lab runs end to end
         run: marimo export html labs/00_raw_frames.py -o "$RUNNER_TEMP/00_raw_frames.html"
 
+      - name: Unit 3 catalog agrees with what the estate enforces
+        run: python examples/03/catalog.py --check
+
+      - name: Unit 3 profiler and discovery cost (raw vs curated)
+        run: |
+          python examples/03/profile.py "logs-auth-*"
+          python examples/03/measure.py --persona l1_analyst
+          python examples/03/measure.py --persona l3_responder
+
+      - name: Unit 3 CMDB server on Postgres follows row-level security
+        run: |
+          python - <<'PY'
+          import asyncio, os, sys
+          from mcp import Client, StdioServerParameters
+
+          async def lookup(persona, host):
+              server = StdioServerParameters(command=sys.executable,
+                                             args=["examples/03/cmdb_server.py"],
+                                             env={"MCP_PERSONA": persona})
+              async with Client(server) as client:
+                  return await client.call_tool("get_asset", {"hostname": host})
+
+          l1 = asyncio.run(lookup("l1_analyst", "db-prod-01"))
+          l3 = asyncio.run(lookup("l3_responder", "db-prod-01"))
+          assert l1.is_error, "L1 must not see a restricted host"
+          assert not l3.is_error and l3.structured_content["classification"] == "restricted"
+          print("db-prod-01: hidden from l1_analyst, visible to l3_responder")
+          PY
+
+      - name: Unit 3 eval skips cleanly without a model
+        run: python examples/03/eval_discovery.py
+
+      - name: Unit 3 lab runs end to end
+        run: marimo export html labs/03_catalogs.py -o "$RUNNER_TEMP/03_catalogs.html"
+
       - name: Container logs on failure
         if: failure()
         run: docker compose --env-file env/.env -f env/compose.yaml logs --tail 200
