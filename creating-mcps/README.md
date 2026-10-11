@@ -126,9 +126,9 @@ are published.
 2. **[The Host Side](lessons/02-the-host-side.md)**: the SDK v2 `Client`, bridging tools into
    `gpt-oss-120b`, several servers at once, elicitation with `input_required`. Lab: a chat host
    with a tool-call side panel. ✅
-3. **Catalogs and Discovery**: raw `information_schema` and `_mapping` vs a curated catalog with
-   descriptions, sensitivity tags and a per-caller allowlist; its token cost. Lab: no catalog vs
-   raw vs curated, measured.
+3. **[Catalogs and Discovery](lessons/03-catalogs-and-discovery.md)**: raw `information_schema`
+   and `_mapping` vs a curated catalog with descriptions, sensitivity tags and a per-caller
+   allowlist; its token cost. Lab: no catalog vs raw vs curated, measured. ✅
 4. **Searching Logs and Incidents**: bounded time windows, aggregate first then drill down,
    shaping and paginating results. Lab: investigate the planted incident by hand, then let the
    host do it.

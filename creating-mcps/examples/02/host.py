@@ -66,9 +66,10 @@ class ToolEvent:
 class Host:
     """Holds one Client per server, the merged tool table, and the elicitation route."""
 
-    def __init__(self, servers: dict, ask_user):
+    def __init__(self, servers: dict, ask_user, env: dict | None = None):
         self.servers = servers
         self.ask_user = ask_user          # async (server, ElicitRequestParams) -> ElicitResult
+        self.env = env                    # extra env vars for the servers (Unit 3: MCP_PERSONA)
         self.clients: dict = {}
         self.tools: dict = {}             # namespaced name -> (server, mcp Tool)
         self._stack = AsyncExitStack()
@@ -76,7 +77,8 @@ class Host:
 
     async def __aenter__(self):
         for name, path in self.servers.items():
-            client = Client(StdioServerParameters(command=sys.executable, args=[str(path)]),
+            client = Client(StdioServerParameters(command=sys.executable, args=[str(path)],
+                                                  env=self.env),
                             client_info=Implementation(name="unit2-host", version="0.1"),
                             elicitation_callback=self._elicitation_for(name))
             self.clients[name] = await self._stack.enter_async_context(client)
