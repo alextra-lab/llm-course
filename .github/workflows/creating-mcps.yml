@@ -65,6 +65,12 @@ jobs:
       - name: Unit 1 lab runs end to end
         run: marimo export html creating-mcps/labs/01_protocol_inspector.py -o "$RUNNER_TEMP/01_protocol_inspector.html"
 
+      - name: Unit 2 host starts both servers and builds its tool table
+        run: python creating-mcps/examples/02/host.py --list
+
+      - name: Unit 2 lab runs end to end (manual mode, no model)
+        run: marimo export html creating-mcps/labs/02_chat_host.py -o "$RUNNER_TEMP/02_chat_host.html"
+
   integration:
     runs-on: ubuntu-latest
     needs: static
