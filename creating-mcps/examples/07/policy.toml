@@ -1,0 +1,78 @@
+# Unit 7: the enterprise rules, as data. gateway_server.py evaluates every tool call against
+# this file and logs every verdict, allow and deny alike. Change a rule, restart the server:
+# no code changes. (`python examples/07/policy.py --test` checks the rules against a table of
+# cases first.)
+#
+# Two steps, in order:
+#
+#   1. grants  Which tools each directory group may use at all. A tool you aren't granted is
+#              not in your tools/list, and calling it anyway gets "unknown tool", exactly as
+#              if it didn't exist. No grant, no tool: that's the default deny.
+#   2. rules   Conditions on a granted call, top to bottom; the first rule that matches
+#              decides (deny, or approve = the user must confirm, with a ticket). If no rule
+#              matches, the call is allowed.
+#
+# The backends still enforce rows, indexes and fields underneath. A rule here is for what
+# neither backend can express on its own.
+
+# Directory group (from the token) -> the identity the gateway acts as at the backends.
+[personas]
+soc-l1 = "l1_analyst"
+soc-l3 = "l3_responder"
+audit = "auditor"
+
+[grants]
+soc-l1 = ["get_asset", "find_assets", "service_dependencies", "hosts_with_vulnerability",
+          "count_assets", "list_incidents", "get_incident", "event_histogram", "top_values",
+          "search_events"]
+soc-l3 = ["*"]
+audit = ["count_assets", "hosts_with_vulnerability"]
+# contractors: no grant, so no tools
+
+[[rule]]
+id = "restricted-hosts-stay-restricted"
+description = """A log query about one host must name a host the caller can see in the CMDB.
+Log documents carry no classification, so OpenSearch alone would show an L1 analyst the logs
+of a restricted host that Postgres hides from them."""
+tools = ["list_incidents", "event_histogram", "top_values", "search_events"]
+when = { host_hidden_from_caller = true }
+effect = "deny"
+message = """{host} isn't a host you can see in the CMDB, so its logs aren't available to you
+either. Check the hostname with get_asset, or ask an L3 responder."""
+
+[[rule]]
+id = "no-person-lookups-at-l1"
+description = "Following one named person's activity is an HR-sensitive lookup: L3 only."
+groups = ["soc-l1"]
+tools = ["event_histogram", "top_values", "search_events"]
+when = { filters_any = ["user.name"] }
+effect = "deny"
+message = """Looking up one person's activity is for L3 responders, with a ticket. Filter by
+host or source address instead, or escalate to L3."""
+
+[[rule]]
+id = "person-lookups-need-a-ticket"
+description = "L3 may follow one person's activity, once the user confirms it with a ticket."
+groups = ["soc-l3"]
+tools = ["event_histogram", "top_values", "search_events"]
+when = { filters_any = ["user.name"] }
+effect = "approve"
+message = """This looks up one person's activity ({user}). Give the incident or change ticket
+it's for (e.g. INC-0042); it's recorded in the audit log."""
+
+[[rule]]
+id = "contacts-need-a-ticket"
+description = "Personal contact details (e-mail, phone) are released only against a ticket."
+tools = ["get_contact"]
+effect = "approve"
+message = """This releases {hostname}'s owner's personal e-mail and phone. Give the incident
+ticket it's for (e.g. INC-0042); it's recorded in the audit log."""
+
+[[rule]]
+id = "writes-need-approval"
+description = """Annotations only describe a tool; this enforces them. Anything not marked
+read-only needs the user's confirmation. (Every tool in this unit is read-only, so this never
+fires here; the --test table shows it does.)"""
+when = { read_only = false }
+effect = "approve"
+message = "This tool can change things. Confirm, with the ticket it's for."

@@ -37,6 +37,7 @@ it. `python env/env.py reset` rebuilds the data from scratch at any point.
 | `up [--ui]` | start the containers (and Dashboards with `--ui`), wait for health |
 | `seed [--size small\|default\|large] [--anchor YYYY-MM-DD]` | create personas and roles, load the CMDB and the logs |
 | `reset` | same options as `seed`; drops and rebuilds everything |
+| `security` | re-apply the OpenSearch roles and users without reloading data (after pulling a unit that changes them, as Unit 7 did) |
 | `check [--no-llm]` | preflight the estate, the Python packages and the model endpoint |
 | `status` | show the containers |
 | `down [--volumes]` | stop the containers (and delete the data) |
@@ -62,8 +63,9 @@ For a class, an instructor can run the estate once on a server and have learners
 3. Give OpenSearch a real certificate if you can (or distribute its CA), so learners can set
    `OS_VERIFY_CERTS=1`.
 4. `python env/env.py up && python env/env.py seed`.
-5. Hand out the server's address and the **persona** passwords only. Learners never need the
-   admin credentials.
+5. Hand out the server's address and the **persona** passwords only, including `mcp_service`'s:
+   from Unit 7 on, each learner's MCP servers log in as that gateway account. Learners never
+   need the admin credentials.
 
 **On each learner's machine:**
 
@@ -95,7 +97,7 @@ comes back; none of it is enforced by course code.
 | `l1_analyst` | tier-1 SOC analyst | all tables; **no `restricted` assets** (row-level security); **no `people.email` / `phone`** (column privileges) | `logs-*` and `incidents`; **no EDR**; `user.email` and `labels.api_token` hidden (field-level security) | 10 connections, 5 s per statement |
 | `l3_responder` | tier-3 incident responder | everything | logs, incidents **and** `edr-events-*`; `user.email` **masked** to a stable hash; `labels.api_token` hidden | 20 connections, 15 s |
 | `auditor` | compliance / audit | everything, plus the `audit` schema | only the gateway's own telemetry (`mcp-telemetry-*`) | 5 connections, 15 s |
-| `mcp_service` | the gateway's own login | **nothing directly**: it must `SET ROLE` to the caller it acts for, and may append to `audit.tool_calls` | read logs, EDR and incidents; write its own telemetry (`mcp-telemetry-*`) | 50 connections, 15 s |
+| `mcp_service` | the gateway's own login | **nothing directly**: it must `SET ROLE` to the caller it acts for, and may append to `audit.tool_calls` | **nothing directly**: it impersonates the caller it acts for (`compose.yaml` says whom), and writes its own telemetry (`mcp-telemetry-*`) | 50 connections, 15 s |
 
 The admin accounts (`postgres`, `admin`) are for `up`, `seed` and `reset` only. No lesson
 connects with them, and no MCP server you build should either.

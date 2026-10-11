@@ -32,7 +32,6 @@ import base64
 import hashlib
 import hmac
 import json
-import os
 import secrets
 import sys
 from datetime import UTC, datetime, timedelta
@@ -48,9 +47,9 @@ EXAMPLES = HERE.parent
 sys.path[:0] = [str(HERE), str(EXAMPLES / "03"), str(EXAMPLES)]
 import catalog  # noqa: E402  (Unit 3)
 import windows  # noqa: E402
-from common_mcp import joinable_log, log_note, os_client  # noqa: E402
+from common_mcp import joinable_log, log_note, os_client, persona  # noqa: E402
 
-PERSONA = os.environ.get("MCP_PERSONA", "l1_analyst")
+# Who each call acts for: MCP_PERSONA here; the authenticated caller in Unit 7.
 
 Dataset = Literal["auth", "web", "syslog", "edr"]
 PREFIX = {"auth": "logs-auth", "web": "logs-web", "syslog": "logs-syslog", "edr": "edr-events"}
@@ -76,7 +75,12 @@ DEFAULT_FIELDS = {
 
 _CURSOR_KEY = secrets.token_bytes(32)       # per process: a restart invalidates cursors
 
-MINE = [d for d in PREFIX if catalog.describe(PREFIX[d] + "-*", PERSONA)]
+def mine() -> list[str]:
+    """The log datasets the current caller may search."""
+    return [d for d in PREFIX if catalog.describe(PREFIX[d] + "-*", persona())]
+
+
+MINE = mine()                               # for the instructions: the starting persona's
 
 mcp = MCPServer(
     "siem",
@@ -99,10 +103,10 @@ mcp.middleware.append(joinable_log("siem"))
 def _catalog(dataset: str) -> dict:
     if dataset not in PREFIX:
         raise ToolError(f"unknown dataset {dataset!r}; use one of {sorted(PREFIX)}.")
-    described = catalog.describe(PREFIX[dataset] + "-*", PERSONA)
+    described = catalog.describe(PREFIX[dataset] + "-*", persona())
     if described is None:
         raise ToolError(f"{dataset} logs aren't available to your role. You can search: "
-                        f"{', '.join(MINE) or 'none'}.")
+                        f"{', '.join(mine()) or 'none'}.")
     return described["fields"]
 
 
@@ -179,7 +183,7 @@ def _shape(hit: dict, wanted: list[str], w: windows.Window) -> dict:
 def _search(index: str, body: dict, **params) -> dict:
     """Run a search, noting what it cost the backend in the joinable log."""
     try:
-        r = os_client(PERSONA).search(index=index, body=body, ignore_unavailable=True,
+        r = os_client(persona()).search(index=index, body=body, ignore_unavailable=True,
                                       allow_no_indices=True, **params)
     except Exception as e:  # noqa: BLE001 -- the backend refused or failed: say what to do
         raise ToolError(f"the search failed ({type(e).__name__}). Check the filter values "
@@ -389,7 +393,7 @@ def search_events(dataset: Dataset, start: str, end: str = "now",
         _field(catalog_fields, name, dataset, "return")
     if not 1 <= limit <= MAX_PAGE:
         raise ToolError(f"limit is 1 to {MAX_PAGE}; for more, follow next_cursor.")
-    client = os_client(PERSONA)
+    client = os_client(persona())
 
     if cursor:
         state = _open(cursor)

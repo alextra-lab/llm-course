@@ -97,6 +97,9 @@ jobs:
           print("windows: parsing, refusals and index selection OK")
           PY
 
+      - name: Unit 7 policy decides its table of cases
+        run: python creating-mcps/examples/07/policy.py --test
+
   integration:
     runs-on: ubuntu-latest
     needs: static
@@ -399,6 +402,40 @@ jobs:
 
       - name: Unit 6 lab runs end to end
         run: marimo export html labs/06_tools_for_a_model.py -o "$RUNNER_TEMP/06_tools_for_a_model.html"
+
+      - name: Unit 7 four layers of refusal (tokens, tool lists, backends, policy)
+        run: python examples/07/refusals.py
+
+      - name: Unit 7 stdio mode refuses a bad token and serves a good one
+        run: |
+          python - <<'PY'
+          import asyncio, os, subprocess, sys
+          sys.path[:0] = ["examples/07", "examples"]
+          import issuer
+          from mcp import Client, StdioServerParameters
+
+          bad = subprocess.run([sys.executable, "examples/07/gateway_server.py", "--kind",
+                                "cmdb", "--stdio"], capture_output=True, text=True,
+                               env={**os.environ, "MCP_ACCESS_TOKEN": issuer.issue(
+                                   "priya", "urn:creating-mcps:siem")})
+          assert bad.returncode != 0 and "InvalidAudienceError" in bad.stderr, bad.stderr
+
+          async def main():
+              env = {**os.environ, "MCP_ACCESS_TOKEN": issuer.issue(
+                  "priya", "urn:creating-mcps:cmdb")}
+              params = StdioServerParameters(command=sys.executable, env=env, args=[
+                  "examples/07/gateway_server.py", "--kind", "cmdb", "--stdio"])
+              async with Client(params) as c:
+                  names = [t.name for t in (await c.list_tools()).tools]
+                  assert "get_contact" not in names and "get_asset" in names, names
+                  r = await c.call_tool("get_asset", {"hostname": "db-prod-01"})
+                  assert r.is_error and "no asset named" in r.content[0].text
+          asyncio.run(main())
+          print("stdio: wrong audience refused at start; priya's list and RLS hold")
+          PY
+
+      - name: Unit 7 lab runs end to end
+        run: marimo export html labs/07_identity_and_policy.py -o "$RUNNER_TEMP/07_identity_and_policy.html"
 
       - name: Container logs on failure
         if: failure()

@@ -42,6 +42,10 @@ services:
       # plugin's DEMO configuration (self-signed certificates) -- fine for a course,
       # never for production.
       OPENSEARCH_INITIAL_ADMIN_PASSWORD: ${OS_ADMIN_PASSWORD:?set OS_ADMIN_PASSWORD in env/.env}
+      # Unit 7: the gateway's own login (mcp_service) may act AS these callers by sending
+      # `opendistro_security_impersonate_as: <user>`; the request then runs with that user's
+      # roles, document- and field-level security included. Nobody else may impersonate.
+      plugins.security.authcz.rest_impersonation_user.mcp_service: "l1_analyst,l3_responder,auditor"
     ports:
       - "${OS_BIND:-127.0.0.1}:${OS_PORT:-9200}:9200"
     volumes:

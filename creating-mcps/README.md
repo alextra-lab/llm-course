@@ -140,9 +140,9 @@ are published.
    names, descriptions, parameters, schema vs prose, structured output, annotations, errors
    written as instructions, the token cost of `tools/list`. Lab: the same tools described four
    ways, linted, error-audited and A/B'd on tool selection and recovery. ✅
-7. **Identity, Least Privilege and Enterprise Rules**: who is calling, no token passthrough,
-   per-caller tool lists, identity carried to Postgres and OpenSearch, a policy layer. Lab: four
-   layers of refusal.
+7. **[Identity, Least Privilege and Enterprise Rules](lessons/07-identity-least-privilege-and-enterprise-rules.md)**:
+   who is calling, no token passthrough, per-caller tool lists, identity carried to Postgres
+   and OpenSearch, a policy layer. Lab: four layers of refusal. ✅
 8. **Resource Management: Many Callers, Finite Backends**: concurrency, pools, per-caller rate
    limits and quotas, backpressure the model respects, timeouts and query-cost gates. Lab: a load
    generator with sliders.

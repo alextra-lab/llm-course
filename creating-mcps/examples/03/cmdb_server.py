@@ -2,15 +2,15 @@
 Unit 3: Unit 1's CMDB server, moved from the in-memory fixture onto Postgres.
 
 Same tools, same answers, one difference that matters: every query runs AS a persona
-(`MCP_PERSONA`, default l1_analyst), so Postgres decides what comes back. An L1 analyst asking
-for db-prod-01 (a `restricted` host) gets "no asset named ...": row-level security hid the row
-before this code ever saw it. The column list never selects people.email or people.phone, and
-for an L1 analyst the database would refuse them anyway.
+(`MCP_PERSONA`, default l1_analyst; from Unit 7, the authenticated caller), so Postgres
+decides what comes back. An L1 analyst asking for db-prod-01 (a `restricted` host) gets "no
+asset named ...": row-level security hid the row before this code ever saw it. The column
+list never selects people.email or people.phone, and for an L1 analyst the database would
+refuse them anyway.
 
 One connection per call keeps it simple. Unit 8 replaces that with a bounded pool.
 """
 
-import os
 import sys
 from pathlib import Path
 from typing import Literal, TypedDict
@@ -20,10 +20,10 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))  # creating-mcps/examples/
-from common_mcp import joinable_log, load_env, pg_connect  # noqa: E402
+from common_mcp import joinable_log, load_env, persona, pg_connect  # noqa: E402
 
 load_env()
-PERSONA = os.environ.get("MCP_PERSONA", "l1_analyst")
+# Who each call acts for: MCP_PERSONA here; the authenticated caller in Unit 7.
 
 mcp = MCPServer(
     "cmdb",
@@ -70,7 +70,7 @@ def _asset(row) -> Asset:
 def get_asset(hostname: str) -> Asset:
     """Look up one host in the CMDB by its exact hostname (e.g. jump-prod-02): what it runs,
     where, how sensitive it is, and who owns it."""
-    with pg_connect(PERSONA) as conn:
+    with pg_connect(persona()) as conn:
         row = conn.execute(ASSET_SQL + " WHERE a.hostname = %s",
                            (hostname.strip().lower(),)).fetchone()
     if row is None:
@@ -101,7 +101,7 @@ def find_assets(service: str | None = None,
         where.append("a.environment = %s")
         args.append(environment)
     clause = " WHERE " + " AND ".join(where)
-    with pg_connect(PERSONA) as conn:
+    with pg_connect(persona()) as conn:
         if service is not None and conn.execute(
                 "SELECT 1 FROM cmdb.services WHERE name = %s", (service,)).fetchone() is None:
             names = [r[0] for r in conn.execute("SELECT name FROM cmdb.services ORDER BY 1")]
