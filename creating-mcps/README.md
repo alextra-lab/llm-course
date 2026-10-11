@@ -136,8 +136,10 @@ are published.
    the CMDB and OpenSearch four ways (raw, guarded, task-shaped, and task-shaped with an
    approval hatch), measured on success, tokens, latency and blast radius. Lab: guards by
    hand, blast-radius probes and the comparison grid. ✅
-6. **Designing Tools for a Model Reader**: names, descriptions, granularity, structured output,
-   errors written as instructions, the token cost of `tools/list`. Lab: A/B two descriptions.
+6. **[Designing Tools for a Model Reader](lessons/06-designing-tools-for-a-model-reader.md)**:
+   names, descriptions, parameters, schema vs prose, structured output, annotations, errors
+   written as instructions, the token cost of `tools/list`. Lab: the same tools described four
+   ways, linted, error-audited and A/B'd on tool selection and recovery. ✅
 7. **Identity, Least Privilege and Enterprise Rules**: who is calling, no token passthrough,
    per-caller tool lists, identity carried to Postgres and OpenSearch, a policy layer. Lab: four
    layers of refusal.

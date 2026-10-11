@@ -475,7 +475,7 @@ choice.
 
 ## Next
 
-**Unit 6: Designing Tools for a Model Reader** *(coming next)*: names, descriptions,
+**[Unit 6: Designing Tools for a Model Reader](06-designing-tools-for-a-model-reader.md)**: names, descriptions,
 granularity, structured output and errors written as instructions, measured on the
 restrictive tools from this unit, including what their 2,000-token tool list can lose
 without losing accuracy.

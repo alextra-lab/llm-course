@@ -352,6 +352,54 @@ jobs:
       - name: Unit 5 lab runs end to end
         run: marimo export html labs/05_permission_dial.py -o "$RUNNER_TEMP/05_permission_dial.html"
 
+      - name: Unit 6 tool-list cost, lint and error audit across styles
+        run: |
+          python - <<'PY'
+          import asyncio, sys
+          sys.path[:0] = ["examples/06", "examples/05", "examples"]
+          import errors, lint, styles, toolcost, variants
+          from common_mcp import load_env
+
+          load_env()
+          cost = {s: toolcost.total(asyncio.run(toolcost.measure(s, "l1_analyst")))
+                  for s in styles.STYLES}
+          for s, t in cost.items():
+              print(f"{s:<10} {t['sent']:>6} bytes  ~{t['tokens']} tokens  titles {t['titles']}")
+          sent = {s: t["sent"] for s, t in cost.items()}
+          assert sent["terse"] < sent["original"] < sent["lean"] < sent["rewritten"], sent
+          assert all(t["titles"] > 0 for t in cost.values())
+
+          found = {s: lint.summary(asyncio.run(lint.lint(styles.server_table(s, "l1_analyst"))))
+                   for s in styles.STYLES}
+          found["permissive"] = lint.summary(asyncio.run(lint.lint(
+              variants.servers("permissive", "l1_analyst"))))
+          print(found)
+          assert found["rewritten"] == {"errors": 0, "warnings": 0}, found["rewritten"]
+          assert found["lean"] == {"errors": 0, "warnings": 0}, found["lean"]
+          assert found["terse"].get("D1") == 10 and found["original"]["errors"] == 0
+          assert found["permissive"].get("N1", 0) >= 9
+
+          def mean(rows):
+              graded = [r for r in rows if r["score"] is not None]
+              return sum(r["score"] for r in graded) / len(graded), graded
+
+          good, graded = mean(asyncio.run(errors.audit("original", "l1_analyst")))
+          bad, _ = mean(asyncio.run(errors.audit("original", "l1_analyst", "generic")))
+          lean, lean_rows = mean(asyncio.run(errors.audit("lean", "l1_analyst")))
+          print(f"error audit: original {good:.2f}, generic {bad:.2f}, lean {lean:.2f}")
+          assert len(graded) == len(errors.MISTAKES), "every mistake must be refused"
+          assert not any(r["dangling"] or r["leaks"] for r in graded + lean_rows)
+          assert good >= 2.0 and bad < good and lean >= good - 0.01
+          PY
+
+      - name: Unit 6 golden set matches every style; evals skip cleanly without a model
+        run: |
+          python examples/06/selection.py
+          python examples/06/recovery.py
+
+      - name: Unit 6 lab runs end to end
+        run: marimo export html labs/06_tools_for_a_model.py -o "$RUNNER_TEMP/06_tools_for_a_model.html"
+
       - name: Container logs on failure
         if: failure()
         run: docker compose --env-file env/.env -f env/compose.yaml logs --tail 200
