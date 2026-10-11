@@ -119,9 +119,10 @@ are published.
 0. **[The Problem and the Thesis](lessons/00-the-problem-and-the-thesis.md)**: why MCP, the
    three-things-at-once view, the estate, the decision tree; the same question asked as three
    people. Lab: raw JSON-RPC frames against §18's server. ✅
-1. **The Current Protocol and a First Server**: the 2026-07-28 model (stateless requests,
-   `server/discover`, no sessions), tools/resources/prompts, caching hints; a first CMDB server
-   with SDK v2. Lab: a protocol inspector, §18 and SDK side by side.
+1. **[The Current Protocol and a First Server](lessons/01-the-current-protocol-and-a-first-server.md)**:
+   the 2026-07-28 model (stateless requests, `server/discover`, no sessions),
+   tools/resources/prompts, caching hints; a first CMDB server with SDK v2 and a joinable log.
+   Lab: a protocol inspector, §18 and SDK side by side. ✅
 2. **The Host Side**: the SDK v2 `Client`, bridging tools into `gpt-oss-120b`, several servers at
    once, elicitation with `input_required`. Lab: a chat host with a tool-call side panel.
 3. **Catalogs and Discovery**: raw `information_schema` and `_mapping` vs a curated catalog with

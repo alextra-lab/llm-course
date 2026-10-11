@@ -6,7 +6,8 @@ otherwise repeat -- here, *connecting to the estate as someone*. Every connectio
 persona, because in this course there is no such thing as an anonymous query: who is asking
 decides what comes back (Unit 7 makes that the whole lesson).
 
-Later units add to this file (the joinable trace, the per-caller limiter, the policy client).
+Later units add to this file (the in-memory CMDB fixture in Unit 1; later the joinable trace,
+the per-caller limiter, the policy client). Re-copy it into work/ when a unit says so.
 Scripts import it the same way the Foundations examples import common.py:
 
     import sys
@@ -104,6 +105,46 @@ def os_client(persona: str = "l1_analyst", **kwargs):
         options["ca_certs"] = os.environ["OS_CA_CERTS"]
     options.update(kwargs)
     return OpenSearch(**options)
+
+
+# The CMDB's columns, in the order generate.cmdb() returns them (same as env/seed/cmdb.sql).
+_CMDB_COLUMNS = {
+    "teams": ("id", "name", "email", "oncall_slack"),
+    "people": ("id", "full_name", "email", "phone", "team_id", "title"),
+    "services": ("id", "name", "tier", "owner_team_id", "description"),
+    "service_dependencies": ("service_id", "depends_on_id"),
+    "assets": ("id", "hostname", "ip", "os", "environment", "classification", "service_id",
+               "owner_id", "location", "description", "commissioned"),
+    "vulnerabilities": ("cve_id", "severity", "cvss", "summary"),
+    "asset_vulnerabilities": ("asset_id", "cve_id", "detected_on", "status"),
+}
+FIXTURE_ANCHOR = "2026-10-10"
+
+
+def cmdb_fixture() -> dict[str, list[dict]]:
+    """The estate's CMDB as plain Python data: {table: [row dict, ...]}. No Docker needed.
+
+    Units 1-2 build servers against this so the protocol is the only new thing; Unit 3 moves
+    them onto Postgres. It comes from the same seeded generator as `env.py seed`, so the
+    hostnames, owners and services are the ones in the database (dates use a fixed anchor).
+    Note what it is NOT: it has no personas, so it applies no row or column security --
+    everything is visible to everyone, which is exactly the gap Unit 7 closes.
+    """
+    import random
+
+    seed_dir = COURSE_DIR / "env" / "seed"
+    if str(seed_dir) not in sys.path:
+        sys.path.append(str(seed_dir))
+    import generate
+
+    rows = generate.cmdb(random.Random(generate.SEED), generate.parse_anchor(FIXTURE_ANCHOR))
+    out = {}
+    for table, columns in _CMDB_COLUMNS.items():
+        out[table] = [
+            {c: (v.isoformat() if hasattr(v, "isoformat") else v) for c, v in zip(columns, row)}
+            for row in rows[table]
+        ]
+    return out
 
 
 def llm():
