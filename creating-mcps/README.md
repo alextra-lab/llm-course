@@ -129,9 +129,9 @@ are published.
 3. **[Catalogs and Discovery](lessons/03-catalogs-and-discovery.md)**: raw `information_schema`
    and `_mapping` vs a curated catalog with descriptions, sensitivity tags and a per-caller
    allowlist; its token cost. Lab: no catalog vs raw vs curated, measured. ✅
-4. **Searching Logs and Incidents**: bounded time windows, aggregate first then drill down,
-   shaping and paginating results. Lab: investigate the planted incident by hand, then let the
-   host do it.
+4. **[Searching Logs and Incidents](lessons/04-searching-logs-and-incidents.md)**: bounded
+   time windows, aggregate first then drill down, shaping and paginating results. Lab:
+   investigate the planted incident by hand, then let the host do it. ✅
 5. **The Permission Dial: Restrictive vs Permissive Tools**: the CMDB and OpenSearch each three
    ways (raw, guarded, task-shaped), measured on success, tokens, latency and blast radius. Lab:
    the comparison grid.

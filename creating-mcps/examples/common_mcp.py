@@ -7,7 +7,8 @@ persona, because in this course there is no such thing as an anonymous query: wh
 decides what comes back (Unit 7 makes that the whole lesson).
 
 Later units add to this file (the in-memory CMDB fixture in Unit 1, `trace_meta` and
-`joinable_log` in Unit 2; later the per-caller limiter, the policy client). Re-copy it into
+`joinable_log` in Unit 2, `log_note` in Unit 4; later the per-caller limiter, the policy
+client). Re-copy it into
 work/ when a unit says so.
 Scripts import it the same way the Foundations examples import common.py:
 
@@ -22,6 +23,7 @@ your environment win, so a shared-lab learner can override PG_HOST / OS_HOST in 
 
 from __future__ import annotations
 
+import contextvars
 import os
 import sys
 from pathlib import Path
@@ -124,10 +126,23 @@ def trace_meta(session_id: str, trace_id: str, step: int) -> dict:
 
 
 
+_LOG_NOTES: contextvars.ContextVar[dict] = contextvars.ContextVar("joinable_log_notes")
+
+
+def log_note(**fields) -> None:
+    """Add fields to the current request's joinable-log record (Unit 4): a tool reports what
+    the call cost the backend (indexes, shards, took_ms, hits) without returning it to the
+    model. Outside a logged request it does nothing."""
+    notes = _LOG_NOTES.get(None)
+    if notes is not None:
+        notes.update(fields)
+
+
 def joinable_log(server: str):
     """Unit 1's joinable-log middleware, for any server: one JSONL record per request on stderr,
     stamped with the caller's session_id / trace_id / step from `_meta`. Unit 2 moved it here so
-    every server logs the same way: `mcp.middleware.append(joinable_log("tickets"))`."""
+    every server logs the same way: `mcp.middleware.append(joinable_log("tickets"))`. Unit 4
+    added `log_note`, which merges a tool's own fields into the record."""
     import json
     import time
     import uuid
@@ -154,6 +169,8 @@ def joinable_log(server: str):
             "protocol_version": ctx.protocol_version,
             "trace_origin": "caller" if caller else "server",
         }
+        notes: dict = {}
+        token = _LOG_NOTES.set(notes)
         t0 = time.perf_counter()
         try:
             result = await call_next(ctx)
@@ -171,6 +188,8 @@ def joinable_log(server: str):
             return result
         finally:
             record["ms"] = round((time.perf_counter() - t0) * 1000, 2)
+            _LOG_NOTES.reset(token)
+            record.update({k: v for k, v in notes.items() if k not in record})
             print(json.dumps(record), file=sys.stderr, flush=True)
 
     return middleware
