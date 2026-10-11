@@ -572,6 +572,6 @@ the log. It needs neither the estate nor the model endpoint.
 
 ## Next
 
-**Unit 2: The Host Side** *(coming next)*: you'll build the other end, a host that bridges these
+**[Unit 2: The Host Side](02-the-host-side.md)**: you'll build the other end, a host that bridges these
 tools into `gpt-oss-120b`'s tool calling, runs several servers at once, and handles
 elicitation the 2026 way, with `input_required`.

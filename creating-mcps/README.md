@@ -123,8 +123,9 @@ are published.
    the 2026-07-28 model (stateless requests, `server/discover`, no sessions),
    tools/resources/prompts, caching hints; a first CMDB server with SDK v2 and a joinable log.
    Lab: a protocol inspector, §18 and SDK side by side. ✅
-2. **The Host Side**: the SDK v2 `Client`, bridging tools into `gpt-oss-120b`, several servers at
-   once, elicitation with `input_required`. Lab: a chat host with a tool-call side panel.
+2. **[The Host Side](lessons/02-the-host-side.md)**: the SDK v2 `Client`, bridging tools into
+   `gpt-oss-120b`, several servers at once, elicitation with `input_required`. Lab: a chat host
+   with a tool-call side panel. ✅
 3. **Catalogs and Discovery**: raw `information_schema` and `_mapping` vs a curated catalog with
    descriptions, sensitivity tags and a per-caller allowlist; its token cost. Lab: no catalog vs
    raw vs curated, measured.

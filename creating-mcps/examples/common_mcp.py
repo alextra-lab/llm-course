@@ -6,8 +6,9 @@ otherwise repeat -- here, *connecting to the estate as someone*. Every connectio
 persona, because in this course there is no such thing as an anonymous query: who is asking
 decides what comes back (Unit 7 makes that the whole lesson).
 
-Later units add to this file (the in-memory CMDB fixture in Unit 1; later the joinable trace,
-the per-caller limiter, the policy client). Re-copy it into work/ when a unit says so.
+Later units add to this file (the in-memory CMDB fixture in Unit 1, `trace_meta` and
+`joinable_log` in Unit 2; later the per-caller limiter, the policy client). Re-copy it into
+work/ when a unit says so.
 Scripts import it the same way the Foundations examples import common.py:
 
     import sys
@@ -106,6 +107,67 @@ def os_client(persona: str = "l1_analyst", **kwargs):
     options.update(kwargs)
     return OpenSearch(**options)
 
+
+def trace_meta(session_id: str, trace_id: str, step: int) -> dict:
+    """The joinable tuple for a request's `_meta` (Unit 1): a W3C `traceparent` carrying the
+    trace id, plus this course's own `session_id` and `step` keys."""
+    import secrets
+
+    return {"traceparent": f"00-{trace_id}-{secrets.token_hex(8)}-01",
+            "session_id": session_id, "step": step}
+
+
+
+def joinable_log(server: str):
+    """Unit 1's joinable-log middleware, for any server: one JSONL record per request on stderr,
+    stamped with the caller's session_id / trace_id / step from `_meta`. Unit 2 moved it here so
+    every server logs the same way: `mcp.middleware.append(joinable_log("tickets"))`."""
+    import json
+    import time
+    import uuid
+
+    from mcp.shared.exceptions import MCPError
+
+    async def middleware(ctx, call_next):
+        meta = ctx.meta or {}
+        if not isinstance(meta, dict):
+            meta = meta.model_dump(by_alias=True, exclude_none=True)
+        parts = str(meta.get("traceparent", "")).split("-")
+        caller = len(parts) == 4 and len(parts[1]) == 32
+        params = ctx.params or {}
+        record = {
+            "session_id": meta.get("session_id"),
+            "trace_id": parts[1] if caller else uuid.uuid4().hex,
+            "step": meta.get("step"),
+            "operation": "mcp.request",
+            "server": server,
+            "method": ctx.method,
+            "name": params.get("name") or params.get("uri"),
+            "arg_keys": sorted((params.get("arguments") or {}).keys()),
+            "client": (meta.get("io.modelcontextprotocol/clientInfo") or {}).get("name"),
+            "protocol_version": ctx.protocol_version,
+            "trace_origin": "caller" if caller else "server",
+        }
+        t0 = time.perf_counter()
+        try:
+            result = await call_next(ctx)
+        except MCPError as e:
+            record.update(outcome="error", code=e.error.code)
+            raise
+        except Exception as e:
+            record.update(outcome="crash", error=type(e).__name__)
+            raise
+        else:
+            get = result.get if isinstance(result, dict) else lambda k: getattr(
+                result, {"isError": "is_error", "resultType": "result_type"}[k], None)
+            record["outcome"] = ("input_required" if get("resultType") == "input_required"
+                                 else "tool_error" if get("isError") else "ok")
+            return result
+        finally:
+            record["ms"] = round((time.perf_counter() - t0) * 1000, 2)
+            print(json.dumps(record), file=sys.stderr, flush=True)
+
+    return middleware
 
 # The CMDB's columns, in the order generate.cmdb() returns them (same as env/seed/cmdb.sql).
 _CMDB_COLUMNS = {
