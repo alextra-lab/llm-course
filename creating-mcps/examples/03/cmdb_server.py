@@ -104,8 +104,8 @@ def find_assets(service: str | None = None,
     with pg_connect(PERSONA) as conn:
         if service is not None and conn.execute(
                 "SELECT 1 FROM cmdb.services WHERE name = %s", (service,)).fetchone() is None:
-            raise ToolError(f"unknown service {service!r}; list_datasets / the catalog "
-                            "lists services in cmdb.services.")
+            names = [r[0] for r in conn.execute("SELECT name FROM cmdb.services ORDER BY 1")]
+            raise ToolError(f"no service {service!r}. Services: {', '.join(names)}.")
         total = conn.execute("SELECT count(*) FROM cmdb.assets a JOIN cmdb.services s "
                              "ON s.id = a.service_id" + clause, args).fetchone()[0]
         rows = conn.execute(ASSET_SQL + clause + " ORDER BY a.hostname LIMIT %s",
