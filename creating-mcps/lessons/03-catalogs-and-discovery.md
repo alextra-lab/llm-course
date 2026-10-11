@@ -765,6 +765,7 @@ Pick a persona, then:
 
 ## Next
 
-**Unit 4: Searching Logs and Incidents** *(coming next)*: the OpenSearch server's real tools.
+**[Unit 4: Searching Logs and Incidents](04-searching-logs-and-incidents.md)**: the OpenSearch
+server's real tools.
 You'll build bounded time windows, aggregations before raw hits, and pagination, then
 investigate the planted incident yourself before letting the host do it.

@@ -71,6 +71,32 @@ jobs:
       - name: Unit 2 lab runs end to end (manual mode, no model)
         run: marimo export html creating-mcps/labs/02_chat_host.py -o "$RUNNER_TEMP/02_chat_host.html"
 
+      - name: Unit 4 time windows parse, refuse and pick daily indexes
+        run: |
+          python - <<'PY'
+          import sys
+          from datetime import UTC, datetime, timedelta
+          sys.path.insert(0, "creating-mcps/examples/04")
+          import windows as W
+
+          now = datetime(2026, 10, 11, 12, 0, tzinfo=UTC)
+          w = W.window("2026-10-09T04:00", "2026-10-09T05:00", tz="Europe/Paris",
+                       max_span=timedelta(hours=24), now=now)
+          assert W.iso(w.start) == "2026-10-09T02:00:00Z", w.describe()
+          assert W.daily_indexes("logs-auth", w) == ["logs-auth-2026.10.09"]
+          assert W.daily_indexes("logs-auth", W.window("now-25h", now=now, max_span=W.RETENTION)) \
+              == ["logs-auth-2026.10.10", "logs-auth-2026.10.11"]
+          for args, needle in [(("now-3d",), "at most 24h"), (("now", "now-1d"), "swap"),
+                               (("now-30d",), "retention"), (("yesterday",), "ISO 8601")]:
+              try:
+                  W.window(*args, max_span=timedelta(hours=24), now=now, tool="search_events")
+              except W.WindowError as e:
+                  assert needle in str(e), (args, str(e))
+              else:
+                  raise AssertionError(f"{args} should be refused")
+          print("windows: parsing, refusals and index selection OK")
+          PY
+
   integration:
     runs-on: ubuntu-latest
     needs: static
@@ -143,6 +169,77 @@ jobs:
 
       - name: Unit 3 lab runs end to end
         run: marimo export html labs/03_catalogs.py -o "$RUNNER_TEMP/03_catalogs.html"
+
+      - name: Unit 4 SIEM server bounds, shapes and pages, per persona
+        run: |
+          python - <<'PY'
+          import asyncio, sys
+          from mcp import Client, StdioServerParameters
+
+          async def session(persona, calls):
+              server = StdioServerParameters(command=sys.executable,
+                                             args=["examples/04/siem_server.py"],
+                                             env={"MCP_PERSONA": persona})
+              async with Client(server) as client:
+                  return await calls(client)
+
+          def text(r):
+              return r.content[0].text if r.content else ""
+
+          async def l1(c):
+              inc = (await c.call_tool("get_incident", {"incident_id": "INC-0042"})).structured_content
+              win = inc["suggested_window"]
+              fail = {"event.outcome": "failure"}
+              hist = (await c.call_tool("event_histogram", {"dataset": "auth", **win,
+                                                            "filters": fail})).structured_content
+              assert hist["peak"]["count"] >= 250 and hist["total"] >= 1500, hist["peak"]
+              top = (await c.call_tool("top_values", {"dataset": "auth", "field": "source.ip",
+                                                      **win, "filters": fail})).structured_content
+              assert top["values"][0] == {"value": "203.0.113.77", "count": 1500}, top["values"][0]
+              args = {"dataset": "auth", **win, "filters": {"source.ip": "203.0.113.77"},
+                      "limit": 5}
+              p1 = (await c.call_tool("search_events", args)).structured_content
+              assert p1["total"] == 1501 and p1["total_exact"] and "hint" in p1
+              p2 = (await c.call_tool("search_events", {**args, "cursor": p1["next_cursor"]})).structured_content
+              assert p2["page"] == 2 and p2["events"][0]["@timestamp"] >= p1["events"][-1]["@timestamp"]
+              assert p2["events"] != p1["events"]
+              refusals = {
+                  "different search": ("search_events", {**args, "filters": {}, "cursor": p1["next_cursor"]}),
+                  "isn't one this server issued": ("search_events", {**args, "cursor": p1["next_cursor"][:-4] + "beef"}),
+                  "at most 24h": ("search_events", {"dataset": "auth", "start": "now-3d"}),
+                  "aren't available to your role": ("search_events", {"dataset": "edr", **win}),
+                  "isn't a web field you can use": ("search_events", {"dataset": "web", **win,
+                                                                      "filters": {"user.email": "x"}}),
+              }
+              for needle, (tool, a) in refusals.items():
+                  r = await c.call_tool(tool, a)
+                  assert r.is_error and needle in text(r), (needle, text(r))
+              print("l1_analyst: incident, histogram, top values, paging and refusals OK")
+
+          async def l3(c):
+              edr = (await c.call_tool("search_events", {
+                  "dataset": "edr", "start": "now-21d", "end": "now-20d"})).structured_content
+              assert "total" in edr
+              r = await c.call_tool("search_events", {"dataset": "web", "start": "now-2d",
+                                                      "end": "now-1d", "filters": {"user.email": "x"}})
+              assert r.is_error and "masked" in text(r), text(r)
+              t = (await c.call_tool("top_values", {"dataset": "web", "field": "user.email",
+                                                    "start": "now-3d"})).structured_content
+              assert len(t["values"][0]["value"]) == 64            # a stable hash, not an address
+              print("l3_responder: EDR readable, masked field countable but not filterable")
+
+          asyncio.run(session("l1_analyst", l1))
+          asyncio.run(session("l3_responder", l3))
+          PY
+
+      - name: Unit 4 cost comparison and the investigation path
+        run: |
+          python examples/04/cost.py
+          python examples/04/investigate.py
+          python examples/04/investigate.py --persona l3_responder --model
+
+      - name: Unit 4 lab runs end to end
+        run: marimo export html labs/04_searching_logs.py -o "$RUNNER_TEMP/04_searching_logs.html"
 
       - name: Container logs on failure
         if: failure()
