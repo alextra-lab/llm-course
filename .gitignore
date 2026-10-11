@@ -29,3 +29,6 @@ node_modules/
 
 # marimo session caches (written next to notebooks when they run)
 __marimo__/
+
+# Unit 5: OpenSearch's own MCP server, installed in its own environment
+creating-mcps/.venv-osmcp/

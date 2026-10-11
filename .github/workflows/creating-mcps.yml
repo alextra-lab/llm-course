@@ -241,6 +241,117 @@ jobs:
       - name: Unit 4 lab runs end to end
         run: marimo export html labs/04_searching_logs.py -o "$RUNNER_TEMP/04_searching_logs.html"
 
+      - name: Unit 5 OpenSearch's own MCP server, in its own environment
+        run: |
+          python -m venv .venv-osmcp
+          .venv-osmcp/bin/pip install --quiet opensearch-mcp-server-py==0.12.0
+
+      - name: Unit 5 SQL guard accepts reads and refuses the rest
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path[:0] = ["examples/05", "examples"]
+          import sql_guard
+          from common_mcp import pg_connect
+
+          ok = ["SELECT hostname FROM cmdb.assets LIMIT 3",
+                "WITH p AS (SELECT * FROM cmdb.assets WHERE environment = 'prod') "
+                "SELECT os, count(*) FROM p GROUP BY os",
+                "SELECT s.name FROM cmdb.services s WHERE s.tier = 1 UNION "
+                "SELECT name FROM cmdb.teams"]
+          refused = {
+              "SET statement_timeout = 0; SELECT pg_sleep(6)": "exactly one statement",
+              "WITH x AS (DELETE FROM cmdb.assets RETURNING *) SELECT * FROM x": "DELETE",
+              "SELECT pg_sleep(30)": "pg_sleep",
+              "SELECT pg_read_file('/etc/passwd')": "pg_read_file",
+              "SELECT * FROM generate_series(1, 1000000000)": "generate_series",
+              "SELECT rolname FROM pg_catalog.pg_roles": "pg_catalog",
+              "SELECT hostname FROM assets": "qualify",
+              "SELECT * FROM cmdb.assets FOR UPDATE": "lock",
+              "UPDATE cmdb.assets SET os = 'x'": "only SELECT",
+              "CREATE TEMP TABLE t AS SELECT 1": "only SELECT",
+          }
+          for q in ok:
+              sql_guard.check(q)
+          for q, needle in refused.items():
+              try:
+                  sql_guard.check(q)
+              except sql_guard.SqlRefused as e:
+                  assert needle.lower() in str(e).lower(), (q, str(e))
+              else:
+                  raise AssertionError(f"not refused: {q}")
+          with pg_connect("l1_analyst") as conn:
+              r = sql_guard.run(conn, "SELECT a.hostname FROM cmdb.assets a, cmdb.teams t")
+          assert r["returned"] == sql_guard.MAX_ROWS and r["truncated"], r["returned"]
+          print(f"{len(ok)} reads accepted, {len(refused)} refused, row cap holds")
+          PY
+
+      - name: Unit 5 PPL guard bounds by construction and checks the plan
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path[:0] = ["examples/05", "examples"]
+          import ppl_guard
+          from common_mcp import os_client
+
+          c = os_client("l1_analyst")
+          q = ("source = logs-auth-* | where `event.outcome` = 'failure' "
+               "| stats count() as n by `source.ip` | sort - n | head 1")
+          r = ppl_guard.run(c, q, "l1_analyst", "now-8d", "now-1d")
+          assert "@timestamp" in r["ran"] and "head 200" in r["ran"], r["ran"]
+          assert "logs-auth-*" not in r["ran"], r["ran"]
+          incidents = ppl_guard.run(c, "source = incidents | stats count()", "l1_analyst")
+          assert incidents["rows"][0][0] > 0
+          refused = {
+              "source = edr-events-* | stats count()": "isn't an index pattern",
+              "source = logs-auth-* | join x": "isn't allowed",
+              "source = logs-auth-* | where like(message, '%svc_backup%')": "leading wildcards",
+          }
+          for query, needle in refused.items():
+              try:
+                  ppl_guard.run(c, query, "l1_analyst", "now-2d", "now-1d")
+              except ppl_guard.PplRefused as e:
+                  assert needle in str(e), (query, str(e))
+              else:
+                  raise AssertionError(f"not refused: {query}")
+          for window, needle in {(None, None): "need a window",
+                                 ("now-10d", "now"): "at most"}.items():
+              try:
+                  ppl_guard.run(c, "source = logs-auth-* | stats count()", "l1_analyst", *window)
+              except ppl_guard.PplRefused as e:
+                  assert needle in str(e), (window, str(e))
+              else:
+                  raise AssertionError(f"window not refused: {window}")
+          print("PPL: bounded, capped, and refusals OK")
+          PY
+
+      - name: Unit 5 blast radius, every variant
+        run: |
+          python - <<'PY'
+          import asyncio, sys
+          sys.path[:0] = ["examples/05", "examples"]
+          import blast, variants
+          from common_mcp import load_env
+
+          load_env()
+          assert "permissive" in variants.available(), "osmcp not found"
+          rows = {r["probe"]: r for r in asyncio.run(blast.run("l1_analyst"))}
+          for r in rows.values():
+              print(f"{r['probe']:<18} " + "  ".join(f"{v}={r[v]}" for v in variants.NAMES))
+          ran = lambda v: {p for p, r in rows.items() if r[v].startswith("ran")}
+          assert {"system-catalogs", "lift-timeout", "temp-table", "cluster-internals",
+                  "script"} <= ran("permissive"), ran("permissive")
+          assert not ran("guarded") and not ran("restrictive") and not ran("hybrid")
+          for p in ("update", "pii", "close-incident"):
+              assert rows[p]["permissive"] == "stopped by the backend", rows[p]
+          PY
+
+      - name: Unit 5 grid prints tool-list costs and skips cleanly without a model
+        run: python examples/05/grid.py
+
+      - name: Unit 5 lab runs end to end
+        run: marimo export html labs/05_permission_dial.py -o "$RUNNER_TEMP/05_permission_dial.html"
+
       - name: Container logs on failure
         if: failure()
         run: docker compose --env-file env/.env -f env/compose.yaml logs --tail 200

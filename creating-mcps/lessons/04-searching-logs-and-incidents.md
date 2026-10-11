@@ -567,7 +567,7 @@ pick:
 
 ## Next
 
-**Unit 5: The Permission Dial: Restrictive vs Permissive Tools** *(coming next)*: the tools
+**[Unit 5: The Permission Dial: Restrictive vs Permissive Tools](05-the-permission-dial.md)**: the tools
 you just built are the restrictive end. Unit 5 puts them next to raw SQL, raw Query DSL
 (OpenSearch's own MCP server) and a guarded middle, and measures success, tokens, latency and
 blast radius on the same task set.

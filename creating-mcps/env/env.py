@@ -51,9 +51,13 @@ PG_PERSONAS = {
     "mcp_service":  (False, 50, "15s"),
 }
 
+# PPL (OpenSearch's piped query language) is a cluster action; Unit 5's guarded tier uses it.
+# Index permissions, field-level security and masking still apply to what a PPL query reads.
+PPL = "cluster:admin/opensearch/ppl"
+
 OS_ROLES = {
     "soc_l1": {
-        "cluster_permissions": ["cluster_composite_ops_ro", "cluster_monitor"],
+        "cluster_permissions": ["cluster_composite_ops_ro", "cluster_monitor", PPL],
         "index_permissions": [{
             "index_patterns": ["logs-*", "incidents"],
             # Field-level security: an L1 analyst never sees personal data or secrets.
@@ -62,7 +66,7 @@ OS_ROLES = {
         }],
     },
     "soc_l3": {
-        "cluster_permissions": ["cluster_composite_ops_ro", "cluster_monitor"],
+        "cluster_permissions": ["cluster_composite_ops_ro", "cluster_monitor", PPL],
         "index_permissions": [{
             "index_patterns": ["logs-*", "edr-events-*", "incidents"],
             "fls": ["~labels.api_token"],
@@ -80,7 +84,7 @@ OS_ROLES = {
         }],
     },
     "mcp_gateway": {
-        "cluster_permissions": ["cluster_composite_ops_ro", "cluster_monitor"],
+        "cluster_permissions": ["cluster_composite_ops_ro", "cluster_monitor", PPL],
         "index_permissions": [
             {"index_patterns": ["logs-*", "edr-events-*", "incidents"],
              "allowed_actions": ["read", "indices_monitor", "indices:admin/mappings/get"]},

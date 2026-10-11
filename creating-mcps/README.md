@@ -132,9 +132,10 @@ are published.
 4. **[Searching Logs and Incidents](lessons/04-searching-logs-and-incidents.md)**: bounded
    time windows, aggregate first then drill down, shaping and paginating results. Lab:
    investigate the planted incident by hand, then let the host do it. ✅
-5. **The Permission Dial: Restrictive vs Permissive Tools**: the CMDB and OpenSearch each three
-   ways (raw, guarded, task-shaped), measured on success, tokens, latency and blast radius. Lab:
-   the comparison grid.
+5. **[The Permission Dial: Restrictive vs Permissive Tools](lessons/05-the-permission-dial.md)**:
+   the CMDB and OpenSearch four ways (raw, guarded, task-shaped, and task-shaped with an
+   approval hatch), measured on success, tokens, latency and blast radius. Lab: guards by
+   hand, blast-radius probes and the comparison grid. ✅
 6. **Designing Tools for a Model Reader**: names, descriptions, granularity, structured output,
    errors written as instructions, the token cost of `tools/list`. Lab: A/B two descriptions.
 7. **Identity, Least Privilege and Enterprise Rules**: who is calling, no token passthrough,

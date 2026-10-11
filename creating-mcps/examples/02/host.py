@@ -77,8 +77,11 @@ class Host:
 
     async def __aenter__(self):
         for name, path in self.servers.items():
-            client = Client(StdioServerParameters(command=sys.executable, args=[str(path)],
-                                                  env=self.env),
+            # A path is one of this course's servers; anything else (Unit 5: a third-party
+            # server in its own environment) arrives as ready-made StdioServerParameters.
+            params = path if isinstance(path, StdioServerParameters) else StdioServerParameters(
+                command=sys.executable, args=[str(path)], env=self.env)
+            client = Client(params,
                             client_info=Implementation(name="unit2-host", version="0.1"),
                             elicitation_callback=self._elicitation_for(name))
             self.clients[name] = await self._stack.enter_async_context(client)
