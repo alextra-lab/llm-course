@@ -47,7 +47,8 @@ EXAMPLES = HERE.parent
 sys.path[:0] = [str(HERE), str(EXAMPLES / "03"), str(EXAMPLES)]
 import catalog  # noqa: E402  (Unit 3)
 import windows  # noqa: E402
-from common_mcp import joinable_log, log_note, os_client, persona  # noqa: E402
+from common_mcp import (backend_refusal, joinable_log, log_note, os_client,  # noqa: E402
+                        persona)
 
 # Who each call acts for: MCP_PERSONA here; the authenticated caller in Unit 7.
 
@@ -186,6 +187,10 @@ def _search(index: str, body: dict, **params) -> dict:
         r = os_client(persona()).search(index=index, body=body, ignore_unavailable=True,
                                       allow_no_indices=True, **params)
     except Exception as e:  # noqa: BLE001 -- the backend refused or failed: say what to do
+        refusal = backend_refusal(e)       # Unit 8: busy, or past its time budget
+        if refusal:
+            log_note(backend=refusal[0])
+            raise ToolError(refusal[1]) from None
         raise ToolError(f"the search failed ({type(e).__name__}). Check the filter values "
                         "and types, or narrow the window.") from None
     log_note(indexes=index.count(",") + 1 if index else 0, shards=r["_shards"]["total"],
@@ -416,6 +421,10 @@ def search_events(dataset: Dataset, start: str, end: str = "now",
                                     params={"ignore_unavailable": "true",
                                             "allow_partial_pit_creation": "true"})["pit_id"]
         except Exception as e:  # noqa: BLE001 -- also raised when no index in the window exists
+            refusal = backend_refusal(e)               # Unit 8: no cursors left
+            if refusal:
+                log_note(backend=refusal[0])
+                raise ToolError(refusal[1]) from None
             if _search(_indexes(dataset, w), {"size": 0})["_shards"]["total"]:
                 raise ToolError(f"the search failed ({type(e).__name__}); try again.") from None
             pit = None

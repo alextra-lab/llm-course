@@ -53,8 +53,8 @@ EXAMPLES = HERE.parent
 sys.path[:0] = [str(HERE), str(EXAMPLES / "04"), str(EXAMPLES / "03"), str(EXAMPLES)]
 import identity  # noqa: E402
 import issuer as idp  # noqa: E402
-from common_mcp import (PERSONAS, acting_for, joinable_log, load_env, log_note,  # noqa: E402
-                        persona, pg_connect)
+from common_mcp import (PERSONAS, acting_for, backend_refusal, joinable_log,  # noqa: E402
+                        load_env, log_note, persona, pg_connect)
 from policy import POLICY_FILE, Caller, Policy  # noqa: E402
 
 READ_ONLY = ToolAnnotations(read_only_hint=True, destructive_hint=False, idempotent_hint=True,
@@ -213,7 +213,16 @@ def with_policy(name: str, fn, annotations: ToolAnnotations):
             log_note(approved_with=ticket)
         # The tools are synchronous; run them off the event loop (the context, and so the
         # caller's identity, goes with them).
-        return await asyncio.to_thread(fn, *args, **kwargs)
+        try:
+            return await asyncio.to_thread(fn, *args, **kwargs)
+        except ToolError:
+            raise
+        except Exception as e:             # Unit 8: backpressure and timeouts, said usefully
+            refusal = backend_refusal(e)
+            if refusal is None:
+                raise
+            log_note(backend=refusal[0])
+            raise ToolError(refusal[1]) from None
 
     del guarded.__wrapped__                # so the SDK reads the signature below, not fn's
     ctx_param = inspect.Parameter("ctx", inspect.Parameter.KEYWORD_ONLY, annotation=Context)

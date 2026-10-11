@@ -15,7 +15,7 @@ dependencies = [
     "marimo>=0.25",           # the labs
     "openai>=1.0",            # the model side, via Foundations' examples/common.py
     "httpx",
-    "psycopg[binary]>=3.2",   # the CMDB (Postgres)
+    "psycopg[binary,pool]>=3.2",  # the CMDB (Postgres); Unit 8 pools its connections
     "opensearch-py>=3.0",     # the SIEM / log store (OpenSearch)
     "sqlglot>=30",            # Unit 5's SQL guard parses queries before they run
     "pyjwt[crypto]>=2.8",     # Unit 7: signed access tokens (the local issuer and the servers)

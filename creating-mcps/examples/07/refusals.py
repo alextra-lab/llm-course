@@ -58,11 +58,13 @@ def _free_port() -> int:
 
 
 @contextlib.asynccontextmanager
-async def servers(log_dir: Path | None = None, policy: Path | None = None):
+async def servers(log_dir: Path | None = None, policy: Path | None = None,
+                  script: Path | None = None, env: dict | None = None):
     """Both gateway servers over HTTP. Yields {"cmdb": url, "siem": url, "logs": {kind: path}}.
-    `policy` runs them with another policy file (default: policy.toml)."""
+    `policy` runs them with another policy file (default: policy.toml); `script` and `env`
+    run another server (Unit 8's envelope_server.py) with extra settings."""
     idp.keys()
-    env = {**os.environ, **({"MCP_POLICY": str(policy)} if policy else {})}
+    env = {**os.environ, **(env or {}), **({"MCP_POLICY": str(policy)} if policy else {})}
     log_dir = Path(log_dir or tempfile.mkdtemp(prefix="unit7-"))
     log_dir.mkdir(parents=True, exist_ok=True)
     procs, out = [], {"logs": {}}
@@ -71,7 +73,7 @@ async def servers(log_dir: Path | None = None, policy: Path | None = None):
             port = _free_port()
             log = log_dir / f"{kind}.jsonl"
             procs.append(subprocess.Popen(
-                [sys.executable, str(HERE / "gateway_server.py"), "--kind", kind,
+                [sys.executable, str(script or HERE / "gateway_server.py"), "--kind", kind,
                  "--port", str(port)],
                 stdout=subprocess.DEVNULL, stderr=log.open("w"), env=env))
             out[kind], out["logs"][kind] = f"http://127.0.0.1:{port}/mcp", log

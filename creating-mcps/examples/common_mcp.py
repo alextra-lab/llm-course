@@ -8,7 +8,8 @@ decides what comes back (Unit 7 makes that the whole lesson).
 
 Later units add to this file (the in-memory CMDB fixture in Unit 1, `trace_meta` and
 `joinable_log` in Unit 2, `log_note` in Unit 4, `acting_for` / `persona` and the gateway
-login in Unit 7; later the per-caller limiter). Re-copy it into work/ when a unit says so.
+login in Unit 7, `use_pools` and `backend_refusal` in Unit 8). Re-copy it into work/ when a
+unit says so.
 Scripts import it the same way the Foundations examples import common.py:
 
     import sys
@@ -22,6 +23,7 @@ your environment win, so a shared-lab learner can override PG_HOST / OS_HOST in 
 
 from __future__ import annotations
 
+import atexit
 import contextlib
 import contextvars
 import os
@@ -102,32 +104,99 @@ def _gateway_for(persona: str) -> bool:
     return acting is not None
 
 
+def _pg_params(login: str, **kwargs) -> dict:
+    return dict(host=os.environ.get("PG_HOST", "127.0.0.1"),
+                port=int(os.environ.get("PG_PORT", "5433")),
+                dbname=os.environ.get("PG_DATABASE", "cmdb"),
+                user=login, password=_password(login), connect_timeout=5, **kwargs)
+
+
+_ROLE_SETTINGS: dict[str, list[tuple[str, str]]] = {}
+
+
+def _become(conn, persona: str) -> None:
+    """SET ROLE to the persona, and apply the persona's own settings (statement_timeout...).
+
+    SET ROLE changes privileges only: settings from `ALTER ROLE ... SET` apply at LOGIN, so
+    through the gateway an L1 analyst would get the gateway's 15 s instead of their own 5 s
+    (Unit 8 found this). We read them from the catalog once and apply them ourselves."""
+    from psycopg import sql
+
+    if persona not in _ROLE_SETTINGS:
+        rows = conn.execute(
+            "SELECT unnest(setconfig) FROM pg_db_role_setting "
+            "WHERE setrole = %s::regrole AND setdatabase IN (0, (SELECT oid FROM pg_database "
+            "WHERE datname = current_database()))", (persona,)).fetchall()
+        _ROLE_SETTINGS[persona] = [tuple(r[0].split("=", 1)) for r in rows]
+    conn.execute(sql.SQL("SET ROLE {}").format(sql.Identifier(persona)))
+    for name, value in _ROLE_SETTINGS[persona]:
+        conn.execute(sql.SQL("SET {} = {}").format(sql.Identifier(name), sql.Literal(value)))
+
+
+# Unit 8: shared, bounded pools for the gateway (None: one connection per call, as before).
+_PG_POOL = None
+_OS_CLIENTS: dict | None = None
+_OS_OPTIONS: dict = {}
+
+
+def use_pools(pg_size: int = 10, pg_wait: float = 2.0, os_size: int = 10,
+              search_budget: str | None = "10s") -> None:
+    """Unit 8: from now on, gateway connections (inside `acting_for`) come from shared pools.
+
+    pg_size     Postgres connections the gateway keeps open (min = max: no surprises)
+    pg_wait     seconds a call may wait for one before it's told the server is busy
+    os_size     HTTP connections per OpenSearch client (one client per persona)
+    search_budget  OpenSearch cancels a search that runs longer (cancel_after_time_interval)
+    """
+    global _PG_POOL, _OS_CLIENTS
+    from psycopg_pool import ConnectionPool
+
+    def reset(conn):                       # back to "the gateway, holding nothing"
+        conn.execute("RESET ROLE")
+        conn.execute("RESET ALL")
+
+    # autocommit: SET ROLE and the settings hold for the whole checkout, and nothing a tool
+    # does (a rollback) can undo them halfway through.
+    _PG_POOL = ConnectionPool(kwargs=_pg_params(GATEWAY, autocommit=True),
+                              min_size=pg_size, max_size=pg_size,
+                              timeout=pg_wait, reset=reset, name="gateway", open=True)
+    _PG_POOL.wait(timeout=10)
+    atexit.register(_PG_POOL.close)
+    _OS_CLIENTS = {}
+    _OS_OPTIONS.update(maxsize=os_size, search_budget=search_budget)
+
+
+def pool_stats() -> dict:
+    """The Postgres pool's own counters (empty without a pool)."""
+    return dict(_PG_POOL.get_stats()) if _PG_POOL is not None else {}
+
+
+@contextlib.contextmanager
+def _pooled(persona: str):
+    with _PG_POOL.connection() as conn:
+        _become(conn, persona)
+        yield conn
+
+
 def pg_connect(persona: str = "l1_analyst", **kwargs):
-    """Open a Postgres connection to the CMDB *as* a persona.
+    """Open a Postgres connection to the CMDB *as* a persona. Use it as `with pg_connect(...)`.
 
     Row-level security, column privileges, statement_timeout and the connection limit all
     follow the persona, not the code -- the database enforces them.
 
     Inside `acting_for(persona)` (Unit 7) it logs in as the gateway, which holds no privileges
     of its own, and `SET ROLE`s to the persona. If anything resets the role, the connection is
-    left with nothing.
+    left with nothing. With `use_pools()` (Unit 8) the gateway's connection comes from a
+    shared pool, and goes back to it reset.
     """
     import psycopg
-    from psycopg import sql
 
     gateway = _gateway_for(persona)
-    login = GATEWAY if gateway else persona
-    conn = psycopg.connect(
-        host=os.environ.get("PG_HOST", "127.0.0.1"),
-        port=int(os.environ.get("PG_PORT", "5433")),
-        dbname=os.environ.get("PG_DATABASE", "cmdb"),
-        user=login,
-        password=_password(login),
-        connect_timeout=5,
-        **kwargs,
-    )
+    if gateway and _PG_POOL is not None:
+        return _pooled(persona)
+    conn = psycopg.connect(**_pg_params(GATEWAY if gateway else persona, **kwargs))
     if gateway:
-        conn.execute(sql.SQL("SET ROLE {}").format(sql.Identifier(persona)))
+        _become(conn, persona)
         if not conn.autocommit:
             conn.commit()                  # so a later rollback can't undo it
     return conn
@@ -138,20 +207,32 @@ def os_client(persona: str = "l1_analyst", **kwargs):
     permissions are enforced by OpenSearch's security plugin).
 
     Inside `acting_for(persona)` (Unit 7) it logs in as the gateway and impersonates the
-    persona on every request: OpenSearch applies the persona's roles, not the gateway's."""
-    import logging
-
-    from opensearchpy import OpenSearch
-
+    persona on every request: OpenSearch applies the persona's roles, not the gateway's. With
+    `use_pools()` (Unit 8) it's one shared client per persona, not a new one per call."""
     gateway = _gateway_for(persona)
     login = GATEWAY if gateway else persona
     if gateway:
         kwargs["headers"] = {**kwargs.get("headers", {}),
                              "opendistro_security_impersonate_as": persona}
+        if _OS_CLIENTS is not None and not kwargs.keys() - {"headers"}:
+            # Unit 8: one long-lived client per persona, with a bounded connection pool
+            if persona not in _OS_CLIENTS:
+                _OS_CLIENTS[persona] = _os_build(login, kwargs, maxsize=_OS_OPTIONS["maxsize"],
+                                                 search_budget=_OS_OPTIONS["search_budget"])
+            return _OS_CLIENTS[persona]
+    return _os_build(login, kwargs)
+
+
+def _os_build(login: str, kwargs: dict, maxsize: int | None = None,
+              search_budget: str | None = None):
+    import logging
+
+    from opensearchpy import OpenSearch, Transport
 
     # opensearch-py logs every request (and every 403) as plain text. On an MCP server that's
     # stderr, the joinable log's channel, and errors reach the caller as exceptions anyway.
     logging.getLogger("opensearch").setLevel(logging.CRITICAL)
+    logging.getLogger("urllib3.connectionpool").setLevel(logging.ERROR)   # "pool is full"
 
     verify = os.environ.get("OS_VERIFY_CERTS", "0").lower() in ("1", "true", "yes")
     options = dict(
@@ -165,8 +246,43 @@ def os_client(persona: str = "l1_analyst", **kwargs):
     )
     if verify and os.environ.get("OS_CA_CERTS"):
         options["ca_certs"] = os.environ["OS_CA_CERTS"]
+    if maxsize:
+        options["pool_maxsize"] = maxsize
+    if search_budget:
+        class Budgeted(Transport):
+            """Every search carries cancel_after_time_interval: the cluster stops the work,
+            not just the client waiting for it."""
+            def perform_request(self, method, url, params=None, body=None, *args, **kw):
+                if url.endswith("/_search"):
+                    params = {"cancel_after_time_interval": search_budget, **(params or {})}
+                return super().perform_request(method, url, params, body, *args, **kw)
+        options["transport_class"] = Budgeted
     options.update(kwargs)
     return OpenSearch(**options)
+
+
+def backend_refusal(e: Exception) -> tuple[str, str] | None:
+    """Unit 8: is this backend error backpressure (try later) or a timeout (ask for less)?
+    Returns (kind, message for the model), or None for any other error.
+
+    The model can act on these: "busy" means wait and retry the same call; "too_slow" means
+    don't retry, make the question smaller."""
+    name, text = type(e).__name__, str(e).lower()
+    status = getattr(e, "status_code", None)
+    if "point in time contexts" in text:     # every result cursor on the cluster is taken
+        return ("busy", "the log cluster has too many result cursors open (each paged search "
+                        "holds one for a while after it returns). Retry in 30 seconds, or "
+                        "count or aggregate instead of listing.")
+    if name == "PoolTimeout" or "too many connections" in text or status == 429 or (
+            "rejected execution" in text):
+        return ("busy", "the server is busy (every backend connection is in use). Retry the "
+                        "same call in 2 seconds; don't send other calls meanwhile.")
+    if name in ("QueryCanceled", "ConnectionTimeout") or "cancelled" in text or (
+            "statement timeout" in text):
+        return ("too_slow", "that query ran past its time budget and was stopped. Don't retry "
+                            "it as is: narrow the window, add a filter, or count before you "
+                            "fetch.")
+    return None
 
 
 def trace_meta(session_id: str, trace_id: str, step: int) -> dict:
