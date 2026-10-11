@@ -394,7 +394,7 @@ It walks through the unit in seven steps:
 
 ## Next
 
-**Unit 7: Identity, Least Privilege and Enterprise Rules** *(coming next)*: who is calling.
+**[Unit 7: Identity, Least Privilege and Enterprise Rules](07-identity-least-privilege-and-enterprise-rules.md)**: who is calling.
 Every server so far acts as one fixed persona from an environment variable. Unit 7 carries
 the caller's identity from the host to Postgres and OpenSearch, gives each caller its own
 tool list, and adds a policy layer that enforces what this unit's annotations only describe.

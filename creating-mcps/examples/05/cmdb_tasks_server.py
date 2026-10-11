@@ -10,7 +10,6 @@ get_asset and find_assets are Unit 3's, registered here unchanged. The rest are 
 """
 
 import importlib.util
-import os
 import sys
 from pathlib import Path
 from typing import Literal, TypedDict
@@ -21,10 +20,10 @@ from mcp.server.mcpserver.exceptions import ToolError
 
 HERE = Path(__file__).resolve().parent
 sys.path.append(str(HERE.parent))  # creating-mcps/examples/
-from common_mcp import joinable_log, load_env, pg_connect  # noqa: E402
+from common_mcp import joinable_log, load_env, persona, pg_connect  # noqa: E402
 
 load_env()
-PERSONA = os.environ.get("MCP_PERSONA", "l1_analyst")
+# Who each call acts for: MCP_PERSONA here; the authenticated caller in Unit 7.
 
 _spec = importlib.util.spec_from_file_location("unit3_cmdb", HERE.parent / "03" / "cmdb_server.py")
 unit3 = importlib.util.module_from_spec(_spec)
@@ -63,7 +62,7 @@ class Dependencies(TypedDict):
 def service_dependencies(service: str) -> Dependencies:
     """Both directions for one service: what it depends on, and which services depend on it
     (would break if it went down)."""
-    with pg_connect(PERSONA) as conn:
+    with pg_connect(persona()) as conn:
         sid = _service_id(conn, service)
         on = conn.execute("SELECT s.name FROM cmdb.service_dependencies d JOIN cmdb.services s "
                           "ON s.id = d.depends_on_id WHERE d.service_id = %s ORDER BY 1",
@@ -90,7 +89,7 @@ def hosts_with_vulnerability(cve_id: str, environment: Env | None = None,
     optionally environment. `total` counts them all; `hosts` lists at most `limit` (1-50)."""
     if not 1 <= limit <= 50:
         raise ToolError("limit must be between 1 and 50.")
-    with pg_connect(PERSONA) as conn:
+    with pg_connect(persona()) as conn:
         sev = conn.execute("SELECT severity FROM cmdb.vulnerabilities WHERE cve_id = %s",
                            (cve_id.strip().upper(),)).fetchone()
         if sev is None:
@@ -116,7 +115,7 @@ def count_assets(environment: Env | None = None, tier: Literal[1, 2, 3] | None =
                  | None = None, service: str | None = None) -> Count:
     """How many hosts match. tier is the tier of the service they run: 1 = business critical,
     3 = least critical."""
-    with pg_connect(PERSONA) as conn:
+    with pg_connect(persona()) as conn:
         if service is not None:
             _service_id(conn, service)
         total = conn.execute(

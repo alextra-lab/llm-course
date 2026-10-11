@@ -5,6 +5,7 @@ Run the Creating MCPs test estate: the CMDB (Postgres) and the SIEM / log store 
     python env/env.py seed [--size S]    create personas, schema, indices; load the data
     python env/env.py check [--no-llm]   preflight: what works, and which units each gap affects
     python env/env.py reset              drop everything and reseed (same data every time)
+    python env/env.py security           re-apply OpenSearch roles and users, no data reload
     python env/env.py down [--volumes]   stop the containers (--volumes also deletes the data)
     python env/env.py status             show the containers
 
@@ -83,11 +84,12 @@ OS_ROLES = {
             "allowed_actions": ["read", "indices_monitor"],
         }],
     },
+    # The gateway's own login reads NO logs: it impersonates the caller it acts for (Unit 7,
+    # compose.yaml lists whom it may impersonate), so a request that forgets to say who it is
+    # for fails closed. It writes only its own telemetry.
     "mcp_gateway": {
-        "cluster_permissions": ["cluster_composite_ops_ro", "cluster_monitor", PPL],
+        "cluster_permissions": ["cluster_monitor"],
         "index_permissions": [
-            {"index_patterns": ["logs-*", "edr-events-*", "incidents"],
-             "allowed_actions": ["read", "indices_monitor", "indices:admin/mappings/get"]},
             {"index_patterns": ["mcp-telemetry-*"],
              "allowed_actions": ["crud", "create_index", "indices_monitor"]},
         ],
@@ -201,10 +203,8 @@ def seed_postgres(rows: dict) -> None:
         conn.execute("ANALYZE")
 
 
-def seed_opensearch(rng, anchor, assets, total: int) -> None:
-    from opensearchpy import helpers
-
-    client = admin_os()
+def opensearch_security(client) -> None:
+    """Roles, users and role mappings: who may read what (Unit 7)."""
     for name, body in OS_ROLES.items():
         client.transport.perform_request("PUT", f"/_plugins/_security/api/roles/{name}", body=body)
     for user, role in OS_USERS.items():
@@ -214,6 +214,13 @@ def seed_opensearch(rng, anchor, assets, total: int) -> None:
         client.transport.perform_request(
             "PUT", f"/_plugins/_security/api/rolesmapping/{role}", body={"users": [user]})
     print(f"  security: {len(OS_ROLES)} roles, {len(OS_USERS)} users")
+
+
+def seed_opensearch(rng, anchor, assets, total: int) -> None:
+    from opensearchpy import helpers
+
+    client = admin_os()
+    opensearch_security(client)
 
     for pattern in ("logs-*", "edr-events-*", "incidents"):
         client.indices.delete(index=pattern, ignore_unavailable=True, expand_wildcards="all")
@@ -260,6 +267,17 @@ def cmd_seed(args) -> int:
     print("OpenSearch (SIEM / logs):")
     seed_opensearch(rng, anchor, rows["_assets"], total)
     print("\nSeeded. Next: python env/env.py check")
+    return 0
+
+
+def cmd_security(_args) -> int:
+    """Re-apply the OpenSearch roles and users without reloading any data. Run it after
+    pulling a unit that changes who may read what (Unit 7 did), instead of a full seed."""
+    need_env_file()
+    print("OpenSearch (SIEM / logs):")
+    opensearch_security(admin_os())
+    print("\nDone. If `check` still says impersonation is refused, run `python env/env.py up` "
+          "so OpenSearch picks up compose.yaml's impersonation setting.")
     return 0
 
 
@@ -349,6 +367,22 @@ def check_opensearch(r: Report) -> None:
             r.line("FAIL", "index permissions: L1 can read edr-events-*", "Unit 7")
         except Exception:
             r.line("PASS", "index permissions: L1 cannot read edr-events-*")
+        gw = common_mcp.os_client("mcp_service")
+        try:
+            gw.count(index="logs-*")
+            r.line("FAIL", "the gateway login can read logs as itself -- run: "
+                           "python env/env.py security", "Unit 7")
+        except Exception:
+            r.line("PASS", "the gateway login reads nothing as itself")
+        try:
+            who = gw.transport.perform_request(
+                "GET", "/_plugins/_security/authinfo",
+                headers={"opendistro_security_impersonate_as": "l1_analyst"})["user_name"]
+            r.line("PASS" if who == "l1_analyst" else "FAIL",
+                   f"the gateway acts as a caller (impersonation: {who})", "Unit 7")
+        except Exception:
+            r.line("FAIL", "the gateway can't impersonate callers -- run: python env/env.py up "
+                           "(compose.yaml enables it)", "Units 7+")
         incident = l3.get(index=generate.INCIDENTS_INDEX, id=generate.INCIDENT_ID)["_source"]
         r.line("PASS", f"planted incident {generate.INCIDENT_ID} on "
                        f"{incident['host']['name']} ({incident['incident']['created'][:10]})")
@@ -407,6 +441,7 @@ def main() -> int:
     p = sub.add_parser("down")
     p.add_argument("--volumes", action="store_true", help="also delete the data volumes")
     sub.add_parser("status")
+    sub.add_parser("security", help="re-apply OpenSearch roles and users (no data reload)")
     for name in ("seed", "reset"):
         p = sub.add_parser(name)
         p.add_argument("--size", choices=sorted(generate.SIZES), default="default")
@@ -415,7 +450,8 @@ def main() -> int:
     p.add_argument("--no-llm", action="store_true", help="skip the LLM endpoint probe")
     args = parser.parse_args()
     return {"up": cmd_up, "down": cmd_down, "status": cmd_status, "seed": cmd_seed,
-            "reset": cmd_reset, "check": cmd_check}[args.command](args)
+            "reset": cmd_reset, "check": cmd_check,
+            "security": cmd_security}[args.command](args)
 
 
 if __name__ == "__main__":

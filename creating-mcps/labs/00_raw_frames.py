@@ -235,9 +235,9 @@ def _(mo, persona, tour):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Try `mcp_service`, the gateway's own login. Postgres refuses it outright: it holds no
-    privileges of its own and must `SET ROLE` to a caller first (Challenge 3). That is the
-    pattern Unit 7 builds on. A server that connects as a superuser throws away everything
+    Try `mcp_service`, the gateway's own login. Postgres and OpenSearch both refuse it: it
+    holds no privileges of its own and must act as a caller first (`SET ROLE` in Postgres,
+    impersonation in OpenSearch; Challenge 3). That is the pattern Unit 7 builds on. A server that connects as a superuser throws away everything
     this table just showed you.
     """)
     return

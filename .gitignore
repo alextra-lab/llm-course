@@ -32,3 +32,6 @@ __marimo__/
 
 # Unit 5: OpenSearch's own MCP server, installed in its own environment
 creating-mcps/.venv-osmcp/
+
+# Unit 7: the local token issuer's key pair (the private key must never be committed)
+creating-mcps/env/keys/

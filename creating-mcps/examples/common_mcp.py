@@ -7,9 +7,8 @@ persona, because in this course there is no such thing as an anonymous query: wh
 decides what comes back (Unit 7 makes that the whole lesson).
 
 Later units add to this file (the in-memory CMDB fixture in Unit 1, `trace_meta` and
-`joinable_log` in Unit 2, `log_note` in Unit 4; later the per-caller limiter, the policy
-client). Re-copy it into
-work/ when a unit says so.
+`joinable_log` in Unit 2, `log_note` in Unit 4, `acting_for` / `persona` and the gateway
+login in Unit 7; later the per-caller limiter). Re-copy it into work/ when a unit says so.
 Scripts import it the same way the Foundations examples import common.py:
 
     import sys
@@ -23,6 +22,7 @@ your environment win, so a shared-lab learner can override PG_HOST / OS_HOST in 
 
 from __future__ import annotations
 
+import contextlib
 import contextvars
 import os
 import sys
@@ -70,31 +70,84 @@ def _password(persona: str) -> str:
     return value
 
 
+# Unit 7: the persona the current request acts for, set per request from the caller's verified
+# token. Unset (Units 0-6), a server acts for the one persona it was started as.
+_ACTING_FOR: contextvars.ContextVar[str | None] = contextvars.ContextVar("acting_for",
+                                                                        default=None)
+GATEWAY = "mcp_service"   # the gateway's own login: holds nothing, acts as callers
+
+
+@contextlib.contextmanager
+def acting_for(persona: str):
+    """Within this block, `persona()` is `persona`, and `pg_connect` / `os_client` log in as the
+    gateway and act as it (Unit 7). The gateway never needs the caller's password."""
+    token = _ACTING_FOR.set(persona)
+    try:
+        yield
+    finally:
+        _ACTING_FOR.reset(token)
+
+
+def persona() -> str:
+    """Who this request acts for: the authenticated caller's persona (Unit 7), else the one
+    the server was started as (MCP_PERSONA, default l1_analyst)."""
+    return _ACTING_FOR.get() or os.environ.get("MCP_PERSONA", "l1_analyst")
+
+
+def _gateway_for(persona: str) -> bool:
+    """True when this connection must go through the gateway login (Unit 7)."""
+    acting = _ACTING_FOR.get()
+    if acting is not None and persona != acting:
+        raise PermissionError(f"this request acts for {acting!r}, not {persona!r}")
+    return acting is not None
+
+
 def pg_connect(persona: str = "l1_analyst", **kwargs):
     """Open a Postgres connection to the CMDB *as* a persona.
 
     Row-level security, column privileges, statement_timeout and the connection limit all
     follow the persona, not the code -- the database enforces them.
+
+    Inside `acting_for(persona)` (Unit 7) it logs in as the gateway, which holds no privileges
+    of its own, and `SET ROLE`s to the persona. If anything resets the role, the connection is
+    left with nothing.
     """
     import psycopg
+    from psycopg import sql
 
-    return psycopg.connect(
+    gateway = _gateway_for(persona)
+    login = GATEWAY if gateway else persona
+    conn = psycopg.connect(
         host=os.environ.get("PG_HOST", "127.0.0.1"),
         port=int(os.environ.get("PG_PORT", "5433")),
         dbname=os.environ.get("PG_DATABASE", "cmdb"),
-        user=persona,
-        password=_password(persona),
+        user=login,
+        password=_password(login),
         connect_timeout=5,
         **kwargs,
     )
+    if gateway:
+        conn.execute(sql.SQL("SET ROLE {}").format(sql.Identifier(persona)))
+        if not conn.autocommit:
+            conn.commit()                  # so a later rollback can't undo it
+    return conn
 
 
 def os_client(persona: str = "l1_analyst", **kwargs):
     """An OpenSearch client authenticated *as* a persona (index, field and document
-    permissions are enforced by OpenSearch's security plugin)."""
+    permissions are enforced by OpenSearch's security plugin).
+
+    Inside `acting_for(persona)` (Unit 7) it logs in as the gateway and impersonates the
+    persona on every request: OpenSearch applies the persona's roles, not the gateway's."""
     import logging
 
     from opensearchpy import OpenSearch
+
+    gateway = _gateway_for(persona)
+    login = GATEWAY if gateway else persona
+    if gateway:
+        kwargs["headers"] = {**kwargs.get("headers", {}),
+                             "opendistro_security_impersonate_as": persona}
 
     # opensearch-py logs every request (and every 403) as plain text. On an MCP server that's
     # stderr, the joinable log's channel, and errors reach the caller as exceptions anyway.
@@ -104,7 +157,7 @@ def os_client(persona: str = "l1_analyst", **kwargs):
     options = dict(
         hosts=[{"host": os.environ.get("OS_HOST", "127.0.0.1"),
                 "port": int(os.environ.get("OS_PORT", "9200"))}],
-        http_auth=(persona, _password(persona)),
+        http_auth=(login, _password(login)),
         use_ssl=True,
         verify_certs=verify,
         ssl_show_warn=False,
