@@ -177,7 +177,7 @@ jobs:
 
       - name: Unit 11 records, spans, and the SDK's own trace across HTTP
         run: |
-          pytest -q creating-mcps/examples/11/tests/test_records.py \
+          python -m pytest -q creating-mcps/examples/11/tests/test_records.py \
             "creating-mcps/examples/11/tests/test_contracts.py::test_differences_names_what_changed"
           python creating-mcps/examples/11/sdk_spans.py --check
 
@@ -701,7 +701,7 @@ jobs:
         run: marimo export html labs/10_guarded_host.py -o "$RUNNER_TEMP/10_guarded_host.html"
 
       - name: Unit 11 contract snapshots and behaviour tests
-        run: pytest -q examples/11/tests
+        run: python -m pytest -q examples/11/tests
 
       - name: Unit 11 a day at the SOC, observed (every call audited and shipped)
         run: |
