@@ -100,6 +100,65 @@ jobs:
       - name: Unit 7 policy decides its table of cases
         run: python creating-mcps/examples/07/policy.py --test
 
+      - name: Unit 8 limits refuse in order and say when to retry
+        run: |
+          python - <<'PY'
+          import asyncio, sys
+          sys.path.insert(0, "creating-mcps/examples/08")
+          import limits as L
+
+          now = [0.0]
+          b = L.TokenBucket(3, 1, clock=lambda: now[0])
+          assert [b.take() for _ in range(4)] == [0, 0, 0, 1.0]
+          now[0] = 2.0
+          assert b.take() == 0
+
+          def refused(kind, gen):
+              try:
+                  gen()
+              except L.Busy as e:
+                  assert e.kind == kind, (kind, e.kind)
+                  assert "Retry the same call after" in str(e), str(e)
+                  return
+              raise AssertionError(f"{kind} should refuse")
+
+          async def admit(lim, who):
+              async with lim.admit(who):
+                  pass
+
+          async def main():
+              lim = L.Limiter(L.Settings(rate=0.01, burst=2, per_caller=1, total=1,
+                                         queue_wait=0.05, cursors=1, cursors_total=1))
+              async with lim.admit("a"):
+                  for who, kind in (("a", "concurrency"), ("b", "capacity")):
+                      try:
+                          await admit(lim, who)
+                      except L.Busy as e:
+                          assert e.kind == kind, (who, e.kind)
+                      else:
+                          raise AssertionError(f"{kind} should refuse")
+              try:
+                  await admit(lim, "a")                   # its burst of 2 is spent
+              except L.Busy as e:
+                  assert e.kind == "rate", e.kind
+              else:
+                  raise AssertionError("rate should refuse")
+              lim.charge("b", 10**9)                      # a result far over the quota
+              try:
+                  await admit(lim, "b")
+              except L.Busy as e:
+                  assert e.kind == "quota", e.kind
+              else:
+                  raise AssertionError("quota should refuse")
+              lim.may_open_cursor("c")
+              lim.opened_cursor("c")
+              refused("cursors", lambda: lim.may_open_cursor("c"))
+              refused("cursors_total", lambda: lim.may_open_cursor("d"))
+
+          asyncio.run(main())
+          print("limits: token bucket, rate, quota, concurrency, capacity and cursors OK")
+          PY
+
   integration:
     runs-on: ubuntu-latest
     needs: static
@@ -436,6 +495,66 @@ jobs:
 
       - name: Unit 7 lab runs end to end
         run: marimo export html labs/07_identity_and_policy.py -o "$RUNNER_TEMP/07_identity_and_policy.html"
+
+      - name: Unit 8 cost gates price queries before they run; the L1 timeout survives the gateway
+        run: |
+          python examples/08/cost_gates.py
+          python - <<'PY'
+          import sys, time
+          sys.path[:0] = ["examples/08", "examples"]
+          import common_mcp as C
+          import cost_gates as G
+
+          C.load_env()
+          with C.pg_connect("l3_responder") as conn:
+              verdicts = []
+              for _label, sql, params in G.EXAMPLES:
+                  try:
+                      G.pg_gate(conn, sql, params)
+                      verdicts.append("ok")
+                  except G.TooExpensive:
+                      verdicts.append("refused")
+          assert verdicts == ["ok", "ok", "refused", "refused"], verdicts
+          C.use_pools(pg_size=2)
+          with C.acting_for("l1_analyst"):
+              t0 = time.monotonic()
+              try:
+                  with C.pg_connect("l1_analyst") as conn:
+                      conn.execute("SELECT pg_sleep(8)")
+              except Exception as e:
+                  kind = C.backend_refusal(e)
+              else:
+                  kind = None
+          took = time.monotonic() - t0
+          assert kind and kind[0] == "too_slow" and took < 7, (kind, took)
+          print(f"cost gates: {verdicts}; L1 statement cancelled after {took:.1f} s")
+          PY
+
+      - name: Unit 8 load, pooled and limited; a runaway agent is contained
+        run: |
+          python - <<'PY'
+          import asyncio, json, sys
+          sys.path[:0] = ["examples/08"]
+          import loadgen
+
+          async def main():
+              plain = await loadgen.run(callers=12, seconds=6)
+              everyone = plain["summary"][0]
+              errors = [c["detail"] for c in plain["calls"] if c["outcome"] == "error"]
+              assert everyone["ok"] > 100 and not errors, (everyone, errors[:3])
+              assert everyone["max_pg_connections"] <= 20, everyone
+              runaway = await loadgen.run(callers=6, seconds=6, runaway=8)
+              rows = {r["who"]: r for r in runaway["summary"]}
+              assert rows["agents"]["refused"] == {}, rows["agents"]
+              assert rows["runaway"]["refused"].get("busy:rate", 0) > 0, rows["runaway"]
+              print(json.dumps(everyone))
+              print(json.dumps(rows["agents"]))
+              print(json.dumps(rows["runaway"]))
+          asyncio.run(main())
+          PY
+
+      - name: Unit 8 lab runs end to end
+        run: marimo export html labs/08_operating_envelope.py -o "$RUNNER_TEMP/08_operating_envelope.html"
 
       - name: Container logs on failure
         if: failure()

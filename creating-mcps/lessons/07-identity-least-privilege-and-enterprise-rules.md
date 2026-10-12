@@ -489,7 +489,7 @@ It walks through the unit in six steps:
 
 ## Next
 
-**Unit 8: Resource Management: Many Callers, Finite Backends** *(coming next)*: the gateway
+**[Unit 8: Resource Management: Many Callers, Finite Backends](08-resource-management-many-callers-finite-backends.md)**: the gateway
 now serves many callers through one login and one set of backends. Unit 8 bounds what each
 caller may use: concurrency and pools, per-caller rate limits and quotas, backpressure the
 model respects, and timeouts all the way down.

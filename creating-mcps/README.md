@@ -143,9 +143,10 @@ are published.
 7. **[Identity, Least Privilege and Enterprise Rules](lessons/07-identity-least-privilege-and-enterprise-rules.md)**:
    who is calling, no token passthrough, per-caller tool lists, identity carried to Postgres
    and OpenSearch, a policy layer. Lab: four layers of refusal. ✅
-8. **Resource Management: Many Callers, Finite Backends**: concurrency, pools, per-caller rate
-   limits and quotas, backpressure the model respects, timeouts and query-cost gates. Lab: a load
-   generator with sliders.
+8. **[Resource Management: Many Callers, Finite Backends](lessons/08-resource-management-many-callers-finite-backends.md)**:
+   pools, per-caller rate limits, quotas and cursor limits, backpressure the model respects,
+   timeouts at every layer, query-cost gates and per-tool caps. Lab: a load generator with
+   sliders, a runaway agent included. ✅
 9. **Performance and Scale**: stdio vs Streamable HTTP, stateless scaling, caching, OpenSearch
    performance, packaging. Lab: one instance vs three, before and after pooling and caching.
 10. **Attacking and Defending MCP**: the OWASP MCP Top 10, including injection through results
