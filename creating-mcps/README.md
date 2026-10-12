@@ -151,9 +151,10 @@ are published.
    stateless replicas, pools that fit a budget, limits and a cache shared through Valkey (and a
    cache that leaks), OpenSearch choices, packaging. Lab: one instance vs three, with and
    without the cache. ✅
-10. **Attacking and Defending MCP**: the OWASP MCP Top 10, including injection through results
-    (hostile log lines and CMDB descriptions are already in the estate). Lab: an attack suite,
-    defences added one at a time.
+10. **[Attacking and Defending MCP](lessons/10-attacking-and-defending-mcp.md)**: the OWASP MCP
+    Top 10 mapped onto the gateway, and a host whose defences switch on one at a time: an
+    allowlist, description vetting and pinning, egress, redaction, fencing, approvals and an
+    audit record. Lab: the guarded host. *In progress: the negative cases are placeholders.*
 11. **Observability, Audit and Testing**: one joinable record per request, trace context across
     the boundary, an audit log, per-caller metrics, contract tests and tool-selection evals. Lab:
     a dashboard over the gateway's own telemetry.
