@@ -224,6 +224,95 @@ jobs:
           print("propose_containment: refusals, approvals, blast radius and ids as expected")
           PY
 
+      - name: E1 retries, idempotency, the breaker and the Tasks extension, on stand-in backends
+        run: |
+          python - <<'PY'
+          import asyncio, os, socket, subprocess, sys, time
+          from datetime import datetime
+          import httpx
+          sys.path[:0] = ["creating-mcps/examples/E1"]
+          from resilience import Backend, BackendError, CircuitBreaker, idempotency_key
+          from tasks_ext import Tasks, TasksClient
+          import actions_gateway as A
+
+          t = lambda hm: datetime.fromisoformat(f"2026-10-12T{hm}:00+00:00")
+          assert A.in_window(t("23:30")) and A.in_window(t("04:59")) and not A.in_window(t("05:00"))
+          assert not A.in_window(t("14:00")) and A.in_window(t("10:00"), "09:00-17:00")
+          assert A.proposal_id("INC-0042", "isolate_host", "jump-prod-02") == "PRP-21d20d3e"
+
+          with socket.socket() as s:
+              s.bind(("127.0.0.1", 0)); port = s.getsockname()[1]
+          url = f"http://127.0.0.1:{port}"
+          proc = subprocess.Popen([sys.executable, "creating-mcps/examples/E1/backends.py", "--port", str(port)],
+                                  env={**os.environ, "MCP_EDR_SECONDS": "0.2"})
+          try:
+              for _ in range(100):
+                  try:
+                      httpx.get(url + "/healthz"); break
+                  except httpx.TransportError:
+                      time.sleep(0.1)
+              key = idempotency_key("INC-1", "isolate", "web-1")
+              h = {"Idempotency-Key": key}
+              a = httpx.post(url + "/edr/hosts/web-1/isolate", json={"ticket": "INC-0001"}, headers=h)
+              b = httpx.post(url + "/edr/hosts/web-1/isolate", json={"ticket": "INC-0001"}, headers=h)
+              assert a.status_code == b.status_code == 202 and a.json() == b.json(), (a.text, b.text)
+              assert b.headers.get("idempotent-replay") == "true"
+              assert httpx.post(url + "/edr/hosts/web-1/isolate", json={"ticket": "X"}, headers=h).status_code == 409
+              assert httpx.post(url + "/edr/hosts/web-2/isolate", json={}).status_code == 400
+
+              httpx.post(url + "/_faults", json={"lose_first_reply": True})
+              edr = Backend("EDR", url, base_delay=0.01)
+              for host in ("web-3", "web-4"):
+                  edr.request("POST", f"/edr/hosts/{host}/isolate", json={}, key=idempotency_key(host))
+              hosts = [e.get("host") for e in httpx.get(url + "/_ledger").json() if e["effect"] == "isolate"]
+              assert hosts == ["web-1", "web-3", "web-4"], hosts
+              assert sum(c["replay"] for c in edr.calls) == 2 and edr.breaker.state == "closed", edr.calls
+
+              httpx.post(url + "/_faults", json={"down": True})
+              edr = Backend("EDR", url, base_delay=0.01, breaker=CircuitBreaker(threshold=2, cooldown=1.5))
+              try:
+                  edr.request("GET", "/edr/hosts/web-1")
+              except BackendError as e:
+                  assert not e.maybe_done and "Nothing was" in str(e), e
+              assert edr.breaker.state == "open", edr.breaker
+              t0 = time.monotonic()
+              try:
+                  edr.request("POST", "/edr/hosts/web-1/release", json={}, key="k")
+              except BackendError as e:
+                  assert "Nothing was sent" in str(e) and time.monotonic() - t0 < 0.1, e
+              httpx.post(url + "/_faults", json={})
+              time.sleep(1.6)
+              assert edr.request("GET", "/edr/hosts/web-1")["host"] == "web-1"
+              moves = [x[1:] for x in edr.breaker.transitions]
+              assert moves[0] == ("closed", "open") and moves[-1] == ("half_open", "closed"), moves
+          finally:
+              proc.terminate()
+
+          from mcp import Client
+          from mcp.server.mcpserver import MCPServer
+
+          mcp = MCPServer("t", extensions=[Tasks(after_s=0.1, poll_ms=50)])
+
+          @mcp.tool()
+          async def slow(seconds: float) -> str:
+              await asyncio.sleep(seconds)
+              return f"slept {seconds}"
+
+          async def main():
+              seen = []
+              async with Client(mcp, extensions=[TasksClient(on_task=lambda s: seen.append(s.status))]) as c:
+                  quick = await c.call_tool("slow", {"seconds": 0})
+                  assert seen == [] and quick.content[0].text == "slept 0.0", quick
+                  long = await c.call_tool("slow", {"seconds": 0.4})
+              assert long.content[0].text == "slept 0.4" and seen[0] == "working" and seen[-1] == "completed", seen
+              async with Client(mcp) as c:
+                  plain = await c.call_tool("slow", {"seconds": 0.3})
+              assert plain.content[0].text == "slept 0.3", plain
+
+          asyncio.run(main())
+          print("E1: windows, keys, replays, the breaker and tasks OK")
+          PY
+
       - name: Unit 9 cache keys, pool shares and the transport's allowed hosts
         run: |
           python - <<'PY'
@@ -796,6 +885,12 @@ jobs:
 
       - name: Unit 12 lab runs end to end
         run: marimo export html labs/12_measured_default.py -o "$RUNNER_TEMP/12_measured_default.html"
+
+      - name: E1 change drill (approvals, tasks, lost replies, an EDR outage) against the ledger
+        run: python examples/E1/drill.py
+
+      - name: E1 lab runs end to end
+        run: marimo export html labs/E1_backend_actions.py -o "$RUNNER_TEMP/E1_backend_actions.html"
 
       - name: Container logs on failure
         if: failure()

@@ -169,9 +169,10 @@ are published.
 
 An optional **enterprise track** plugs into the capstone gateway:
 
-- **E1. Backend APIs with Approvals** *(after Unit 8)*: EDR and ticketing APIs, idempotency,
-  circuit breakers, destructive actions behind approval and a change-window rule, the Tasks
-  extension.
+- **E1. [Backend APIs with Approvals](lessons/E1-backend-apis-with-approvals.md)** *(after
+  Unit 8)*: EDR and ticketing APIs, idempotency keys, retries and circuit breakers, destructive
+  actions behind prechecks, approval and a change-window rule, the Tasks extension. Lab: the
+  change drill, checked against the backends' ledger. ✅
 - **E2. The Local Systems Server** *(after Unit 10)*: host triage on the permission dial, behind
   the §16–17 sandbox.
 - **E3. Full OAuth for Remote Servers** *(after Unit 7)*: protected-resource metadata, client

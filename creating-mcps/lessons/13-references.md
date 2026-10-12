@@ -168,3 +168,10 @@ ready.
 ## Tools used in the labs
 
 - **[marimo](https://marimo.io)**: the reactive notebooks every lab is written in.
+
+## Next
+
+The optional enterprise track starts with
+**[E1: Backend APIs with Approvals](E1-backend-apis-with-approvals.md)**: the capstone gateway
+carries out the step it proposed, through backend APIs that fail, behind an approval and a
+change window.
