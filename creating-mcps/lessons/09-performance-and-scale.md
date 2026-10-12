@@ -415,7 +415,7 @@ parts:
 
 ## Next
 
-**Unit 10: Attacking and Defending MCP** *(coming next)*: the gateway is now shared, limited,
+**[Unit 10: Attacking and Defending MCP](10-attacking-and-defending-mcp.md)**: the gateway is now shared, limited,
 cached and scaled. Unit 10 attacks it, following the OWASP MCP Top 10: injection through tool
 results (the hostile log lines and CMDB descriptions already planted in the estate), tool
 poisoning, confused deputies and more, with each defence added and measured.
