@@ -94,12 +94,12 @@ def _gateway():
     return gateway
 
 
-def listings() -> dict:
+async def listings() -> dict:
     """What each group's tools/list says on the SOC gateway, built in memory."""
     import test_contracts
 
     gateway = _gateway()
-    return {g: asyncio.run(test_contracts.listing(gateway, "soc", g)) for g in GROUPS}
+    return {g: await test_contracts.listing(gateway, "soc", g) for g in GROUPS}
 
 
 def contract(now: dict) -> dict:
@@ -172,10 +172,10 @@ def eval_gate() -> dict:
     return line("eval", "pass" if r.returncode == 0 else "fail", last)
 
 
-def owasp() -> dict:
+async def owasp() -> dict:
     import cases
 
-    rows = asyncio.run(cases.run(set()))
+    rows = await cases.run(set())
     todo = [r["owasp"] for r in rows if r["result"] == "todo"]
     through = [r["owasp"] for r in rows if r["result"] == "got through"]
     blocked = [r["owasp"] for r in rows if r["result"] == "blocked"]
@@ -297,14 +297,14 @@ ORDER = ("catalog", "policy", "contract", "dial", "identity", "envelope", "triag
 MARK = {"pass": "PASS", "warn": "WARN", "fail": "FAIL", "todo": "TODO"}
 
 
-def review(env: dict | None = None) -> dict:
+async def review(env: dict | None = None) -> dict:
     load_env()
     logging.getLogger("httpx").setLevel(logging.WARNING)
     lines = [catalog(), policy()]
-    now = listings()
+    now = await listings()
     lines.append(contract(now))
-    live, run = asyncio.run(against_the_gateway(env))
-    lines += [dial(now, run["proposals"]), budget(), *live, eval_gate(), owasp()]
+    live, run = await against_the_gateway(env)
+    lines += [dial(now, run["proposals"]), budget(), *live, eval_gate(), await owasp()]
     lines.sort(key=lambda x: ORDER.index(x["area"]))
     counts = {s: sum(x["status"] == s for x in lines) for s in MARK}
     return {"lines": lines, "counts": counts, "run": run,
@@ -340,7 +340,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="The SOC gateway's readiness review.")
     parser.add_argument("--markdown", help="also write the review as Markdown here")
     args = parser.parse_args()
-    result = review()
+    result = asyncio.run(review())
     for x in result["lines"]:
         print(f"  [{MARK[x['status']]}] {x['area']:<9} {x['detail']}")
     print(f"verdict: {result['verdict']}")

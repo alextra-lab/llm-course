@@ -48,6 +48,10 @@ INSTRUCTIONS = (
 
 Action = Literal["isolate_host", "disable_account", "block_ip"]
 ACTIVE = ("open", "in_progress")
+# Our own address space: never a block_ip target. (Not `is_global`: the estate's attackers sit in
+# the documentation ranges, 203.0.113.0/24 and 198.51.100.0/24, which `is_global` rejects too.)
+INTERNAL = [ipaddress.ip_network(n) for n in (
+    "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.64.0.0/10", "fc00::/7")]
 
 
 class Proposal(TypedDict):
@@ -103,7 +107,8 @@ def make_propose(cmdb: dict, siem: dict, ToolError):
                 ip = ipaddress.ip_address(target)
             except ValueError:
                 raise ToolError(f"{target!r} isn't an IP address.") from None
-            if not ip.is_global:
+            if ip.is_loopback or ip.is_link_local or ip.is_multicast or ip.is_unspecified or any(
+                    ip in net for net in INTERNAL if net.version == ip.version):
                 raise ToolError(f"{target} is an internal or reserved address: blocking it "
                                 "would cut off our own systems. Isolate the host instead.")
             notes.append("an external address: the block goes on the perimeter firewall")

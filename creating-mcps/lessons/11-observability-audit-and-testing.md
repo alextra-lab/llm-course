@@ -274,6 +274,6 @@ It has five parts:
 
 ## Next
 
-**Unit 12: The Measured Default (Capstone)** *(coming next)*: a SOC / IT-ops gateway that
-triages the planted incident end to end and proposes containment, reviewed for production
-readiness against everything the course has measured.
+**[Unit 12: The Measured Default (Capstone)](12-the-measured-default.md)**: a SOC / IT-ops
+gateway that triages the planted incident end to end and proposes containment, reviewed for
+production readiness against everything the course has measured.

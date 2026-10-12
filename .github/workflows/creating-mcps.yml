@@ -181,6 +181,49 @@ jobs:
             "creating-mcps/examples/11/tests/test_contracts.py::test_differences_names_what_changed"
           python creating-mcps/examples/11/sdk_spans.py --check
 
+      - name: Unit 12 propose_containment's checks, on stand-in backends
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path[:0] = ["creating-mcps/examples/12"]
+          from soc_gateway import make_propose
+
+          class ToolError(Exception): ...
+
+          incidents = {"INC-1": {"id": "INC-1", "status": "open", "host.name": "web-1"},
+                       "INC-2": {"id": "INC-2", "status": "closed", "host.name": "web-1"}}
+          assets = {"web-1": {"hostname": "web-1", "environment": "prod", "classification": "internal",
+                              "service": "shop", "owner_team": "Web", "owner": "Ada"},
+                    "db-1": {"hostname": "db-1", "environment": "prod", "classification": "restricted",
+                             "service": "orders-db", "owner_team": "Data", "owner": "Bo"}}
+          cmdb = {"get_asset": lambda h: assets[h],
+                  "service_dependencies": lambda s: {"depended_on_by": ["shop"] if s == "orders-db" else []}}
+          siem = {"get_incident": lambda i: incidents[i]}
+          propose = make_propose(cmdb, siem, ToolError)
+
+          def refused(**kw):
+              try:
+                  propose(**{"incident_id": "INC-1", "reason": "r", "evidence": ["e"], **kw})
+              except ToolError as e:
+                  return str(e)
+              raise AssertionError(f"accepted: {kw}")
+
+          assert "1 to 10" in refused(action="isolate_host", target="web-1", evidence=[])
+          assert "closed" in refused(incident_id="INC-2", action="isolate_host", target="web-1")
+          assert "internal or reserved" in refused(action="block_ip", target="10.0.0.5")
+          assert "isn't an IP" in refused(action="block_ip", target="web-1")
+          p = propose("INC-1", "isolate_host", "db-1", "pivot", ["auth: seen on db-1"])
+          assert p["status"] == "proposed: not executed" and p["approver"] == "Data (Bo)", p
+          assert any("data owner" in r for r in p["requires"]) and "shop (depends on orders-db)" in p["blast_radius"], p
+          assert p == propose("INC-1", "isolate_host", "db-1", "pivot", ["auth: seen on db-1"])
+          a = propose("INC-1", "disable_account", "svc_x", "creds", ["auth: svc_x"])
+          assert "service account" in a["blast_radius"][0] and a["host"]["hostname"] == "web-1", a
+          b = propose("INC-1", "block_ip", "198.51.100.23", "c2", ["net: beacon"])
+          assert b["rollback"] == "remove the block on 198.51.100.23", b
+          assert "internal or reserved" in refused(action="block_ip", target="192.168.1.4")
+          print("propose_containment: refusals, approvals, blast radius and ids as expected")
+          PY
+
       - name: Unit 9 cache keys, pool shares and the transport's allowed hosts
         run: |
           python - <<'PY'
@@ -742,6 +785,17 @@ jobs:
 
       - name: Unit 11 lab runs end to end
         run: marimo export html labs/11_observability.py -o "$RUNNER_TEMP/11_observability.html"
+
+      - name: Unit 12 triage of the planted incident through the SOC gateway
+        run: python examples/12/triage.py
+
+      - name: Unit 12 production-readiness review (fails on any failing line)
+        run: |
+          python examples/12/readiness.py --markdown "$RUNNER_TEMP/readiness.md"
+          grep -q "OWASP\|owasp" "$RUNNER_TEMP/readiness.md"
+
+      - name: Unit 12 lab runs end to end
+        run: marimo export html labs/12_measured_default.py -o "$RUNNER_TEMP/12_measured_default.html"
 
       - name: Container logs on failure
         if: failure()

@@ -159,8 +159,10 @@ are published.
     SDK's own spans and one trace across the boundary, telemetry shipped to OpenSearch, an audit
     log that fails closed, per-caller metrics and an objective, contract snapshots, behaviour
     tests and an eval gate. Lab: the gateway's own dashboard. ✅
-12. **The Measured Default (Capstone)**: a SOC / IT-ops gateway that triages the planted
-    incident end to end and *proposes* containment; a production-readiness review.
+12. **[The Measured Default (Capstone)](lessons/12-the-measured-default.md)**: a SOC / IT-ops
+    gateway composed from every unit's layers, a triage of the planted incident end to end that
+    *proposes* containment for a person to approve, and a production-readiness review that
+    reports pass, warn, fail and an honest todo. Lab: the measured default. ✅
 13. **References**: the spec and SDK docs, OWASP, Postgres and OpenSearch, an Elasticsearch
     porting note, and the established MCP courses as prep and complements.
 
