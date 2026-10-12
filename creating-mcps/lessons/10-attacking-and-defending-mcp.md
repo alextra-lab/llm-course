@@ -222,6 +222,6 @@ It has three parts:
 
 ## Next
 
-**Unit 11: Observability, Audit and Testing** *(coming next)*: one joinable record per
-request, trace context across the boundary, an audit log built on this unit's records,
+**[Unit 11: Observability, Audit and Testing](11-observability-audit-and-testing.md)**: one
+trace across the boundary, telemetry in OpenSearch, an audit log that fails closed,
 per-caller metrics, and contract tests and evals that run in CI.

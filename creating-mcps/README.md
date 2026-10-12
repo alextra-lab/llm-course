@@ -155,9 +155,10 @@ are published.
     Top 10 mapped onto the gateway, and a host whose defences switch on one at a time: an
     allowlist, description vetting and pinning, egress, redaction, fencing, approvals and an
     audit record. Lab: the guarded host. *In progress: the negative cases are placeholders.*
-11. **Observability, Audit and Testing**: one joinable record per request, trace context across
-    the boundary, an audit log, per-caller metrics, contract tests and tool-selection evals. Lab:
-    a dashboard over the gateway's own telemetry.
+11. **[Observability, Audit and Testing](lessons/11-observability-audit-and-testing.md)**: the
+    SDK's own spans and one trace across the boundary, telemetry shipped to OpenSearch, an audit
+    log that fails closed, per-caller metrics and an objective, contract snapshots, behaviour
+    tests and an eval gate. Lab: the gateway's own dashboard. ✅
 12. **The Measured Default (Capstone)**: a SOC / IT-ops gateway that triages the planted
     incident end to end and *proposes* containment; a production-readiness review.
 13. **References**: the spec and SDK docs, OWASP, Postgres and OpenSearch, an Elasticsearch

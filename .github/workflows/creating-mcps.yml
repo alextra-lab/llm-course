@@ -175,6 +175,12 @@ jobs:
           print("redaction, fencing and the screen OK")
           PY
 
+      - name: Unit 11 records, spans, and the SDK's own trace across HTTP
+        run: |
+          python -m pytest -q creating-mcps/examples/11/tests/test_records.py \
+            "creating-mcps/examples/11/tests/test_contracts.py::test_differences_names_what_changed"
+          python creating-mcps/examples/11/sdk_spans.py --check
+
       - name: Unit 9 cache keys, pool shares and the transport's allowed hosts
         run: |
           python - <<'PY'
@@ -663,6 +669,8 @@ jobs:
                   print("the container answered for", r.structured_content["hostname"])
           asyncio.run(main())
           PY
+          # Its pool holds 20 of the gateway login's 50 connections: give them back.
+          docker rm -f gw
 
       - name: Unit 9 lab runs end to end
         run: marimo export html labs/09_one_instance_vs_three.py -o "$RUNNER_TEMP/09_one_instance_vs_three.html"
@@ -693,6 +701,47 @@ jobs:
 
       - name: Unit 10 lab runs end to end
         run: marimo export html labs/10_guarded_host.py -o "$RUNNER_TEMP/10_guarded_host.html"
+
+      - name: Unit 11 contract snapshots and behaviour tests
+        run: python -m pytest -q examples/11/tests
+
+      - name: Unit 11 a day at the SOC, observed (every call audited and shipped)
+        run: |
+          python - <<'PY'
+          import asyncio, sys, time
+          sys.path[:0] = ["examples/11", "examples"]
+          import audit, metrics, traffic
+          from common_mcp import os_client
+          
+          day = asyncio.run(traffic.run(agents=3, seconds=8))
+          calls = day["calls"]
+          who = {r["who"]: r for r in day["summary"]}
+          assert calls and who["sam"].get("ok", 0) == 0 and who["marc"].get("ok") == who["marc"]["calls"], who
+          traces = sorted({c["trace_id"] for c in calls})
+          rows = [r for t in traces for r in audit.trace(t)]
+          assert len(rows) == len(calls), (len(rows), len(calls))
+          assert {r["verdict"] for r in rows if r["caller"] == "sam"} == {"deny"}
+          query = {"query": {"bool": {"filter": [{"terms": {"trace_id": traces}},
+                                                 {"term": {"method": "tools/call"}}]}}}
+          for _ in range(20):
+              shipped = os_client("auditor").count(index="mcp-telemetry-*", body=query)["count"]
+              if shipped == len(calls):
+                  break
+              time.sleep(0.5)
+          assert shipped == len(calls), (shipped, len(calls))
+          why = {r["why"] for r in metrics.refusals("now-10m")}
+          assert {"policy: not-granted", "policy: restricted-hosts-stay-restricted"} <= why, why
+          slo = metrics.slo("now-10m", 0.99, 2000)
+          assert slo["allowed_calls"] and slo["failed"] == 0, slo
+          print(f"{len(calls)} calls in {len(traces)} traces: {len(rows)} audit rows, {shipped} shipped; "
+                f"objective {slo['achieved']:.2%}")
+          PY
+
+      - name: Unit 11 eval gate (the golden set; the selection half skips without a model)
+        run: python examples/11/eval_gate.py
+
+      - name: Unit 11 lab runs end to end
+        run: marimo export html labs/11_observability.py -o "$RUNNER_TEMP/11_observability.html"
 
       - name: Container logs on failure
         if: failure()

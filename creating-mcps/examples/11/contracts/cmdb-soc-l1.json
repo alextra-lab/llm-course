@@ -1,0 +1,459 @@
+{
+  "instructions": "Read-only answers from the IT referential (CMDB): hosts and their owners, service dependencies, vulnerable hosts, host counts. Hostnames look like jump-prod-02; service names like customer-db; CVE ids like CVE-2099-1068.",
+  "tools": [
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "How many hosts match. tier is the tier of the service they run: 1 = business critical,\n3 = least critical.",
+      "inputSchema": {
+        "properties": {
+          "classification": {
+            "anyOf": [
+              {
+                "enum": [
+                  "public",
+                  "internal",
+                  "confidential",
+                  "restricted"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Classification"
+          },
+          "environment": {
+            "anyOf": [
+              {
+                "enum": [
+                  "prod",
+                  "staging",
+                  "dev"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Environment"
+          },
+          "service": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Service"
+          },
+          "tier": {
+            "anyOf": [
+              {
+                "enum": [
+                  1,
+                  2,
+                  3
+                ],
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tier"
+          }
+        },
+        "title": "count_assetsArguments",
+        "type": "object"
+      },
+      "name": "count_assets",
+      "outputSchema": {
+        "properties": {
+          "filters": {
+            "additionalProperties": true,
+            "title": "Filters",
+            "type": "object"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "filters"
+        ],
+        "title": "Count",
+        "type": "object"
+      }
+    },
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "List hosts, optionally filtered by service name (e.g. customer-db) and environment.\nReturns at most `limit` hosts (1-50) and the total number that matched.",
+      "inputSchema": {
+        "properties": {
+          "environment": {
+            "anyOf": [
+              {
+                "enum": [
+                  "prod",
+                  "staging",
+                  "dev"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Environment"
+          },
+          "limit": {
+            "default": 20,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "service": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Service"
+          }
+        },
+        "title": "find_assetsArguments",
+        "type": "object"
+      },
+      "name": "find_assets",
+      "outputSchema": {
+        "$defs": {
+          "Asset": {
+            "properties": {
+              "classification": {
+                "title": "Classification",
+                "type": "string"
+              },
+              "description": {
+                "title": "Description",
+                "type": "string"
+              },
+              "environment": {
+                "title": "Environment",
+                "type": "string"
+              },
+              "hostname": {
+                "title": "Hostname",
+                "type": "string"
+              },
+              "ip": {
+                "title": "Ip",
+                "type": "string"
+              },
+              "location": {
+                "title": "Location",
+                "type": "string"
+              },
+              "os": {
+                "title": "Os",
+                "type": "string"
+              },
+              "owner": {
+                "title": "Owner",
+                "type": "string"
+              },
+              "owner_team": {
+                "title": "Owner Team",
+                "type": "string"
+              },
+              "service": {
+                "title": "Service",
+                "type": "string"
+              }
+            },
+            "required": [
+              "hostname",
+              "ip",
+              "os",
+              "environment",
+              "classification",
+              "service",
+              "owner",
+              "owner_team",
+              "location",
+              "description"
+            ],
+            "title": "Asset",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "assets": {
+            "items": {
+              "$ref": "#/$defs/Asset"
+            },
+            "title": "Assets",
+            "type": "array"
+          },
+          "returned": {
+            "title": "Returned",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "returned",
+          "assets"
+        ],
+        "title": "AssetPage",
+        "type": "object"
+      }
+    },
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "Look up one host in the CMDB by its exact hostname (e.g. jump-prod-02): what it runs,\nwhere, how sensitive it is, and who owns it.",
+      "inputSchema": {
+        "properties": {
+          "hostname": {
+            "title": "Hostname",
+            "type": "string"
+          }
+        },
+        "required": [
+          "hostname"
+        ],
+        "title": "get_assetArguments",
+        "type": "object"
+      },
+      "name": "get_asset",
+      "outputSchema": {
+        "properties": {
+          "classification": {
+            "title": "Classification",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "environment": {
+            "title": "Environment",
+            "type": "string"
+          },
+          "hostname": {
+            "title": "Hostname",
+            "type": "string"
+          },
+          "ip": {
+            "title": "Ip",
+            "type": "string"
+          },
+          "location": {
+            "title": "Location",
+            "type": "string"
+          },
+          "os": {
+            "title": "Os",
+            "type": "string"
+          },
+          "owner": {
+            "title": "Owner",
+            "type": "string"
+          },
+          "owner_team": {
+            "title": "Owner Team",
+            "type": "string"
+          },
+          "service": {
+            "title": "Service",
+            "type": "string"
+          }
+        },
+        "required": [
+          "hostname",
+          "ip",
+          "os",
+          "environment",
+          "classification",
+          "service",
+          "owner",
+          "owner_team",
+          "location",
+          "description"
+        ],
+        "title": "Asset",
+        "type": "object"
+      }
+    },
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "Hosts with a given vulnerability (CVE id), by finding status (default: open) and\noptionally environment. `total` counts them all; `hosts` lists at most `limit` (1-50).",
+      "inputSchema": {
+        "properties": {
+          "cve_id": {
+            "title": "Cve Id",
+            "type": "string"
+          },
+          "environment": {
+            "anyOf": [
+              {
+                "enum": [
+                  "prod",
+                  "staging",
+                  "dev"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Environment"
+          },
+          "limit": {
+            "default": 50,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "status": {
+            "default": "open",
+            "enum": [
+              "open",
+              "mitigated",
+              "accepted"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cve_id"
+        ],
+        "title": "hosts_with_vulnerabilityArguments",
+        "type": "object"
+      },
+      "name": "hosts_with_vulnerability",
+      "outputSchema": {
+        "properties": {
+          "cve_id": {
+            "title": "Cve Id",
+            "type": "string"
+          },
+          "hosts": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hosts",
+            "type": "array"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "cve_id",
+          "severity",
+          "total",
+          "hosts"
+        ],
+        "title": "Affected",
+        "type": "object"
+      }
+    },
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "Both directions for one service: what it depends on, and which services depend on it\n(would break if it went down).",
+      "inputSchema": {
+        "properties": {
+          "service": {
+            "title": "Service",
+            "type": "string"
+          }
+        },
+        "required": [
+          "service"
+        ],
+        "title": "service_dependenciesArguments",
+        "type": "object"
+      },
+      "name": "service_dependencies",
+      "outputSchema": {
+        "properties": {
+          "depended_on_by": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Depended On By",
+            "type": "array"
+          },
+          "depends_on": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Depends On",
+            "type": "array"
+          },
+          "service": {
+            "title": "Service",
+            "type": "string"
+          }
+        },
+        "required": [
+          "service",
+          "depends_on",
+          "depended_on_by"
+        ],
+        "title": "Dependencies",
+        "type": "object"
+      }
+    }
+  ]
+}

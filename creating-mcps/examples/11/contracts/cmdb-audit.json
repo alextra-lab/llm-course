@@ -1,0 +1,190 @@
+{
+  "instructions": "Read-only answers from the IT referential (CMDB): hosts and their owners, service dependencies, vulnerable hosts, host counts. Hostnames look like jump-prod-02; service names like customer-db; CVE ids like CVE-2099-1068.",
+  "tools": [
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "How many hosts match. tier is the tier of the service they run: 1 = business critical,\n3 = least critical.",
+      "inputSchema": {
+        "properties": {
+          "classification": {
+            "anyOf": [
+              {
+                "enum": [
+                  "public",
+                  "internal",
+                  "confidential",
+                  "restricted"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Classification"
+          },
+          "environment": {
+            "anyOf": [
+              {
+                "enum": [
+                  "prod",
+                  "staging",
+                  "dev"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Environment"
+          },
+          "service": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Service"
+          },
+          "tier": {
+            "anyOf": [
+              {
+                "enum": [
+                  1,
+                  2,
+                  3
+                ],
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tier"
+          }
+        },
+        "title": "count_assetsArguments",
+        "type": "object"
+      },
+      "name": "count_assets",
+      "outputSchema": {
+        "properties": {
+          "filters": {
+            "additionalProperties": true,
+            "title": "Filters",
+            "type": "object"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "filters"
+        ],
+        "title": "Count",
+        "type": "object"
+      }
+    },
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "Hosts with a given vulnerability (CVE id), by finding status (default: open) and\noptionally environment. `total` counts them all; `hosts` lists at most `limit` (1-50).",
+      "inputSchema": {
+        "properties": {
+          "cve_id": {
+            "title": "Cve Id",
+            "type": "string"
+          },
+          "environment": {
+            "anyOf": [
+              {
+                "enum": [
+                  "prod",
+                  "staging",
+                  "dev"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Environment"
+          },
+          "limit": {
+            "default": 50,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "status": {
+            "default": "open",
+            "enum": [
+              "open",
+              "mitigated",
+              "accepted"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cve_id"
+        ],
+        "title": "hosts_with_vulnerabilityArguments",
+        "type": "object"
+      },
+      "name": "hosts_with_vulnerability",
+      "outputSchema": {
+        "properties": {
+          "cve_id": {
+            "title": "Cve Id",
+            "type": "string"
+          },
+          "hosts": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hosts",
+            "type": "array"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "cve_id",
+          "severity",
+          "total",
+          "hosts"
+        ],
+        "title": "Affected",
+        "type": "object"
+      }
+    }
+  ]
+}
