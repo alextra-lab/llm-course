@@ -163,8 +163,9 @@ are published.
     gateway composed from every unit's layers, a triage of the planted incident end to end that
     *proposes* containment for a person to approve, and a production-readiness review that
     reports pass, warn, fail and an honest todo. Lab: the measured default. ✅
-13. **References**: the spec and SDK docs, OWASP, Postgres and OpenSearch, an Elasticsearch
-    porting note, and the established MCP courses as prep and complements.
+13. **[References](lessons/13-references.md)**: the spec and SDK docs, identity standards,
+    OWASP, observability, Postgres and OpenSearch, an Elasticsearch porting note, and the
+    established MCP courses as prep and complements. ✅
 
 An optional **enterprise track** plugs into the capstone gateway:
 

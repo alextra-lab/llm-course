@@ -158,7 +158,7 @@ things the role can do that a model shouldn't.
 
 ## Guarded PPL: bound it by construction, then read the plan
 
-For the SIEM, the guarded tool takes [PPL](https://docs.opensearch.org/latest/search-plugins/sql/ppl/index/),
+For the SIEM, the guarded tool takes [PPL](https://docs.opensearch.org/latest/sql-and-ppl/ppl/index/),
 OpenSearch's piped query language, instead of Query DSL:
 
 ```text
