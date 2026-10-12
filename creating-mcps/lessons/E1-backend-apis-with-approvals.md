@@ -279,5 +279,6 @@ It has four parts:
 
 ## Next
 
-**E2. The Local Systems Server** *(coming next)*: host triage on the permission dial, behind a
-sandbox. Or go back to the [references](13-references.md).
+**[E2: The Local Systems Server](E2-the-local-systems-server.md)**: triage db-prod-01, the
+host the attacker pivoted to, through a server that parses instead of running commands,
+inside a sandbox.

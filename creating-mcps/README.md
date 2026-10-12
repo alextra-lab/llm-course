@@ -173,8 +173,10 @@ An optional **enterprise track** plugs into the capstone gateway:
   Unit 8)*: EDR and ticketing APIs, idempotency keys, retries and circuit breakers, destructive
   actions behind prechecks, approval and a change-window rule, the Tasks extension. Lab: the
   change drill, checked against the backends' ledger. ✅
-- **E2. The Local Systems Server** *(after Unit 10)*: host triage on the permission dial, behind
-  the §16–17 sandbox.
+- **E2. [The Local Systems Server](lessons/E2-the-local-systems-server.md)** *(after Unit 10)*:
+  host triage on the permission dial with parsers instead of a shell, path rules, redaction,
+  evidence collection behind approval, all inside the §16–17 sandbox. Lab: triage the pivot
+  host and probe the walls from inside. ✅
 - **E3. Full OAuth for Remote Servers** *(after Unit 7)*: protected-resource metadata, client
   registration, audience-bound tokens, step-up scopes, token exchange.
 
