@@ -211,8 +211,13 @@ def check(run: dict) -> list[tuple[str, bool, str]]:
                         if r.get("outcome") != "input_required" and r.get("verdict") != "busy"),
                 f"{len(rows)} rows for {len(run['steps'])} steps"
                 + (f"; the extra rounds: {', '.join(extra)}" if extra else "")))
-    out.append(("person lookups asked for a ticket", len(run["asked"]) == 2,
-                f"{len(run['asked'])} confirmations"))
+    # Which steps asked, not how many times: a lookup retried after a busy refusal asks again.
+    asked = [s["step"] for s in run["steps"] if s["asked"]]
+    lookups = [s["step"] for s in run["steps"]
+               if s["tool"] in ("search_events", *AGGREGATES) and "user.name" in s["args"]]
+    out.append(("person lookups asked for a ticket, nothing else did",
+                asked == lookups and len(lookups) == 2,
+                f"steps {asked} asked ({len(run['asked'])} confirmations)"))
     out.append(("counted before reading", run["steps"][2]["tool"] in AGGREGATES
                 and run["steps"][4]["tool"] == "search_events", "histogram, top values, search"))
     out.append(("proposed, executed nothing", all(p["status"].startswith("proposed")
