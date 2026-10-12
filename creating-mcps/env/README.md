@@ -6,6 +6,7 @@ Every unit of Creating MCPs works against the same small enterprise estate:
 |---|---|---|---|
 | Postgres | the **CMDB / IT referential**: teams, people, services, assets, CVEs | `postgres:17.11` | `5433` |
 | OpenSearch | the **SIEM / log store**: auth, web and syslog logs, EDR events, incidents | `opensearchproject/opensearch:3.9.0` | `9200` (HTTPS) |
+| Valkey | **shared state** for Unit 9's replicas: per-caller limits and a result cache | `valkey/valkey:8.1.4` | `6380` |
 | OpenSearch Dashboards | optional UI for poking at the logs (`up --ui`) | `opensearch-dashboards:3.9.0` | `5601` |
 
 The data is **generated and deterministic**: the same size and anchor date always produce exactly
@@ -50,6 +51,11 @@ it. `python env/env.py reset` rebuilds the data from scratch at any point.
 The incident happens two days before it. Pass `--anchor` to freeze the dates, for example so a
 recorded walkthrough keeps matching.
 
+**Upgrading from Unit 8 or earlier.** Unit 9 adds Valkey. Copy the `VALKEY_*` lines from
+`env/.env.example` into your `env/.env`, run `pip install -e .` (it adds `redis` and `psutil`),
+then `python env/env.py up`: the new container starts beside the running ones, and the data is
+untouched.
+
 ## Shared lab server
 
 For a class, an instructor can run the estate once on a server and have learners connect to it.
@@ -65,11 +71,14 @@ For a class, an instructor can run the estate once on a server and have learners
 4. `python env/env.py up && python env/env.py seed`.
 5. Hand out the server's address and the **persona** passwords only, including `mcp_service`'s:
    from Unit 7 on, each learner's MCP servers log in as that gateway account. Learners never
-   need the admin credentials.
+   need the admin credentials. From Unit 9 on, also hand out `VALKEY_PASSWORD` and set
+   `VALKEY_BIND=0.0.0.0`: the replicas keep their limits and cache there. Anyone with that
+   password can read the cache and reset the limits, so on a class server prefer one estate
+   per learner for Unit 9 (below).
 
 **On each learner's machine:**
 
-1. `cp env/.env.example env/.env`, then set `PG_HOST` and `OS_HOST` to the server, and paste in
+1. `cp env/.env.example env/.env`, then set `PG_HOST`, `OS_HOST` (and `VALKEY_HOST`) to the server, and paste in
    the persona passwords.
 2. Run only `python env/env.py check`. Never `up`, `seed` or `reset`: those are the
    instructor's.
@@ -85,7 +94,7 @@ after that. Two things don't share well:
 So for Unit 8 onwards, either take the load-testing labs back to laptops, or run one estate per
 learner on the server. Each needs its own project name and ports in its own copy of the `.env`
 (for example `COMPOSE_PROJECT_NAME=mcp-alice`, `PG_PORT=5501`, `OS_PORT=9301`,
-`DASHBOARDS_PORT=5701`), and about 2 GB of RAM.
+`DASHBOARDS_PORT=5701`, `VALKEY_PORT=6401`), and about 2 GB of RAM.
 
 ## The personas
 

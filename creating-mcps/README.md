@@ -147,8 +147,10 @@ are published.
    pools, per-caller rate limits, quotas and cursor limits, backpressure the model respects,
    timeouts at every layer, query-cost gates and per-tool caps. Lab: a load generator with
    sliders, a runaway agent included. ✅
-9. **Performance and Scale**: stdio vs Streamable HTTP, stateless scaling, caching, OpenSearch
-   performance, packaging. Lab: one instance vs three, before and after pooling and caching.
+9. **[Performance and Scale](lessons/09-performance-and-scale.md)**: stdio vs Streamable HTTP,
+   stateless replicas, pools that fit a budget, limits and a cache shared through Valkey (and a
+   cache that leaks), OpenSearch choices, packaging. Lab: one instance vs three, with and
+   without the cache. ✅
 10. **Attacking and Defending MCP**: the OWASP MCP Top 10, including injection through results
     (hostile log lines and CMDB descriptions are already in the estate). Lab: an attack suite,
     defences added one at a time.

@@ -149,8 +149,12 @@ def admin_os():
 
 def cmd_up(args) -> int:
     need_env_file()
+    if not os.environ.get("VALKEY_PASSWORD"):
+        print("env/.env has no VALKEY_PASSWORD (Unit 9 added Valkey to the estate). Copy the "
+              "three VALKEY_ lines from env/.env.example into env/.env, then run up again.")
+        return 1
     extra = ["--profile", "ui"] if args.ui else []
-    print("Starting Postgres and OpenSearch (first run pulls ~1.5 GB of images)...")
+    print("Starting Postgres, OpenSearch and Valkey (first run pulls ~1.5 GB of images)...")
     code = compose(*extra, "up", "-d", "--wait")
     if code == 0:
         print("\nUp. Next: python env/env.py seed")
@@ -308,7 +312,8 @@ def check_python(r: Report) -> None:
         r.line("FAIL", f"Python {v.major}.{v.minor} -- this course needs >= 3.13, < 4", "all units")
     for dist, want, units in (("mcp", "2", "all units"), ("marimo", "", "the labs"),
                               ("psycopg", "", "Units 0, 3+"), ("opensearch-py", "", "Units 0, 3+"),
-                              ("openai", "", "Units 2-6, 10, 12")):
+                              ("openai", "", "Units 2-6, 10, 12"),
+                              ("redis", "", "Units 9+")):
         try:
             got = metadata.version(dist)
         except metadata.PackageNotFoundError:
@@ -390,6 +395,19 @@ def check_opensearch(r: Report) -> None:
         r.line("FAIL", f"cannot query as a persona: {type(e).__name__}: {e}".strip(), "Units 0, 3+")
 
 
+def check_valkey(r: Report) -> None:
+    print(f"\nValkey (the servers' shared state) at {os.environ.get('VALKEY_HOST', '127.0.0.1')}:"
+          f"{os.environ.get('VALKEY_PORT', '6380')}")
+    try:
+        client = common_mcp.state_client()
+        info = client.info("server")
+        version = info.get("valkey_version") or info.get("redis_version")
+        r.line("PASS", f"Valkey {version}; the servers can share counters and a cache")
+    except Exception as e:  # noqa: BLE001
+        r.line("FAIL", f"cannot reach Valkey: {type(e).__name__}: {e} -- run: python env/env.py "
+                       "up (it was added in Unit 9)", "Units 9+")
+
+
 def check_llm(r: Report) -> None:
     print("\nLLM endpoint (Foundations .env)")
     pair = common_mcp.llm()
@@ -422,6 +440,7 @@ def cmd_check(args) -> int:
     check_python(r)
     check_postgres(r)
     check_opensearch(r)
+    check_valkey(r)
     if not args.no_llm:
         check_llm(r)
     c = r.counts

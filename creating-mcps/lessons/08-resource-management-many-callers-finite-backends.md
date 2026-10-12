@@ -415,7 +415,7 @@ Its suggested runs reproduce this lesson's tables.
 
 ## Next
 
-**Unit 9: Performance and Scale** *(coming next)*: one envelope server per backend holds now.
+**[Unit 9: Performance and Scale](09-performance-and-scale.md)**: one envelope server per backend holds now.
 Unit 9 runs several replicas behind a load balancer, which the stateless 2026-07-28 transport
 makes possible, and finds out which of this unit's limits survive it: a limiter that lives in
 one process's memory doesn't.

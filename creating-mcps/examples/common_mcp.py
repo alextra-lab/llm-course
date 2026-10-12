@@ -285,6 +285,20 @@ def backend_refusal(e: Exception) -> tuple[str, str] | None:
     return None
 
 
+def state_client(asynchronous: bool = False):
+    """Unit 9: the servers' shared state (Valkey): counters and a cache every replica sees.
+    Strings in, strings out. Never a place for records: it keeps nothing across a restart.
+    `asynchronous=True` gives the asyncio client, for use inside a server's event loop."""
+    import redis
+    import redis.asyncio
+
+    kind = redis.asyncio.Redis if asynchronous else redis.Redis
+    return kind(host=os.environ.get("VALKEY_HOST", "127.0.0.1"),
+                       port=int(os.environ.get("VALKEY_PORT", "6380")),
+                       password=os.environ.get("VALKEY_PASSWORD"), decode_responses=True,
+                       socket_timeout=2, socket_connect_timeout=2, health_check_interval=30)
+
+
 def trace_meta(session_id: str, trace_id: str, step: int) -> dict:
     """The joinable tuple for a request's `_meta` (Unit 1): a W3C `traceparent` carrying the
     trace id, plus this course's own `session_id` and `step` keys."""

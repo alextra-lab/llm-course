@@ -20,6 +20,7 @@ The rules it enforces, each refused with an error that says what to do instead:
 
 from __future__ import annotations
 
+import os
 import re
 import sys
 from dataclasses import dataclass
@@ -29,6 +30,20 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 RETENTION = timedelta(days=21)          # the estate keeps 21 daily indexes (env/seed)
 _RELATIVE = re.compile(r"^now(?:\s*-\s*(\d+)\s*([mhd]))?$")
 _UNITS = {"m": "minutes", "h": "hours", "d": "days"}
+
+
+# Unit 9: round "now" down to this many seconds (0: exact). Within one step every caller's
+# "now-7d" is the same window, so the same question is the same query: a result cache and
+# OpenSearch's own request cache can answer it. The cost: the newest few seconds of logs wait
+# for the next step.
+ROUND_NOW = int(os.environ.get("MCP_ROUND_NOW", "0"))
+
+
+def current_time() -> datetime:
+    now = datetime.now(UTC)
+    if ROUND_NOW > 0:
+        now = datetime.fromtimestamp(now.timestamp() // ROUND_NOW * ROUND_NOW, UTC)
+    return now
 
 
 class WindowError(ValueError):
@@ -45,7 +60,7 @@ def zone(tz: str) -> ZoneInfo:
 
 def parse_time(text: str, tz: str = "UTC", now: datetime | None = None) -> datetime:
     """One end of a window, as an aware UTC datetime."""
-    now = now or datetime.now(UTC)
+    now = now or current_time()
     value = str(text).strip()
     m = _RELATIVE.match(value.lower())
     if m:
@@ -109,7 +124,7 @@ def window(start: str, end: str = "now", *, tz: str = "UTC", max_span: timedelta
            now: datetime | None = None, tool: str = "this tool",
            retention: timedelta | None = RETENTION) -> Window:
     """Parse and check a window. Raises WindowError with an instruction when it's unusable."""
-    now = now or datetime.now(UTC)
+    now = now or current_time()
     zone(tz)
     s, e = parse_time(start, tz, now), parse_time(end, tz, now)
     if e <= s:

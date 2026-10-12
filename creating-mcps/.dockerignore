@@ -1,0 +1,8 @@
+# Never in an image: secrets, keys, local state.
+env/.env
+env/keys/
+**/__pycache__/
+**/__marimo__/
+.venv*/
+work/
+*.egg-info/
