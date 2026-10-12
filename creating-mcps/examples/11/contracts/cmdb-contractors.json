@@ -1,0 +1,4 @@
+{
+  "instructions": "Read-only answers from the IT referential (CMDB): hosts and their owners, service dependencies, vulnerable hosts, host counts. Hostnames look like jump-prod-02; service names like customer-db; CVE ids like CVE-2099-1068.",
+  "tools": []
+}

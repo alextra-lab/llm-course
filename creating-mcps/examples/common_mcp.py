@@ -310,6 +310,23 @@ def trace_meta(session_id: str, trace_id: str, step: int) -> dict:
 
 
 _LOG_NOTES: contextvars.ContextVar[dict] = contextvars.ContextVar("joinable_log_notes")
+_LOG_RECORD: contextvars.ContextVar[dict] = contextvars.ContextVar("joinable_log_record")
+
+# Unit 11: more places each finished record goes, besides stderr: callables taking the record
+# (a dict). A sink must be quick and must not raise; telemetry.py's queues and returns.
+RECORD_SINKS: list = []
+
+
+def current_record() -> dict | None:
+    """The joinable record being built for the current request: session_id, trace_id, step,
+    method, name (Unit 11's audit stamps its rows with them). None outside a logged request."""
+    return _LOG_RECORD.get(None)
+
+
+def current_notes() -> dict | None:
+    """The fields logged so far for the current request (Unit 11's audit reads the caller and
+    the policy verdict from here). None outside a logged request."""
+    return _LOG_NOTES.get(None)
 
 
 def log_note(**fields) -> None:
@@ -352,8 +369,10 @@ def joinable_log(server: str):
             "protocol_version": ctx.protocol_version,
             "trace_origin": "caller" if caller else "server",
         }
+        if caller:                       # Unit 11: the caller's span is this request's parent
+            record["parent_span_id"] = parts[2]
         notes: dict = {}
-        token = _LOG_NOTES.set(notes)
+        token, record_token = _LOG_NOTES.set(notes), _LOG_RECORD.set(record)
         t0 = time.perf_counter()
         try:
             result = await call_next(ctx)
@@ -372,8 +391,14 @@ def joinable_log(server: str):
         finally:
             record["ms"] = round((time.perf_counter() - t0) * 1000, 2)
             _LOG_NOTES.reset(token)
+            _LOG_RECORD.reset(record_token)
             record.update({k: v for k, v in notes.items() if k not in record})
             print(json.dumps(record), file=sys.stderr, flush=True)
+            for sink in RECORD_SINKS:
+                try:
+                    sink(record)
+                except Exception:  # noqa: BLE001  telemetry never breaks a request
+                    pass
 
     return middleware
 

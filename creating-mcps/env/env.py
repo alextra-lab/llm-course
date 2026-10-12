@@ -88,7 +88,9 @@ OS_ROLES = {
     # compose.yaml lists whom it may impersonate), so a request that forgets to say who it is
     # for fails closed. It writes only its own telemetry.
     "mcp_gateway": {
-        "cluster_permissions": ["cluster_monitor"],
+        # A bulk request is a cluster-level action; which indexes it may write is still
+        # decided per index below (Unit 11 ships telemetry in bulk).
+        "cluster_permissions": ["cluster_monitor", "indices:data/write/bulk"],
         "index_permissions": [
             {"index_patterns": ["mcp-telemetry-*"],
              "allowed_actions": ["crud", "create_index", "indices_monitor"]},
@@ -207,8 +209,26 @@ def seed_postgres(rows: dict) -> None:
         conn.execute("ANALYZE")
 
 
+# Unit 11: the gateway's own telemetry, one document per request. Strings are keywords
+# (exact values to filter and count on), `ms` a number, `@timestamp` a date.
+TELEMETRY_TEMPLATE = {
+    "index_patterns": ["mcp-telemetry-*"],
+    "template": {
+        "settings": {"number_of_shards": 1, "number_of_replicas": 0},
+        "mappings": {
+            "dynamic_templates": [{"strings": {"match_mapping_type": "string",
+                                               "mapping": {"type": "keyword"}}}],
+            "properties": {"@timestamp": {"type": "date"}, "ms": {"type": "float"},
+                           "step": {"type": "integer"}, "pid": {"type": "integer"}},
+        },
+    },
+}
+
+
 def opensearch_security(client) -> None:
-    """Roles, users and role mappings: who may read what (Unit 7)."""
+    """Roles, users and role mappings: who may read what (Unit 7). Also the telemetry index
+    template (Unit 11), so `security` brings an older estate up to date."""
+    client.indices.put_index_template(name="mcp-telemetry", body=TELEMETRY_TEMPLATE)
     for name, body in OS_ROLES.items():
         client.transport.perform_request("PUT", f"/_plugins/_security/api/roles/{name}", body=body)
     for user, role in OS_USERS.items():
