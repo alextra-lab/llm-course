@@ -306,6 +306,6 @@ It has five parts:
 
 ## Next
 
-**Unit 13: References** *(coming next)*: the spec and SDK docs, the OWASP MCP Top 10, Postgres
-and OpenSearch, an Elasticsearch porting note, and the established MCP courses as preparation
-and complements.
+**[Unit 13: References](13-references.md)**: the spec and SDK docs, the OWASP MCP Top 10,
+Postgres and OpenSearch, an Elasticsearch porting note, and the established MCP courses as
+preparation and complements.
