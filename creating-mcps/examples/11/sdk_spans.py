@@ -77,6 +77,7 @@ async def run() -> dict:
     from mcp.client.streamable_http import streamable_http_client
 
     records: list = []
+    EXPORTER.clear()
     RECORD_SINKS.append(records.append)
     tracer = trace.get_tracer("unit11-host")
     # A real transport (HTTP, in this process), so the trace has to cross the wire in _meta:
@@ -103,6 +104,8 @@ async def run() -> dict:
         await serving
     spans = [_span(s) for s in EXPORTER.get_finished_spans()]
     record = next(r for r in records if r["method"] == "tools/call")
+    # This investigation's spans only (connecting, server/discover, is a trace of its own).
+    spans = [s for s in spans if s["trace_id"] == record["trace_id"]]
     return {"spans": spans, "record": record, "as_span": to_span(record)}
 
 

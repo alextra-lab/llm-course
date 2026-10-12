@@ -56,6 +56,11 @@ recorded walkthrough keeps matching.
 then `python env/env.py up`: the new container starts beside the running ones, and the data is
 untouched.
 
+**Upgrading from Unit 10 or earlier.** Unit 11 ships telemetry to OpenSearch in bulk. Run
+`pip install -e .` (it adds `opentelemetry-sdk` and `pytest`), then `python env/env.py security`:
+it installs the `mcp-telemetry` index template and lets the gateway's login send bulk requests.
+On a shared server, the owner runs it once for everyone.
+
 ## Shared lab server
 
 For a class, an instructor can run the estate once on a server and have learners connect to it.

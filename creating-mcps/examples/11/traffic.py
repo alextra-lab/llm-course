@@ -33,6 +33,9 @@ import issuer as idp  # noqa: E402
 import loadgen  # noqa: E402  (Unit 8: classify(), and clearing the last run's shared state)
 import refusals  # noqa: E402  (Unit 7: start servers, connect with a token)
 from common_mcp import load_env, trace_meta  # noqa: E402
+from opentelemetry import trace  # noqa: E402
+
+TRACER = trace.get_tracer("unit11-traffic")
 
 HOSTS = ["jump-prod-02", "web-prod-01", "cache-prod-11", "erp-prod-08"]
 RESTRICTED = "db-prod-01"
@@ -86,30 +89,41 @@ async def worker(who: str, groups: list[str], playbooks: list, urls: dict, until
             token = idp.issue(who, urls[kind], groups=groups, ttl=3600)
             clients[kind] = await refusals.connect(urls[kind], token).__aenter__()
         while time.monotonic() < until:
-            trace_id = uuid.uuid4().hex                  # one investigation, one trace
             playbook = rng.choice(playbooks)
-            for step, (server, tool, args) in enumerate(playbook(rng), start=1):
-                t0 = time.monotonic()
-                try:
-                    res = await clients[server].call_tool(
-                        tool, args, meta=trace_meta(session_id, trace_id, step))
-                    text = res.content[0].text if res.content else ""
-                    outcome = loadgen.classify(res.is_error, text)
-                except Exception as e:  # noqa: BLE001 -- the transport failed: an error
-                    outcome, text = "error", f"{type(e).__name__}: {e}"
-                calls.append({"who": who, "session_id": session_id, "trace_id": trace_id,
-                              "step": step, "playbook": playbook.__name__, "server": server,
-                              "tool": tool, "outcome": outcome,
-                              "ms": round((time.monotonic() - t0) * 1000, 1),
-                              "detail": text[:160] if outcome != "ok" else ""})
-                if think:
-                    await asyncio.sleep(rng.expovariate(1 / think))
+            with TRACER.start_as_current_span(f"investigate {playbook.__name__}") as span:
+                await investigation(span, playbook(rng), session_id, who, playbook.__name__,
+                                    clients, think, rng, calls)
     finally:
         for c in clients.values():
             try:
                 await c.__aexit__(None, None, None)
             except BaseException:  # noqa: BLE001 -- closing after the run: nothing to do
                 pass
+
+
+async def investigation(span, steps: list, session_id: str, who: str, name: str,
+                        clients: dict, think: float, rng: random.Random, calls: list) -> None:
+    # One investigation, one trace. With a tracer provider configured, the SDK puts this
+    # span's trace in `_meta` itself, over anything we put there, so take the trace id from
+    # it; without one, the span is a no-op and we make our own.
+    ctx = span.get_span_context()
+    trace_id = f"{ctx.trace_id:032x}" if ctx.is_valid else uuid.uuid4().hex
+    for step, (server, tool, args) in enumerate(steps, start=1):
+        t0 = time.monotonic()
+        try:
+            res = await clients[server].call_tool(
+                tool, args, meta=trace_meta(session_id, trace_id, step))
+            text = res.content[0].text if res.content else ""
+            outcome = loadgen.classify(res.is_error, text)
+        except Exception as e:  # noqa: BLE001 -- the transport failed: an error
+            outcome, text = "error", f"{type(e).__name__}: {e}"
+        calls.append({"who": who, "session_id": session_id, "trace_id": trace_id,
+                      "step": step, "playbook": name, "server": server,
+                      "tool": tool, "outcome": outcome,
+                      "ms": round((time.monotonic() - t0) * 1000, 1),
+                      "detail": text[:160] if outcome != "ok" else ""})
+        if think:
+            await asyncio.sleep(rng.expovariate(1 / think))
 
 
 async def run(agents: int = 4, seconds: float = 15, think: float = 0.2,

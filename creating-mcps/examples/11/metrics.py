@@ -114,7 +114,8 @@ def over_time(since: str = "now-1h", interval: str = "10s") -> list[dict]:
         "date_histogram": {"field": "@timestamp", "fixed_interval": interval,
                            "min_doc_count": 0},
         "aggs": {"bad": {"filter": {"bool": {"should": [
-            FAILED, {"term": {"outcome": "tool_error"}}], "minimum_should_match": 1}}},
+            FAILED, {"term": {"outcome": "tool_error"}}], "minimum_should_match": 1,
+            "must_not": REFUSED}}},
             "refused": {"filter": {"bool": {"should": REFUSED, "minimum_should_match": 1}}},
             "ms": {"percentiles": {"field": "ms", "percents": [95]}}}}}}, since)
     return [{"t": b["key_as_string"], "calls": b["doc_count"], "errors": b["bad"]["doc_count"],
