@@ -48,6 +48,17 @@ The course targets **MCP 2026-07-28** with the **Python SDK v2**, **Postgres 17*
   tokens. Unit 7.
 - **[RFC 9700, OAuth 2.0 Security Best Current Practice](https://www.rfc-editor.org/rfc/rfc9700)**:
   the threat model the MCP authorization page builds on.
+- **[RFC 8414, Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414)** and
+  **[RFC 7591, Dynamic Client Registration](https://www.rfc-editor.org/rfc/rfc7591)**: how a
+  host finds the issuer's endpoints and gets a client id. E3.
+- **[RFC 7636, PKCE](https://www.rfc-editor.org/rfc/rfc7636)** and
+  **[RFC 9207, Authorization Server Issuer Identification](https://www.rfc-editor.org/rfc/rfc9207)**:
+  a stolen code is useless without the verifier, and a code from the wrong issuer is refused.
+  E3.
+- **[RFC 8693, OAuth 2.0 Token Exchange](https://www.rfc-editor.org/rfc/rfc8693)**: calling a
+  downstream API for the person, with `act` naming the server acting. E3.
+- **[The OAuth 2.1 draft](https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/)**: PKCE for
+  every client, exact redirect URIs, and rotated refresh tokens with replay detection. E3.
 
 ## Security
 

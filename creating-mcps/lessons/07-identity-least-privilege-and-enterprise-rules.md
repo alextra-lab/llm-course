@@ -20,8 +20,8 @@ is calling and act *as* that person all the way down. You'll:
 variable (`MCP_PERSONA`). That's fine on a laptop for one person. It doesn't work for a
 server the whole SOC shares. Unit 6 made the tools easy to use; this unit decides who may
 use which, and what they get back. Unit 8 limits how much each caller may use; Unit 11
-writes this unit's verdicts to the audit table; enterprise track E3 replaces the local
-issuer with the full OAuth flow.
+writes this unit's verdicts to the audit table; enterprise track
+[E3](E3-full-oauth-for-remote-servers.md) replaces the local issuer with the full OAuth flow.
 
 No model is needed for this unit.
 
@@ -96,7 +96,7 @@ The SDK's HTTP transport does the plumbing. Give `MCPServer` a `TokenVerifier` a
 `AuthSettings`, and every request's bearer token goes through your verifier before the MCP
 request is read. No token, or a bad one, gets a `401` with a `WWW-Authenticate` header
 pointing at the server's protected-resource metadata (`/.well-known/oauth-protected-resource/mcp`),
-which tells a client which issuer to go to. That discovery is what E3 builds on.
+which tells a client which issuer to go to. That discovery is what [E3](E3-full-oauth-for-remote-servers.md) builds on.
 
 ```python
 mcp = MCPServer(

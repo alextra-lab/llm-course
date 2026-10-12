@@ -316,6 +316,12 @@ jobs:
       - name: E2 triage of the pivot host, as a plain process (the sandboxed run is in integration)
         run: python creating-mcps/examples/E2/drill.py --no-sandbox
 
+      - name: E3 the OAuth flow end to end (discovery, consent, step-up, exchange, replay)
+        run: python creating-mcps/examples/E3/drill.py
+
+      - name: E3 lab runs end to end
+        run: marimo export html creating-mcps/labs/E3_full_oauth.py -o "$RUNNER_TEMP/E3_full_oauth.html"
+
       - name: Unit 9 cache keys, pool shares and the transport's allowed hosts
         run: |
           python - <<'PY'

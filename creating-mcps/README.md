@@ -177,7 +177,9 @@ An optional **enterprise track** plugs into the capstone gateway:
   host triage on the permission dial with parsers instead of a shell, path rules, redaction,
   evidence collection behind approval, all inside the §16–17 sandbox. Lab: triage the pivot
   host and probe the walls from inside. ✅
-- **E3. Full OAuth for Remote Servers** *(after Unit 7)*: protected-resource metadata, client
-  registration, audience-bound tokens, step-up scopes, token exchange.
+- **E3. [Full OAuth for Remote Servers](lessons/E3-full-oauth-for-remote-servers.md)** *(after
+  Unit 7)*: protected-resource metadata, client registration, PKCE and consent, audience-bound
+  tokens, step-up scopes, token exchange, rotating refresh tokens. Lab: sign in as different
+  people, step up, and walk the flow by hand into every guard. ✅
 
 Start with [`lessons/00-the-problem-and-the-thesis.md`](lessons/00-the-problem-and-the-thesis.md).
