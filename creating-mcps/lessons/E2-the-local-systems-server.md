@@ -263,6 +263,6 @@ It has four parts:
 
 ## Next
 
-**E3. Full OAuth for Remote Servers** *(coming next)*: protected-resource metadata, client
-registration, audience-bound tokens, step-up scopes and token exchange. Or go back to
-[E1](E1-backend-apis-with-approvals.md).
+**[E3. Full OAuth for Remote Servers](E3-full-oauth-for-remote-servers.md)**:
+protected-resource metadata, client registration, audience-bound tokens, step-up scopes and
+token exchange. Or go back to [E1](E1-backend-apis-with-approvals.md).
