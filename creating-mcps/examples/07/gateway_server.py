@@ -192,6 +192,11 @@ async def identity_layer(ctx, call_next):
 # The policy layer, around every tool
 # =========================================================================================
 
+# Unit 9: a result cache, consulted only AFTER the policy has allowed the call (None: off).
+# Anything with `async get_or_run(tool, arguments, run)` will do; see examples/09/cache.py.
+RESULTS = None
+
+
 def with_policy(name: str, fn, annotations: ToolAnnotations):
     """The same tool, with every call evaluated against the policy first. Adds a hidden
     `ctx` parameter (for the approval round) and InputRequiredResult to the return type."""
@@ -213,8 +218,11 @@ def with_policy(name: str, fn, annotations: ToolAnnotations):
             log_note(approved_with=ticket)
         # The tools are synchronous; run them off the event loop (the context, and so the
         # caller's identity, goes with them).
+        run = functools.partial(fn, *args, **kwargs)
         try:
-            return await asyncio.to_thread(fn, *args, **kwargs)
+            if RESULTS is not None:
+                return await RESULTS.get_or_run(name, call, run)
+            return await asyncio.to_thread(run)
         except ToolError:
             raise
         except Exception as e:             # Unit 8: backpressure and timeouts, said usefully

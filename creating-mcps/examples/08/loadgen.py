@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import random
 import statistics
 import sys
@@ -33,7 +34,7 @@ HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parent / "07"), str(HERE.parent)]
 import issuer as idp  # noqa: E402
 import refusals  # noqa: E402  (Unit 7: start servers, connect with a token)
-from common_mcp import load_env, os_client, pg_connect  # noqa: E402
+from common_mcp import load_env, os_client, pg_connect, state_client  # noqa: E402
 
 HOSTS = ["jump-prod-02", "db-prod-02", "web-prod-01", "cache-prod-11", "erp-prod-08"]
 SERVICES = ["payments-api", "customer-db", "dns", "ci-build"]
@@ -86,7 +87,8 @@ def classify(is_error: bool, text: str) -> str:
 
 
 async def agent(name: str, urls: dict, until: float, think: float, rng: random.Random,
-                calls: list, loops: int = 1) -> None:
+                calls: list, loops: int = 1, mix: list | None = None) -> None:
+    mix = mix or MIX
     clients = {}
     try:
         for kind in ("cmdb", "siem"):
@@ -94,9 +96,9 @@ async def agent(name: str, urls: dict, until: float, think: float, rng: random.R
             clients[kind] = await refusals.connect(urls[kind], token).__aenter__()
 
         async def loop():
-            weights = [m[0] for m in MIX]
+            weights = [m[0] for m in mix]
             while time.monotonic() < until:
-                _w, server, tool, make = rng.choices(MIX, weights)[0]
+                _w, server, tool, make = rng.choices(mix, weights)[0]
                 t0 = time.monotonic()
                 try:
                     r = await clients[server].call_tool(tool, make(rng))
@@ -122,13 +124,60 @@ async def agent(name: str, urls: dict, until: float, think: float, rng: random.R
 def sample_backends(pg, osc) -> dict:
     conns = pg.execute("SELECT count(*) FROM pg_stat_activity WHERE usename = 'mcp_service'"
                        ).fetchone()[0]
-    nodes = osc.nodes.stats(metric="thread_pool,indices", index_metric="search")["nodes"]
+    nodes = osc.nodes.stats(metric="thread_pool,indices,process",
+                            index_metric="search")["nodes"]
     search = [n["thread_pool"]["search"] for n in nodes.values()]
     return {"pg_connections": conns, "os_active": sum(s["active"] for s in search),
             "os_queue": sum(s["queue"] for s in search),
             "os_rejected": sum(s["rejected"] for s in search),
             "os_open_contexts": sum(n["indices"]["search"]["open_contexts"]
-                                   for n in nodes.values())}
+                                   for n in nodes.values()),
+            "cpu_opensearch": sum(n["process"]["cpu"]["percent"] for n in nodes.values())}
+
+
+class CpuMeter:
+    """Unit 9: where the machine's CPU goes during a run, as % of the whole machine: the MCP
+    servers (this process's children) and the load generator itself. (OpenSearch reports its
+    own, above.) Empty without psutil."""
+
+    def __init__(self):
+        try:
+            import psutil
+        except ImportError:
+            self.psutil = None
+            return
+        self.psutil, self.me, self.seen = psutil, psutil.Process(), {}
+        self.cores = psutil.cpu_count() or 1
+        self.me.cpu_percent()
+        psutil.cpu_percent()
+
+    def sample(self) -> dict:
+        if self.psutil is None:
+            return {}
+        servers = busiest = 0.0
+        for child in self.me.children(recursive=True):
+            proc = self.seen.setdefault(child.pid, child)
+            try:
+                used = proc.cpu_percent()
+            except self.psutil.Error:
+                continue
+            servers, busiest = servers + used, max(busiest, used)
+        return {"cpu_machine": round(self.psutil.cpu_percent(), 1),
+                "cpu_servers": round(servers / self.cores, 1),
+                "cpu_busiest_server_core": round(busiest, 1),   # % of ONE core: 100 = pinned
+                "cpu_loadgen": round(self.me.cpu_percent() / self.cores, 1)}
+
+
+def clear_shared_state() -> int:
+    """Unit 9: forget the servers' shared limits and cache (Valkey), so a run starts clean
+    instead of inheriting the last run's spent buckets and warm cache. Returns keys removed."""
+    try:
+        client = state_client()
+        project = os.environ.get("COMPOSE_PROJECT_NAME", "creating-mcps")
+        keys = list(client.scan_iter(match=f"{project}:*", count=1000))
+        return client.delete(*keys) if keys else 0
+    except Exception:  # noqa: BLE001 -- no Valkey (Unit 8): nothing to clear
+        return 0
 
 
 def clear_cursors() -> bool:
@@ -144,25 +193,30 @@ def clear_cursors() -> bool:
 
 
 async def run(callers: int = 20, seconds: float = 15, think: float = 0.3, runaway: int = 0,
-              env: dict | None = None, seed: int = 7, log_dir: Path | None = None) -> dict:
+              env: dict | None = None, seed: int = 7, log_dir: Path | None = None,
+              script: Path | None = None, only: str | None = None) -> dict:
     load_env()
     env = {**DEFAULTS, **(env or {})}
     calls, samples = [], []
+    mix = [m for m in MIX if only in (None, m[1])]     # Unit 9: one server's tools only
     clear_cursors()
-    async with refusals.servers(log_dir, script=HERE / "envelope_server.py", env=env) as urls:
+    clear_shared_state()
+    script = script or HERE / "envelope_server.py"       # Unit 9 passes its scaled server
+    async with refusals.servers(log_dir, script=script, env=env) as urls:
         # Connections first, then the clock: the run measures calls, not start-up.
         until = time.monotonic() + seconds + 3
         tasks = [asyncio.create_task(agent(f"agent-{i:02d}", urls, until, think,
-                                           random.Random(seed + i), calls))
+                                           random.Random(seed + i), calls, mix=mix))
                  for i in range(callers)]
         if runaway:
             tasks.append(asyncio.create_task(agent("runaway", urls, until, 0,
-                                                   random.Random(seed - 1), calls, runaway)))
+                                                   random.Random(seed - 1), calls, runaway,
+                                                   mix)))
         with pg_connect("l3_responder") as pg:
             osc = os_client("l3_responder")
-            start = sample_backends(pg, osc)
+            start, cpu = sample_backends(pg, osc), CpuMeter()
             while not all(t.done() for t in tasks):
-                s = sample_backends(pg, osc)
+                s = {**sample_backends(pg, osc), **cpu.sample()}
                 s["t"] = time.monotonic()
                 s["os_rejected"] -= start["os_rejected"]
                 samples.append(s)
@@ -175,10 +229,30 @@ async def run(callers: int = 20, seconds: float = 15, think: float = 0.3, runawa
         c["ms"] = round(c["ms"], 1)
     for s in samples:
         s["t"] = round(s["t"] - t0, 2)
+    summary = summarise(calls, samples)
+    if summary:
+        summary[0].update(cache_counts(logs))
     return {"settings": {"callers": callers, "seconds": seconds, "think": think,
-                         "runaway": runaway, **env},
-            "calls": calls, "samples": samples, "logs": logs,
-            "summary": summarise(calls, samples)}
+                         "runaway": runaway, "only": only or "both", **env},
+            "calls": calls, "samples": samples, "logs": logs, "summary": summary}
+
+
+def cache_counts(logs: dict) -> dict:
+    """Unit 9: result-cache hits and misses, from the servers' own logs (empty: no cache)."""
+    counts = {"cache_hits": 0, "cache_misses": 0}
+    for path in logs.values():
+        for line in Path(path).read_text().splitlines():
+            if '"cache"' not in line:
+                continue
+            try:
+                rec = json.loads(line)
+            except ValueError:
+                continue
+            if rec.get("operation") != "mcp.request" or "cache" not in rec:
+                continue
+            outcome = rec["cache"]
+            counts["cache_hits" if outcome.startswith("hit") else "cache_misses"] += 1
+    return counts if any(counts.values()) else {}
 
 
 def _pct(values: list[float], p: float) -> float | None:
@@ -209,6 +283,11 @@ def summarise(calls: list, samples: list) -> list[dict]:
         rows[0]["max_pg_connections"] = max(s["pg_connections"] for s in samples)
         rows[0]["os_rejected"] = samples[-1]["os_rejected"]
         rows[0]["max_open_contexts"] = max(s["os_open_contexts"] for s in samples)
+        busy = samples[len(samples) // 4: -2] or samples     # the steady middle of the run
+        for key in ("cpu_machine", "cpu_opensearch", "cpu_servers",
+                    "cpu_busiest_server_core", "cpu_loadgen"):
+            if key in busy[0]:
+                rows[0][key] = round(statistics.mean(s[key] for s in busy))
     return rows
 
 
@@ -222,9 +301,13 @@ def main() -> None:
     parser.add_argument("--env", nargs="*", default=[], metavar="KEY=VALUE",
                         help="server settings, e.g. MCP_POOL=0 MCP_PER_CALLER=1")
     parser.add_argument("--out", help="also write every call as JSONL here")
+    parser.add_argument("--script", help="another server to run (Unit 9: scaled_server.py)")
+    parser.add_argument("--only", choices=("cmdb", "siem"), help="call one server's tools only")
     args = parser.parse_args()
     env = dict(kv.split("=", 1) for kv in args.env)
-    result = asyncio.run(run(args.callers, args.seconds, args.think, args.runaway, env))
+    result = asyncio.run(run(args.callers, args.seconds, args.think, args.runaway, env,
+                             script=Path(args.script) if args.script else None,
+                             only=args.only))
     if args.out:
         Path(args.out).write_text("".join(json.dumps(c) + "\n" for c in result["calls"]))
     print(json.dumps(result["settings"]))

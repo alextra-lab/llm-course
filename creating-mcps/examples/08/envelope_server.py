@@ -34,6 +34,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import importlib.util
+import inspect
 import json
 import os
 import sys
@@ -78,6 +79,12 @@ def busy_result(message: str, retry_after: int | None = None) -> dict:
     if retry_after:
         out["_meta"] = {"io.creating-mcps/retry_after_s": retry_after}
     return out
+
+
+async def _done(maybe) -> None:
+    """Await it if it's awaitable: Unit 9's shared limiter is async, this unit's isn't."""
+    if inspect.isawaitable(maybe):
+        await maybe
 
 
 def _opens_cursor(params: dict) -> bool:
@@ -125,7 +132,7 @@ async def envelope(ctx, call_next):
         return await call_next(ctx)
     try:
         if _opens_cursor(params):
-            LIMITER.may_open_cursor(caller.sub)
+            await _done(LIMITER.may_open_cursor(caller.sub))
         async with LIMITER.admit(caller.sub) as waited:
             log_note(queued_ms=round(waited * 1000, 1))
             result = await call_next(ctx)
@@ -133,10 +140,10 @@ async def envelope(ctx, call_next):
         log_note(busy=b.kind, retry_after=b.retry_after)
         return busy_result(str(b), b.retry_after)
     tokens = _result_tokens(result)
-    LIMITER.charge(caller.sub, tokens)
+    await _done(LIMITER.charge(caller.sub, tokens))
     log_note(result_tokens=tokens)
     if _opens_cursor(params) and _left_cursor(result):
-        LIMITER.opened_cursor(caller.sub)
+        await _done(LIMITER.opened_cursor(caller.sub))
         log_note(cursor_opened=True)
     return result
 

@@ -19,6 +19,8 @@ dependencies = [
     "opensearch-py>=3.0",     # the SIEM / log store (OpenSearch)
     "sqlglot>=30",            # Unit 5's SQL guard parses queries before they run
     "pyjwt[crypto]>=2.8",     # Unit 7: signed access tokens (the local issuer and the servers)
+    "redis>=5",               # Unit 9: shared limits and cache in Valkey (the redis protocol)
+    "psutil>=5.9",            # Unit 9: measuring a server process's memory
 ]
 
 [project.optional-dependencies]

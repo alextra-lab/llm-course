@@ -56,6 +56,24 @@ services:
       timeout: 5s
       retries: 60
 
+  # Shared state for the MCP servers themselves (Unit 9): rate-limit counters and a result
+  # cache that every replica of a server sees. Nothing in it is a record: no persistence, and
+  # it evicts the least recently used keys when full. The agents never talk to it.
+  valkey:
+    image: valkey/valkey:8.1.4
+    command: ["valkey-server", "--requirepass", "${VALKEY_PASSWORD:?set VALKEY_PASSWORD in env/.env}",
+              "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru", "--save", "",
+              "--appendonly", "no"]
+    ports:
+      - "${VALKEY_BIND:-127.0.0.1}:${VALKEY_PORT:-6380}:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli -a \"$$VALKEY_PASSWORD\" --no-auth-warning ping | grep -q PONG"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+    environment:
+      VALKEY_PASSWORD: ${VALKEY_PASSWORD}
+
   # Optional UI for poking at the logs by hand:  python env/env.py up --ui
   dashboards:
     image: opensearchproject/opensearch-dashboards:3.9.0
