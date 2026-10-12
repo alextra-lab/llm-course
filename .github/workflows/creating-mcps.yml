@@ -313,6 +313,9 @@ jobs:
           print("E1: windows, keys, replays, the breaker and tasks OK")
           PY
 
+      - name: E2 triage of the pivot host, as a plain process (the sandboxed run is in integration)
+        run: python creating-mcps/examples/E2/drill.py --no-sandbox
+
       - name: Unit 9 cache keys, pool shares and the transport's allowed hosts
         run: |
           python - <<'PY'
@@ -891,6 +894,21 @@ jobs:
 
       - name: E1 lab runs end to end
         run: marimo export html labs/E1_backend_actions.py -o "$RUNNER_TEMP/E1_backend_actions.html"
+
+      - name: E2 sandbox image
+        run: docker build -f examples/E2/Dockerfile -t creating-mcps-local .
+
+      - name: E2 the sandbox's walls hold, probed from inside
+        run: |
+          python examples/E2/suspect_host.py "$RUNNER_TEMP/db-prod-01" > /dev/null
+          chmod -R a+rX "$RUNNER_TEMP/db-prod-01"
+          python examples/E2/sandbox.py walls "$RUNNER_TEMP/db-prod-01"
+
+      - name: E2 triage of the pivot host, in the sandbox
+        run: python examples/E2/drill.py --require-sandbox
+
+      - name: E2 lab runs end to end
+        run: marimo export html labs/E2_local_systems.py -o "$RUNNER_TEMP/E2_local_systems.html"
 
       - name: Container logs on failure
         if: failure()
