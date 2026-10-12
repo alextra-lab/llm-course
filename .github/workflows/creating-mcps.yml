@@ -669,6 +669,8 @@ jobs:
                   print("the container answered for", r.structured_content["hostname"])
           asyncio.run(main())
           PY
+          # Its pool holds 20 of the gateway login's 50 connections: give them back.
+          docker rm -f gw
 
       - name: Unit 9 lab runs end to end
         run: marimo export html labs/09_one_instance_vs_three.py -o "$RUNNER_TEMP/09_one_instance_vs_three.html"
